@@ -1,0 +1,68 @@
+/* InfluencePerformance.css */
+.influence-performance-container {
+    display: flex; /* Always visible */
+    flex-direction: column;
+    justify-content: center;
+    width: 95%;
+    margin: auto;
+    gap: 10px;
+    padding: 8px;
+    background-color: #AEBB1E !important;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    margin-top: 80px; /* Add space for fixed header */
+  }
+ 
+  .tabs-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow-x: auto;
+  }
+  
+  .tab-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    color: #000000;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    background-color: transparent;
+  }
+
+  .tab-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .tab-button.active {
+    background-color: #ffffff;
+    color: #AEBB1E;
+  }
+  
+  .header-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin: 0;
+    text-align: center;
+  }
+  
+  /* Show only on tablet and smaller screens */
+  @media (max-width: 1024px) {
+    .influence-performance-container {
+      display: flex;
+    }
+  }
+  
+  /* Hide scrollbar but keep functionality */
+  .tabs-wrapper::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  
+  .tabs-wrapper::-webkit-scrollbar-thumb {
+    /* background: #AEBB1E; */
+    border-radius: 4px;
+  }

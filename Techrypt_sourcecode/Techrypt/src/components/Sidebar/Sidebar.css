@@ -1,0 +1,31 @@
+
+/* Floating YouTube Button Styling */
+.youtube-button {
+    position: fixed;
+    top: 40%;
+    bottom: 0px; /* Distance from the bottom */
+    right:0px; /* Distance from the right */
+    background-color: #9bd4d7; /* YouTube red color */
+    color: white;
+    width: 50px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 99;
+  }
+  
+  /* Icon Styling */
+  .youtube-button i {
+    font-size: 24px;
+  }
+  
+  /* Hover Effect */
+  .youtube-button:hover {
+    background-color: #9bd4d7cb; /* Darker shade of red */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px); /* Slight upward movement */
+  }

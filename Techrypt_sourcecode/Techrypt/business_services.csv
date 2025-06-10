@@ -1,0 +1,118 @@
+business_type,service_1,service_2
+restaurant,Website Development,Social Media Marketing
+photography,Portfolio Website,Brand Identity
+fitness,Booking System,Social Media Marketing
+pottery,Website Development,E-commerce Store
+handmade,E-commerce Store,Brand Identity
+cafe,Website Development,Social Media Marketing
+bakery,Website Development,Online Ordering System
+food truck,Social Media Marketing,Website Development
+catering,Website Development,Booking System
+dental clinic,Appointment Booking,Patient Management System
+medical,Appointment Booking,Professional Website
+healthcare,Patient Portal,Appointment Booking
+clinic,Appointment Booking,Professional Website
+doctor,Professional Website,Patient Portal
+dentist,Appointment Booking,Professional Website
+salon,Booking System,Social Media Marketing
+spa,Booking System,Brand Identity
+beauty,Social Media Marketing,Booking System
+hair,Booking System,Social Media Marketing
+massage,Booking System,Professional Website
+gym,Booking System,Social Media Marketing
+yoga,Booking System,Website Development
+training,Booking System,Professional Website
+wellness,Website Development,Booking System
+crossfit,Social Media Marketing,Booking System
+retail,E-commerce Store,Inventory Management
+store,E-commerce Store,Website Development
+shop,E-commerce Store,Social Media Marketing
+boutique,E-commerce Store,Brand Identity
+ecommerce,E-commerce Store,Payment Gateway
+online store,E-commerce Store,Social Media Marketing
+marketplace,E-commerce Store,Inventory Management
+dropshipping,E-commerce Store,Automation Package
+consulting,Professional Website,Automation Package
+consultant,Professional Website,Client Portal
+advisor,Professional Website,Brand Identity
+agency,Professional Website,Automation Package
+lawyer,Professional Website,Client Portal
+accountant,Professional Website,Automation Package
+real estate,Professional Website,CRM System
+insurance,Professional Website,Client Portal
+technology,Website Development,API Integration
+tech,Website Development,Custom Development
+software,API Integration,Custom Development
+app,Mobile App Development,API Integration
+iot,API Integration,Custom Development
+startup,Website Development,Brand Identity
+electronics,Website Development,E-commerce Store
+gadgets,E-commerce Store,Social Media Marketing
+appliances,E-commerce Store,Website Development
+computers,E-commerce Store,Technical Support
+phones,E-commerce Store,Social Media Marketing
+automotive,Website Development,Booking System
+car,Website Development,Social Media Marketing
+mechanic,Booking System,Professional Website
+repair,Booking System,Website Development
+education,Website Development,Learning Management
+school,Website Development,Student Portal
+tutoring,Booking System,Website Development
+training,Website Development,Booking System
+course,Learning Management,Website Development
+nonprofit,Website Development,Donation System
+charity,Website Development,Social Media Marketing
+foundation,Website Development,Fundraising System
+event,Event Management,Website Development
+wedding,Website Development,Social Media Marketing
+party,Event Management,Social Media Marketing
+catering,Website Development,Booking System
+venue,Booking System,Website Development
+travel,Website Development,Booking System
+hotel,Booking System,Website Development
+tourism,Website Development,Social Media Marketing
+tour,Booking System,Social Media Marketing
+transportation,Booking System,Website Development
+creative,Portfolio Website,Brand Identity
+design,Portfolio Website,Brand Identity
+art,Portfolio Website,E-commerce Store
+music,Website Development,Social Media Marketing
+video,Portfolio Website,Social Media Marketing
+writing,Portfolio Website,Professional Website
+marketing,Social Media Marketing,Website Development
+advertising,Social Media Marketing,Brand Identity
+pr,Social Media Marketing,Professional Website
+media,Website Development,Social Media Marketing
+finance,Professional Website,Client Portal
+investment,Professional Website,Automation Package
+banking,Professional Website,Security System
+cryptocurrency,Website Development,API Integration
+trading,Professional Website,Automation Package
+manufacturing,Website Development,Inventory Management
+production,Website Development,Automation Package
+factory,Website Development,Inventory Management
+wholesale,E-commerce Store,Inventory Management
+distribution,Website Development,Inventory Management
+logistics,Website Development,Tracking System
+shipping,Website Development,Automation Package
+delivery,Website Development,Tracking System
+agriculture,Website Development,E-commerce Store
+farming,E-commerce Store,Website Development
+organic,E-commerce Store,Brand Identity
+food,E-commerce Store,Website Development
+beverage,E-commerce Store,Social Media Marketing
+construction,Professional Website,Project Management
+contractor,Professional Website,Booking System
+architecture,Portfolio Website,Professional Website
+engineering,Professional Website,Project Management
+plumbing,Booking System,Professional Website
+electrical,Booking System,Professional Website
+cleaning,Booking System,Website Development
+maintenance,Booking System,Professional Website
+security,Professional Website,Monitoring System
+surveillance,Professional Website,Security System
+pet,Booking System,E-commerce Store
+veterinary,Appointment Booking,Professional Website
+grooming,Booking System,Social Media Marketing
+daycare,Booking System,Website Development
+boarding,Booking System,Professional Website

@@ -1,0 +1,45 @@
+.aboutwrite{
+    background-color: var(--color-black);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 50px;
+}
+.aboutwrite-content{
+    margin-bottom: 20px;
+    width: 75vw;
+}
+.aboutwrite-heading h1, .content-rows h2{
+    color: white;
+}
+.content-rows{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+    gap: 10px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+.content-rows h2{
+    padding: 10px;
+    border: 2px solid white;
+    border-radius: 30px;
+}
+.aboutwrite-heading h1{
+    margin: 3rem 0;
+}
+
+.aboutwrite-button{
+    /* background-color: #FCCD03; */
+    border-radius: 30px;
+    padding: 10px 20px;
+
+}
+.aboutwrite-button a{
+ 
+    text-decoration: none;
+    color: black;
+    font-size: 22px;
+    padding: 10px;
+}

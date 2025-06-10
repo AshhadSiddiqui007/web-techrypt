@@ -1,0 +1,130 @@
+{
+  "timestamp": "2025-06-02T12:44:36.541536",
+  "total_tests": 10000,
+  "summary": {
+    "success_rate": 0.6799999999999999,
+    "failure_rate": 99.32,
+    "average_accuracy": 0.6799999999999999,
+    "average_response_time": 4.265567312693596,
+    "tests_under_3s": 0,
+    "performance_rate": 0.0
+  },
+  "category_breakdown": {
+    "basic_chitchat": {
+      "total_tests": 1000,
+      "accuracy": 6.800000000000001,
+      "avg_response_time": 6.1546272547245024,
+      "success_rate": 6.800000000000001
+    },
+    "service_requests": {
+      "total_tests": 2000,
+      "accuracy": 0.0,
+      "avg_response_time": 4.056824021100998,
+      "success_rate": 0.0
+    },
+    "business_detection": {
+      "total_tests": 2000,
+      "accuracy": 0.0,
+      "avg_response_time": 4.05615032184124,
+      "success_rate": 0.0
+    },
+    "appointment_booking": {
+      "total_tests": 1500,
+      "accuracy": 0.0,
+      "avg_response_time": 4.054955672105153,
+      "success_rate": 0.0
+    },
+    "legal_illegal": {
+      "total_tests": 1000,
+      "accuracy": 0.0,
+      "avg_response_time": 4.05568086719513,
+      "success_rate": 0.0
+    },
+    "complex_business": {
+      "total_tests": 1500,
+      "accuracy": 0.0,
+      "avg_response_time": 4.054237329641978,
+      "success_rate": 0.0
+    }
+  },
+  "performance_metrics": {},
+  "accuracy_scores": {
+    "basic_chitchat": {
+      "correct": 68,
+      "total": 68
+    },
+    "service_requests": {
+      "correct": 0,
+      "total": 0
+    },
+    "business_detection": {
+      "correct": 0,
+      "total": 0
+    },
+    "appointment_booking": {
+      "correct": 0,
+      "total": 0
+    },
+    "legal_illegal": {
+      "correct": 0,
+      "total": 0
+    },
+    "complex_business": {
+      "correct": 0,
+      "total": 0
+    },
+    "performance": {
+      "under_3s": 0,
+      "total": 68
+    },
+    "personalization": {
+      "correct": 59,
+      "total": 68
+    }
+  },
+  "issues_found": [],
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "category": "Performance",
+      "issue": "Only 0.0% of responses under 3 seconds",
+      "solution": "Optimize LLM inference, add response caching, reduce model complexity"
+    },
+    {
+      "priority": "HIGH",
+      "category": "Accuracy",
+      "issue": "basic_chitchat accuracy only 6.8%",
+      "solution": "Improve basic_chitchat training data and response patterns"
+    },
+    {
+      "priority": "HIGH",
+      "category": "Accuracy",
+      "issue": "service_requests accuracy only 0.0%",
+      "solution": "Improve service_requests training data and response patterns"
+    },
+    {
+      "priority": "HIGH",
+      "category": "Accuracy",
+      "issue": "business_detection accuracy only 0.0%",
+      "solution": "Improve business_detection training data and response patterns"
+    },
+    {
+      "priority": "HIGH",
+      "category": "Accuracy",
+      "issue": "appointment_booking accuracy only 0.0%",
+      "solution": "Improve appointment_booking training data and response patterns"
+    },
+    {
+      "priority": "HIGH",
+      "category": "Accuracy",
+      "issue": "legal_illegal accuracy only 0.0%",
+      "solution": "Improve legal_illegal training data and response patterns"
+    },
+    {
+      "priority": "HIGH",
+      "category": "Accuracy",
+      "issue": "complex_business accuracy only 0.0%",
+      "solution": "Improve complex_business training data and response patterns"
+    }
+  ]
+}

@@ -1,0 +1,129 @@
+.Influencer {
+  background-color: var(--color-black);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.Influencer-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  width: 92vw; /* Limits excessive horizontal space */
+  padding: 20px;
+  background-color: var(--color-black);
+}
+
+.influence-h1 {
+  font-size: 62px;
+  color: white;
+  font: bold;
+  text-align: center;
+}
+
+/* Adjust the size of the items */
+.grid-cards {
+  width: 30%; /* Use 30% width instead of 32% for slightly more space */
+  padding-bottom: 16%; /* Reduce vertical space to 16:9 ratio */
+  margin-bottom: 2%; /* Space between rows */
+  background-color: var(--color-black);
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.grid-cards img {
+  width: 100%;
+  height: auto;
+  position: absolute; /* Ensures image stays within the 16:9 box */
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+/* .grid-cards:hover {
+    transform: scale(1.05);
+} */
+
+/* Platform-specific background styles */
+.grid-cards.podcast,
+.grid-cards.youtube {
+  background-image: url(../../assets/svgs/mask3.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+.grid-cards.insta,
+.grid-cards.snap {
+  background-image: url(../../assets/svgs/mask5.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+.grid-cards.fbgaming,
+.grid-cards.tiktok {
+  background-image: url(../../assets/svgs/mask1.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+.grid-cards.twitch {
+  background-image: url(../../assets/svgs/mask4.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+.grid-cards.telegram {
+  background-image: url(../../assets/svgs/mask2.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+/* Make the layout responsive for different screen sizes */
+@media (max-width: 1024px) {
+  .grid-cards {
+    width: 45%; /* Use 2 columns for medium screens */
+    padding-bottom: 25%; /* Adjust aspect ratio for smaller screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-cards {
+    width: 100%; /* Use single column on small screens */
+    padding-bottom: 50%; /* Increase height for mobile view */
+  }
+}
+
+@media (max-width: 480px) {
+  .Influencer-grid {
+    flex-direction: column; /* Stack items vertically for very small screens */
+    align-items: center; /* Center items */
+  }
+
+  .grid-cards {
+    width: 100%;
+    padding-bottom: 60%; /* Adjust aspect ratio for small screens */
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .influence-h1 {
+    font-size: 3rem;
+    padding: 0px 20px;
+  }
+  .Influencer-grid {
+    width: 80vw;
+  }
+  .grid-cards {
+    width: 100%;
+    padding-bottom: 50%; /* Adjust aspect ratio for small screens */
+  }
+}

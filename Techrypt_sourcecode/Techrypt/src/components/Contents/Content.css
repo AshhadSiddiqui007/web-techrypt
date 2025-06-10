@@ -1,0 +1,153 @@
+* {
+  margin: 0;
+  font-family: "Right Grotesk", sans-serif;
+}
+
+.container-content {
+  background-color: #0f0f0f;
+  padding: 0 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.content {
+  background-color: #ee6464;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 50px;
+  border-radius: 30px;
+  height: 7rem;
+}
+
+.ContentHeading {
+  font-size: 95.8421px;
+  font-family: "Right Grotesk", sans-serif;
+  font-weight: 400;
+  line-height: 89.4526px;
+}
+
+.icon {
+  font-size: 50px;
+}
+
+.brand {
+  background-color: #d1f453;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 50px;
+  border-radius: 30px;
+  height: 7rem;
+}
+
+.line {
+  width: 2px;
+  background-color: white;
+  height: 10rem;
+  margin: 0 auto;
+}
+
+.work {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.workHeading {
+  font-family: "Right Grotesk", sans-serif;
+  font-size: 5rem;
+  color: white;
+}
+
+.btn {
+  background-color: var(--color-yellow);
+  color: white;
+  border: none;
+  padding: 20px;
+  font-family: "Right Grotesk", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  border-radius: 50px;
+}
+
+.delivery-container {
+  margin-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: white;
+}
+
+.para {
+  font-size: 51.1158px;
+}
+
+.deliveryHeading {
+  font-size: 95.8421px;
+}
+
+.accordionContent {
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 10px;
+  transition: max-height 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+}
+
+.textContent {
+  font-size: 51px;
+  font-weight: 500;
+  line-height: 54px;
+  width: 700px;
+  color: black;
+}
+
+.number {
+  font-size: 22px;
+  text-align: center;
+  color: black;
+  border: 2px solid black;
+  border-radius: 40px;
+}
+
+.leftContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.subText {
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 26px;
+  color: black;
+}
+
+@media only screen and (max-width: 600px) {
+  .container-content {
+    padding: 10px;
+  }
+  .workHeading {
+    font-size: 3rem;
+    text-align: center;
+  }
+  .deliveryHeading {
+    font-size: 3rem;
+  }
+  .para {
+    font-size: 2rem;
+  }
+}

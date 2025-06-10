@@ -1,0 +1,58 @@
+.aboutslider-section{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--color-black);
+}
+.aboutslider-container{
+    /* background-color: #FCCD03; */
+    border-radius: 50px;
+    width: 80vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.aboutslider-container h1{
+    font-size: 45px;
+    color: black;
+    font-weight: 450;
+}
+.aboutslider{
+    width: 100%;
+    margin-top: 10px;
+}
+.slider-image {
+    height: 100%;
+    width: auto;
+  }
+  .aboutaboutslider-image-container {
+    position: relative;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    width: auto;
+    height: 100px;
+    width: 80px;
+  }
+  /* Background for 1st, 4th, 7th, etc. */
+.bg1 .aboutslider-image-container {
+    background-image: url(../../assets/svgs/bmask1.svg);}
+  
+  /* Background for 2nd, 5th, 8th, etc. */
+  .bg2 .aboutslider-image-container {
+    background-image: url(../../assets/svgs/bmask2.svg);
+  }
+  
+  /* Background for 3rd, 6th, 9th, etc. */
+  .bg3 .aboutslider-image-container {
+    background-image: url(../../assets/svgs/bmask5.svg);
+  }
+  .slick-slider .slick-track, .slick-slider .slick-list{
+    display: flex;
+    gap: 15px;
+  }

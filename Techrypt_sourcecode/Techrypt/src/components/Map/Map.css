@@ -1,0 +1,27 @@
+.mapimg {
+  background: var(--color-black);
+  position: relative;
+  height: 100%;
+  width: 100%;
+  margin-bottom: -4px;
+}
+
+.main-map h1 {
+  background: var(--color-black);
+  font-size: 5rem;
+  color: var(--color-white);
+  text-align: center;
+  padding-bottom: 60px;
+}
+
+
+@media (max-width: 480px) {
+.main-map{
+  font-size: 3rem;
+  margin-bottom: -10px;
+}
+
+  .main-map h1 {
+    font-size: 3rem; /* Font size for smaller screens */
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-06-02T16:40:18.711917",
+  "total_tests": 1000,
+  "summary": {
+    "success_rate": 100.0,
+    "failure_rate": 0.0,
+    "average_accuracy": 100.0,
+    "average_response_time": 2.3034446704387666,
+    "tests_under_3s": 1000,
+    "performance_rate": 100.0
+  },
+  "category_breakdown": {
+    "basic_chitchat": {
+      "total_tests": 1000,
+      "accuracy": 100.0,
+      "avg_response_time": 2.3034446704387666,
+      "success_rate": 100.0
+    }
+  },
+  "performance_metrics": {},
+  "accuracy_scores": {
+    "basic_chitchat": {
+      "correct": 1000,
+      "total": 1000
+    },
+    "service_requests": {
+      "correct": 0,
+      "total": 0
+    },
+    "business_detection": {
+      "correct": 0,
+      "total": 0
+    },
+    "appointment_booking": {
+      "correct": 0,
+      "total": 0
+    },
+    "legal_illegal": {
+      "correct": 0,
+      "total": 0
+    },
+    "complex_business": {
+      "correct": 0,
+      "total": 0
+    },
+    "performance": {
+      "under_3s": 1000,
+      "total": 1000
+    },
+    "personalization": {
+      "correct": 844,
+      "total": 1000
+    }
+  },
+  "issues_found": [],
+  "recommendations": []
+}

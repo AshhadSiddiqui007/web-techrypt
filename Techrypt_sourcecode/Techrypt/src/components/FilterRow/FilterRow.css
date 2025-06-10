@@ -1,0 +1,92 @@
+.row {
+  position: relative; /* To position the image relative to the row */
+  width: 100%;
+  border-top: 2px solid white;
+  padding-bottom: 25px;
+  padding: 30px 0 22px 0;
+}
+
+.visible {
+  display: flex;
+}
+
+.rowsame {
+  width: 32%;
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.showbtn {
+  width: 4%;
+}
+
+.show-icon {
+  color: white;
+
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 2rem;
+}
+
+.row:hover {
+  color: white;
+}
+
+.expanded {
+  display: flex;
+}
+
+
+.collapsed {
+  display: none;
+}
+
+h6 {
+  color: #444;
+  font-size: 14px;
+}
+
+h4 {
+  font-weight: 400;
+}
+
+.row-left > img {
+  width: 80%;
+  height: fit-content;
+}
+
+/* Hidden image on collapsed row */
+.hover-image {
+  display: none;
+  position: absolute;
+  top: -150px; /* Adjust the positioning above the row */
+  left: 50%;
+  width: 50vw; /* Adjust the size of the image */
+  height: auto;
+  z-index: 10;
+}
+.hover-image img {
+  width: 100%;
+  height: fit-content;
+}
+
+/* Show the image on hover only when the row is collapsed and not clicked */
+.row:not(.expanded):hover .hover-image {
+  display: block;
+}
+
+/* Hide hover image when the row is clicked (expanded) */
+.hide-hover {
+  display: none !important;
+}
+
+@media only screen and (max-width: 600px) {
+  .rowsame {
+    font-size: 1rem;
+  }
+}

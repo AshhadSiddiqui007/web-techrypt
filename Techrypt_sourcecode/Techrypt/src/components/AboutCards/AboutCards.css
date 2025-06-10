@@ -1,0 +1,103 @@
+.nutshell-wrapper {
+    padding: 0.5rem;
+    text-align: center;
+    padding-top: 50px;
+
+}
+
+.nutshell-heading {
+    font-size: clamp(2.5rem, 10vw, 9rem);
+    margin: 2.5rem 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-family: 'Bebas Neue', sans-serif;
+    color: white;
+    position: relative;
+}
+
+.quote-mark {
+    color: var(--color-five);
+    font-weight: bold;
+    padding-right: 0.5rem;
+}
+
+.highlighted-text {
+    color: var(--color-five);
+    margin-left: 0.75rem;
+    position: relative;
+}
+
+.circle-border {
+    position: absolute;
+    width: 115%;
+    height: 155%;
+    border: 3px solid var(--color-five);
+    border-radius: 50%;
+    top: -2.5rem;
+    left: -1.75rem;
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .circle-border {
+        display: block;
+        border-width: 6px;
+    }
+}
+
+.nutshell-grid {
+    padding: 3rem 4.5rem;
+
+}
+
+
+
+.nutshell-card {
+    /* background-color: rgba(229, 229, 229, 0.9); gray-200/90 */
+    /* border: 2px solid var(--color-five); */
+    padding: 4rem 1.5rem;
+    border-radius: 1rem;
+    /* width: 100%; */
+    /* width: 30%; */
+    background-color: var(--color-black);
+
+    position: relative;
+    text-align: center;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+}
+
+.nutshell-icon {
+    position: absolute;
+    top: -3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-black);
+    border-radius: 9999px;
+    padding: 0.75rem;
+
+    /* box-shadow: 0 5px 10px rgba(0,0,0,0.1); */
+}
+
+.card-title {
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+.boxes-container{
+padding: 80px 20px;
+}
+
+.card-text {
+    color: black;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Color Utility Classes */
+.text-blue { color: #185BFE; }
+.text-red { color: #FF4C38; }
+.text-purple { color: #904CFC; }
+.text-pink { color: #FF56A5; }

@@ -1,0 +1,118 @@
+.services-section {
+    width: 100%;
+    height: auto;
+    background: linear-gradient(to bottom right, #121212, #232323, #232323);
+    position: relative;
+    overflow: hidden;
+    padding-top: 7rem;
+    padding-bottom: 4rem;
+  }
+  
+  .services-heading {
+    /* font-family: 'Bebas Neue', cursive; */
+    font-size: 4rem;
+    text-align: center;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 4rem;
+  }
+  
+  @media (min-width: 768px) {
+    .services-heading {
+      font-size: 6rem;
+    }
+  }
+  
+  .highlight {
+    color: #AEBB1E;
+    margin: 0 1.25rem;
+  }
+  
+  .heading-img {
+    width: 3rem;
+    position: absolute;
+    top: 4rem;
+    right: 2.6rem;
+  }
+  
+  @media (min-width: 768px) {
+    .heading-img {
+      width: 4.5rem;
+      right: 10rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .heading-img {
+      right: 26.5rem;
+    }
+  }
+  
+  .services-grid {
+    width: 90%;
+    margin: 0 auto;
+    display: grid;
+    gap: 5rem 4rem;
+    
+    grid-template-columns: 1fr;
+  }
+  
+  @media (min-width: 768px) {
+    .services-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+ 
+ 
+  
+  .service-card {
+    background-color: #AEBB1E;
+    color: white;
+    width: 100%;
+    height: 25rem;
+    border-radius: 1.5rem;
+    padding: 2rem;
+  }
+  
+  @media (min-width: 1024px) {
+    .service-card {
+      height: 22rem;
+    }
+  }
+  
+  .service-image-container {
+    width: 100%;
+    height: 13vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .service-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .service-title {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .service-title {
+      font-size: 2.5rem;
+    }
+  }
+  
+  .service-description {
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+  }
+  

@@ -1,0 +1,234 @@
+/* Pricing.css */
+.pricing-container {
+    /* background-color: #EEF9FE; */
+    padding: 20px 0;
+  }
+  
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  @media (min-width: 768px) {
+    .pricing-grid {
+      grid-template-columns: 1fr 2fr;
+      max-width: 1250px;
+    }
+  }
+  
+  .pricing-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 64px;
+    color: white;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  .pricing-title {
+    font-size: 1.5rem;
+    text-wrap: balance;
+    font-weight: bold;
+    line-height: 1.25;
+  }
+  
+  @media (min-width: 768px) {
+    .pricing-title {
+      font-size: 2rem;
+      width: 58.333%;
+    }
+  }
+  
+ 
+  
+  .calculate-button {
+    padding: 5px 16px;
+    /* color: white; */
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    align-items: center;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+
+  .calendar-icon {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .pricing-subtext {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .arrow-icon {
+    font-size: 2.25rem;
+    position: relative;
+    top: -12px;
+  }
+  
+  .pricing-cards-container {
+    overflow-x: scroll;
+  }
+  
+  @media (min-width: 768px) {
+    .pricing-cards-container {
+      overflow-x: auto;
+    }
+  }
+  
+  .pricing-cards {
+    display: flex;
+    gap: 16px;
+    padding: 40px 16px 0 16px;
+    flex-wrap: nowrap;
+  }
+  
+  @media (max-width: 900px) {
+    .pricing-cards {
+      overflow-x: auto;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+  
+  .pricing-card-wrapper {
+    border-radius: 24px;
+    width: 250px;
+    flex: none;
+  }
+  
+  @media (min-width: 768px) {
+    .pricing-card-wrapper {
+      width: auto;
+      flex: 1;
+    }
+  }
+  
+  .pricing-card-wrapper.popular {
+    background-color: #AEBB1E;
+  }
+  
+  .popular-label {
+    color: white;
+    text-align: center;
+    padding: 4px 0px;
+    padding-top: 8px;
+    padding-left: 17px;
+    visibility: hidden;
+  }
+  
+  .popular-label.visible {
+    visibility: visible;
+  }
+  
+  .pricing-card {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 40px;
+    gap: 12px;
+    background-color: white;
+    border-radius: 24px;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 16px;
+    border: 1px solid transparent;
+    position: relative;
+  }
+  
+  .pricing-card.popular-card {
+    border-color: #AEBB1E;
+  }
+  
+  .card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .plan-button {
+    padding: 4px 20px;
+    color: #AEBB1E;
+    border: 1px solid #AEBB1E;
+    border-radius: 16px;
+    background: none;
+  }
+  
+  .card-description {
+    color: rgba(0, 0, 0, 0.6);
+    line-height: 1.25;
+    text-align: center;
+    text-wrap: balance;
+  }
+  
+  .card-price {
+    color: rgba(0, 0, 0, 0.9);
+    font-size: 1.875rem;
+    font-weight: bold;
+  }
+  
+  .price-info {
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+  }
+  
+  .demo-button {
+    width: 100%;
+    padding: 12px 0;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .primary-button {
+    background-color: #AEBB1E;
+    color: white;
+  }
+  
+  .primary-button:hover {
+    background-color: #AEBB1E;
+  }
+  
+  .secondary-button {
+    color: #AEBB1E;
+    border: 1px solid #AEBB1E;
+    background-color: white;
+  }
+  
+  .secondary-button:hover {
+    background-color: #AEBB1E;
+    color: white;
+  }
+  
+  .card-features {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .features-title {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 0.875rem;
+  }
+  
+  .feature-item {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .feature-icon {
+    color: #AEBB1E;
+  }

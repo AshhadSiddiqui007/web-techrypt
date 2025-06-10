@@ -1,0 +1,643 @@
+{
+  "timestamp": "20250602_161712",
+  "summary": {
+    "total_tests": 37,
+    "successful_tests": 36,
+    "failed_tests": 1,
+    "success_rate": 97.2972972972973,
+    "avg_response_time": 3.120807145092938,
+    "fast_response_rate": 8.108108108108109
+  },
+  "issues_found": [],
+  "detailed_results": [
+    {
+      "message": "hello",
+      "user_name": "John",
+      "bot_response": "Hello, John! Welcome to Techrypt.io! I'm your intelligent assistant here to help you grow your business with our digital services:\n\n\ud83d\ude80 **How We Can Help:**\n1. \ud83c\udf10 Website Development\n2. \ud83d\udcf1 Social Media Marketing\n3. \ud83c\udfa8 Branding Services\n4. \ud83e\udd16 Chatbot Development\n5. \u26a1 Automation Packages\n6. \ud83d\udcb3 Payment Gateway Integration\n\nWhat type of business do you have, and how can I assist you today?",
+      "response_time": 3.1741623878479004,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.17s"
+        ]
+      }
+    },
+    {
+      "message": "hi",
+      "user_name": "John",
+      "bot_response": "Hello, John! Welcome to Techrypt.io! I'm your intelligent assistant here to help you grow your business with our digital services:\n\n\ud83d\ude80 **How We Can Help:**\n1. \ud83c\udf10 Website Development\n2. \ud83d\udcf1 Social Media Marketing\n3. \ud83c\udfa8 Branding Services\n4. \ud83e\udd16 Chatbot Development\n5. \u26a1 Automation Packages\n6. \ud83d\udcb3 Payment Gateway Integration\n\nWhat type of business do you have, and how can I assist you today?",
+      "response_time": 3.0615336894989014,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.06s"
+        ]
+      }
+    },
+    {
+      "message": "good morning",
+      "user_name": "John",
+      "bot_response": "Thank you for reaching out, John! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.0357773303985596,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "FAIL",
+        "professional": "PASS",
+        "issues": [
+          "Missing expected keywords: ['hello', 'welcome', 'morning']",
+          "Using generic fallback response",
+          "Slow response: 3.04s"
+        ]
+      }
+    },
+    {
+      "message": "how are you",
+      "user_name": "John",
+      "bot_response": "Thank you for reaching out, John! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.023068428039551,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.02s"
+        ]
+      }
+    },
+    {
+      "message": "thank you",
+      "user_name": "John",
+      "bot_response": "Thank you for reaching out, John! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.212207555770874,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.21s"
+        ]
+      }
+    },
+    {
+      "message": "bye",
+      "user_name": "John",
+      "bot_response": "Thank you for reaching out, John! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.0197856426239014,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.02s"
+        ]
+      }
+    },
+    {
+      "message": "branding",
+      "user_name": "Sarah",
+      "bot_response": "Great choice, Sarah! You've selected \ud83c\udfa8 **Branding Services** - Logo design, brand identity, marketing materials.\n\nWe create comprehensive brand identities that make your business stand out:\n\u2022 Professional logo design\n\u2022 Brand color schemes & typography\n\u2022 Business card & letterhead design\n\u2022 Social media branding\n\u2022 Brand guidelines & style guides\n\nWould you like to schedule a consultation to discuss your branding vision?",
+      "response_time": 3.0089313983917236,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.01s"
+        ]
+      }
+    },
+    {
+      "message": "smm",
+      "user_name": "Sarah",
+      "bot_response": "Perfect, Sarah! You've selected \ud83d\udcf1 **Social Media Marketing** - Instagram, Facebook, LinkedIn growth.\n\nWe help businesses grow their social media presence through:\n\u2022 Targeted content strategies\n\u2022 Engaging post creation\n\u2022 Audience growth tactics\n\u2022 Social media advertising\n\u2022 Analytics & performance tracking\n\nWould you like to schedule a consultation to discuss your social media goals?",
+      "response_time": 2.9848554134368896,
+      "status": "success",
+      "analysis": {
+        "performance": "PASS",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": []
+      }
+    },
+    {
+      "message": "website",
+      "user_name": "Sarah",
+      "bot_response": "Excellent, Sarah! You've selected \ud83c\udf10 **Website Development** - Custom websites with SEO optimization.\n\nWe create responsive, modern websites that:\n\u2022 Rank higher on Google\n\u2022 Attract more customers\n\u2022 Convert visitors to sales\n\u2022 Load fast on all devices\n\u2022 Include content management systems\n\nWould you like to schedule a consultation to discuss your website needs?",
+      "response_time": 2.9874491691589355,
+      "status": "success",
+      "analysis": {
+        "performance": "PASS",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "FAIL",
+        "issues": []
+      }
+    },
+    {
+      "message": "chatbot",
+      "user_name": "Sarah",
+      "bot_response": "Awesome, Sarah! You've selected \ud83e\udd16 **Chatbot Development** - AI-powered customer service automation.\n\nWe create intelligent chatbots that:\n\u2022 Handle customer service 24/7\n\u2022 Answer common questions instantly\n\u2022 Collect leads automatically\n\u2022 Book appointments\n\u2022 Integrate with your website\n\nShall we schedule a consultation to discuss your automation needs?",
+      "response_time": 3.141164541244507,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.14s"
+        ]
+      }
+    },
+    {
+      "message": "payment gateway",
+      "user_name": "Sarah",
+      "bot_response": "Perfect, Sarah! You've selected \ud83d\udcb3 **Payment Gateway Integration** - Stripe, PayPal, and custom solutions.\n\nWe integrate secure payment systems to:\n\u2022 Make transactions smooth for customers\n\u2022 Accept multiple payment methods\n\u2022 Ensure secure processing\n\u2022 Reduce cart abandonment\n\u2022 Provide detailed transaction reports\n\nWould you like to schedule a consultation to discuss your payment needs?",
+      "response_time": 3.172621488571167,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "FAIL",
+        "issues": [
+          "Slow response: 3.17s"
+        ]
+      }
+    },
+    {
+      "message": "automation",
+      "user_name": "Sarah",
+      "bot_response": "Awesome, Sarah! You've selected \ud83e\udd16 **Chatbot Development** - AI-powered customer service automation.\n\nWe create intelligent chatbots that:\n\u2022 Handle customer service 24/7\n\u2022 Answer common questions instantly\n\u2022 Collect leads automatically\n\u2022 Book appointments\n\u2022 Integrate with your website\n\nShall we schedule a consultation to discuss your automation needs?",
+      "response_time": 3.1652393341064453,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.17s"
+        ]
+      }
+    },
+    {
+      "message": "I have a restaurant",
+      "user_name": "Alex",
+      "bot_response": "Great, Alex! For your restaurant, Techrypt can help you grow with our comprehensive digital services:\n\n\ud83d\ude80 **Our Services:**\n1. \ud83c\udf10 Website Development - Professional online presence\n2. \ud83d\udcf1 Social Media Marketing - Engage your customers\n3. \ud83c\udfa8 Branding Services - Create memorable brand identity\n4. \ud83e\udd16 Chatbot Development - Automate customer service\n5. \u26a1 Automation Packages - Streamline operations\n6. \ud83d\udcb3 Payment Gateway Integration - Secure transactions\n\nWhich service would be most valuable for your restaurant?",
+      "response_time": 3.1903164386749268,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.19s"
+        ]
+      }
+    },
+    {
+      "message": "I own a salon",
+      "user_name": "Alex",
+      "bot_response": "Great, Alex! For your salon, Techrypt can help you grow with our comprehensive digital services:\n\n\ud83d\ude80 **Our Services:**\n1. \ud83c\udf10 Website Development - Professional online presence\n2. \ud83d\udcf1 Social Media Marketing - Engage your customers\n3. \ud83c\udfa8 Branding Services - Create memorable brand identity\n4. \ud83e\udd16 Chatbot Development - Automate customer service\n5. \u26a1 Automation Packages - Streamline operations\n6. \ud83d\udcb3 Payment Gateway Integration - Secure transactions\n\nWhich service would be most valuable for your salon?",
+      "response_time": 3.1734426021575928,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.17s"
+        ]
+      }
+    },
+    {
+      "message": "My gym needs help",
+      "user_name": "Alex",
+      "bot_response": "Great, Alex! For your gym, Techrypt can help you grow with our comprehensive digital services:\n\n\ud83d\ude80 **Our Services:**\n1. \ud83c\udf10 Website Development - Professional online presence\n2. \ud83d\udcf1 Social Media Marketing - Engage your customers\n3. \ud83c\udfa8 Branding Services - Create memorable brand identity\n4. \ud83e\udd16 Chatbot Development - Automate customer service\n5. \u26a1 Automation Packages - Streamline operations\n6. \ud83d\udcb3 Payment Gateway Integration - Secure transactions\n\nWhich service would be most valuable for your gym?",
+      "response_time": 3.186274528503418,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.19s"
+        ]
+      }
+    },
+    {
+      "message": "I run an ecommerce store",
+      "user_name": "Alex",
+      "bot_response": "Great, Alex! For your ecommerce, Techrypt can help you grow with our comprehensive digital services:\n\n\ud83d\ude80 **Our Services:**\n1. \ud83c\udf10 Website Development - Professional online presence\n2. \ud83d\udcf1 Social Media Marketing - Engage your customers\n3. \ud83c\udfa8 Branding Services - Create memorable brand identity\n4. \ud83e\udd16 Chatbot Development - Automate customer service\n5. \u26a1 Automation Packages - Streamline operations\n6. \ud83d\udcb3 Payment Gateway Integration - Secure transactions\n\nWhich service would be most valuable for your ecommerce?",
+      "response_time": 3.140026092529297,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.14s"
+        ]
+      }
+    },
+    {
+      "message": "I have a clinic",
+      "user_name": "Alex",
+      "bot_response": "Great, Alex! For your clinic, Techrypt can help you grow with our comprehensive digital services:\n\n\ud83d\ude80 **Our Services:**\n1. \ud83c\udf10 Website Development - Professional online presence\n2. \ud83d\udcf1 Social Media Marketing - Engage your customers\n3. \ud83c\udfa8 Branding Services - Create memorable brand identity\n4. \ud83e\udd16 Chatbot Development - Automate customer service\n5. \u26a1 Automation Packages - Streamline operations\n6. \ud83d\udcb3 Payment Gateway Integration - Secure transactions\n\nWhich service would be most valuable for your clinic?",
+      "response_time": 3.173999309539795,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.17s"
+        ]
+      }
+    },
+    {
+      "message": "schedule appointment",
+      "user_name": "Taylor",
+      "bot_response": "Great, Taylor! For your tech, Techrypt can help you grow with our comprehensive digital services:\n\n\ud83d\ude80 **Our Services:**\n1. \ud83c\udf10 Website Development - Professional online presence\n2. \ud83d\udcf1 Social Media Marketing - Engage your customers\n3. \ud83c\udfa8 Branding Services - Create memorable brand identity\n4. \ud83e\udd16 Chatbot Development - Automate customer service\n5. \u26a1 Automation Packages - Streamline operations\n6. \ud83d\udcb3 Payment Gateway Integration - Secure transactions\n\nWhich service would be most valuable for your tech?",
+      "response_time": 3.1280899047851562,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "FAIL",
+        "professional": "PASS",
+        "issues": [
+          "Missing expected keywords: ['appointment', 'schedule', 'consultation']",
+          "Slow response: 3.13s"
+        ]
+      }
+    },
+    {
+      "message": "book meeting",
+      "user_name": "Taylor",
+      "bot_response": "Thank you for reaching out, Taylor! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.151740074157715,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.15s"
+        ]
+      }
+    },
+    {
+      "message": "I want to schedule a consultation",
+      "user_name": "Taylor",
+      "bot_response": "Thank you for reaching out, Taylor! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.170104742050171,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.17s"
+        ]
+      }
+    },
+    {
+      "message": "can we book a call",
+      "user_name": "Taylor",
+      "bot_response": "Thank you for reaching out, Taylor! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.167541027069092,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "PASS",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.17s"
+        ]
+      }
+    },
+    {
+      "message": "I have a restaurant business",
+      "user_name": "Legal",
+      "bot_response": "Great, Legal! For your restaurant, Techrypt can help you grow with our comprehensive digital services:\n\n\ud83d\ude80 **Our Services:**\n1. \ud83c\udf10 Website Development - Professional online presence\n2. \ud83d\udcf1 Social Media Marketing - Engage your customers\n3. \ud83c\udfa8 Branding Services - Create memorable brand identity\n4. \ud83e\udd16 Chatbot Development - Automate customer service\n5. \u26a1 Automation Packages - Streamline operations\n6. \ud83d\udcb3 Payment Gateway Integration - Secure transactions\n\nWhich service would be most valuable for your restaurant?",
+      "response_time": 3.142543077468872,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.14s"
+        ]
+      }
+    },
+    {
+      "message": "I own a clothing store",
+      "user_name": "Legal",
+      "bot_response": "Great, Legal! For your ecommerce, Techrypt can help you grow with our comprehensive digital services:\n\n\ud83d\ude80 **Our Services:**\n1. \ud83c\udf10 Website Development - Professional online presence\n2. \ud83d\udcf1 Social Media Marketing - Engage your customers\n3. \ud83c\udfa8 Branding Services - Create memorable brand identity\n4. \ud83e\udd16 Chatbot Development - Automate customer service\n5. \u26a1 Automation Packages - Streamline operations\n6. \ud83d\udcb3 Payment Gateway Integration - Secure transactions\n\nWhich service would be most valuable for your ecommerce?",
+      "response_time": 3.1879944801330566,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.19s"
+        ]
+      }
+    },
+    {
+      "message": "My tech startup",
+      "user_name": "Legal",
+      "bot_response": "Great, Legal! For your tech, Techrypt can help you grow with our comprehensive digital services:\n\n\ud83d\ude80 **Our Services:**\n1. \ud83c\udf10 Website Development - Professional online presence\n2. \ud83d\udcf1 Social Media Marketing - Engage your customers\n3. \ud83c\udfa8 Branding Services - Create memorable brand identity\n4. \ud83e\udd16 Chatbot Development - Automate customer service\n5. \u26a1 Automation Packages - Streamline operations\n6. \ud83d\udcb3 Payment Gateway Integration - Secure transactions\n\nWhich service would be most valuable for your tech?",
+      "response_time": 3.127692937850952,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.13s"
+        ]
+      }
+    },
+    {
+      "message": "I have a drug business",
+      "user_name": "Illegal",
+      "bot_response": "Thank you for reaching out, Illegal! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.1958932876586914,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.20s"
+        ]
+      }
+    },
+    {
+      "message": "I run weapon sales",
+      "user_name": "Illegal",
+      "bot_response": "Thank you for reaching out, Illegal! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.1866018772125244,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.19s"
+        ]
+      }
+    },
+    {
+      "message": "My gambling site",
+      "user_name": "Illegal",
+      "bot_response": "Excellent, Illegal! You've selected \ud83c\udf10 **Website Development** - Custom websites with SEO optimization.\n\nWe create responsive, modern websites that:\n\u2022 Rank higher on Google\n\u2022 Attract more customers\n\u2022 Convert visitors to sales\n\u2022 Load fast on all devices\n\u2022 Include content management systems\n\nWould you like to schedule a consultation to discuss your website needs?",
+      "response_time": 3.1298131942749023,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "FAIL",
+        "issues": [
+          "Slow response: 3.13s"
+        ]
+      }
+    },
+    {
+      "message": "hello",
+      "user_name": "Speed",
+      "bot_response": "Hello, Speed! Welcome to Techrypt.io! I'm your intelligent assistant here to help you grow your business with our digital services:\n\n\ud83d\ude80 **How We Can Help:**\n1. \ud83c\udf10 Website Development\n2. \ud83d\udcf1 Social Media Marketing\n3. \ud83c\udfa8 Branding Services\n4. \ud83e\udd16 Chatbot Development\n5. \u26a1 Automation Packages\n6. \ud83d\udcb3 Payment Gateway Integration\n\nWhat type of business do you have, and how can I assist you today?",
+      "response_time": 3.119004011154175,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.12s"
+        ]
+      }
+    },
+    {
+      "message": "branding",
+      "user_name": "Speed",
+      "bot_response": "Great choice, Speed! You've selected \ud83c\udfa8 **Branding Services** - Logo design, brand identity, marketing materials.\n\nWe create comprehensive brand identities that make your business stand out:\n\u2022 Professional logo design\n\u2022 Brand color schemes & typography\n\u2022 Business card & letterhead design\n\u2022 Social media branding\n\u2022 Brand guidelines & style guides\n\nWould you like to schedule a consultation to discuss your branding vision?",
+      "response_time": 3.5471792221069336,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.55s"
+        ]
+      }
+    },
+    {
+      "message": "I have a restaurant",
+      "user_name": "Speed",
+      "bot_response": "Great, Speed! For your restaurant, Techrypt can help you grow with our comprehensive digital services:\n\n\ud83d\ude80 **Our Services:**\n1. \ud83c\udf10 Website Development - Professional online presence\n2. \ud83d\udcf1 Social Media Marketing - Engage your customers\n3. \ud83c\udfa8 Branding Services - Create memorable brand identity\n4. \ud83e\udd16 Chatbot Development - Automate customer service\n5. \u26a1 Automation Packages - Streamline operations\n6. \ud83d\udcb3 Payment Gateway Integration - Secure transactions\n\nWhich service would be most valuable for your restaurant?",
+      "response_time": 3.1821866035461426,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.18s"
+        ]
+      }
+    },
+    {
+      "message": "schedule appointment",
+      "user_name": "Speed",
+      "bot_response": "Great, Speed! For your tech, Techrypt can help you grow with our comprehensive digital services:\n\n\ud83d\ude80 **Our Services:**\n1. \ud83c\udf10 Website Development - Professional online presence\n2. \ud83d\udcf1 Social Media Marketing - Engage your customers\n3. \ud83c\udfa8 Branding Services - Create memorable brand identity\n4. \ud83e\udd16 Chatbot Development - Automate customer service\n5. \u26a1 Automation Packages - Streamline operations\n6. \ud83d\udcb3 Payment Gateway Integration - Secure transactions\n\nWhich service would be most valuable for your tech?",
+      "response_time": 3.123201608657837,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.12s"
+        ]
+      }
+    },
+    {
+      "message": "",
+      "status": "error",
+      "error": "HTTP 400",
+      "response_time": 2.0643649101257324
+    },
+    {
+      "message": "a",
+      "user_name": "Edge",
+      "bot_response": "Thank you for reaching out, Edge! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.1619858741760254,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.16s"
+        ]
+      }
+    },
+    {
+      "message": "!@#$%",
+      "user_name": "Edge",
+      "bot_response": "Thank you for reaching out, Edge! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.115269184112549,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.12s"
+        ]
+      }
+    },
+    {
+      "message": "hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello",
+      "user_name": "Edge",
+      "bot_response": "Hello, Edge! Welcome to Techrypt.io! I'm your intelligent assistant here to help you grow your business with our digital services:\n\n\ud83d\ude80 **How We Can Help:**\n1. \ud83c\udf10 Website Development\n2. \ud83d\udcf1 Social Media Marketing\n3. \ud83c\udfa8 Branding Services\n4. \ud83e\udd16 Chatbot Development\n5. \u26a1 Automation Packages\n6. \ud83d\udcb3 Payment Gateway Integration\n\nWhat type of business do you have, and how can I assist you today?",
+      "response_time": 3.398074150085449,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Slow response: 3.40s"
+        ]
+      }
+    },
+    {
+      "message": "null",
+      "user_name": "Edge",
+      "bot_response": "Thank you for reaching out, Edge! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.147049903869629,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.15s"
+        ]
+      }
+    },
+    {
+      "message": "undefined",
+      "user_name": "Edge",
+      "bot_response": "Thank you for reaching out, Edge! I'm here to help you grow your business with Techrypt's digital services. Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?",
+      "response_time": 3.1726789474487305,
+      "status": "success",
+      "analysis": {
+        "performance": "FAIL",
+        "length": "PASS",
+        "personalization": "UNKNOWN",
+        "keywords": "UNKNOWN",
+        "professional": "PASS",
+        "issues": [
+          "Using generic fallback response",
+          "Slow response: 3.17s"
+        ]
+      }
+    }
+  ]
+}

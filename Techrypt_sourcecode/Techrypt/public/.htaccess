@@ -1,0 +1,21 @@
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  
+  # Prevent directory listing
+  Options -Indexes
+  
+  # Prevent MultiViews from interfering
+  Options -MultiViews
+  
+  # Skip actual files and directories
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  
+  # Skip index.html itself to prevent loops
+  RewriteRule ^index\.html$ - [L]
+  
+  # Route everything else to index.html
+  RewriteRule . /index.html [L]
+</IfModule>
