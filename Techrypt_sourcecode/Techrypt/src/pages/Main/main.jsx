@@ -11,11 +11,12 @@ import ParallaxWrapper from "../../components/ParallaxWrapper/ParallaxWrapper.js
 const main = () => {
   return (
     <div className="relative">
-      <Hero title={["Development", "Branding", "Marketing"]} text={" Unlock new opportunities with expert-led training & cutting-edge digital services.Techrypt.io is a forward-thinking team on a mission to revolutionize how individuals learn and how businesses grow."} />
+      <Hero title={["Development", "Branding", "Marketing"]} text={" Unlock new opportunities with expert-led training & cutting-edge digital services. Techrypt.io is a forward-thinking team on a mission to revolutionize how individuals learn and how businesses grow."} />
       <div className="fading"></div>
+      
       <AgencyDetails />
       <CreativeTeamSection />
-
+      
       {/* <VideoGallery /> */}
       <SliderLogo />
       <Services className={"z-20"} />

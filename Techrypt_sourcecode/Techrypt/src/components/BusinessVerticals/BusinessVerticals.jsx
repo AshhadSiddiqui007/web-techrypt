@@ -13,54 +13,55 @@ const BusinessVerticals = () => {
     });
     window.dispatchEvent(event);
   };
+
   const verticals = [
     {
       title: "E-commerce & Online Retail",
       description: "Complete digital solutions for online stores, marketplace optimization, and payment integration.",
       services: ["Website Development", "Payment Gateway", "Social Media Marketing"],
-      icon: "🛒"
+      icon: "/Images/ecommerce.jpeg"
     },
     {
       title: "Restaurants & Food Services",
       description: "Digital solutions to boost your restaurant's online presence and customer engagement.",
       services: ["Website Development", "Social Media Marketing", "Chatbot Development"],
-      icon: "🍽️"
+      icon: "/Images/restaurant.png"
     },
     {
       title: "Healthcare & Medical",
       description: "HIPAA-compliant digital solutions for healthcare providers and medical practices.",
       services: ["Website Development", "Automation Packages", "Chatbot Development"],
-      icon: "🏥"
+      icon: "/Images/healthcare.jpeg"
     },
     {
       title: "Beauty Salons & Spas",
       description: "Showcase your work and streamline bookings with our specialized beauty industry solutions.",
       services: ["Social Media Marketing", "Website Development", "Automation Packages"],
-      icon: "💄"
+      icon: "/Images/spa.jpg"
     },
     {
       title: "Fitness & Wellness",
       description: "Build community and manage memberships with our fitness-focused digital solutions.",
       services: ["Social Media Marketing", "Website Development", "Automation Packages"],
-      icon: "💪"
+      icon: "/Images/fitness.jpeg"
     },
     {
       title: "Professional Services",
       description: "Establish credibility and attract clients with professional digital presence.",
       services: ["Website Development", "Branding Services", "Chatbot Development"],
-      icon: "💼"
+      icon: "/Images/professional.jpg"
     },
     {
       title: "Real Estate",
       description: "Showcase properties and generate leads with our real estate digital solutions.",
       services: ["Website Development", "Social Media Marketing", "Automation Packages"],
-      icon: "🏠"
+      icon: "/Images/realestate.jpg"
     },
     {
       title: "Technology Companies",
       description: "Advanced digital solutions for tech companies and startups looking to scale.",
       services: ["Website Development", "Branding Services", "Automation Packages"],
-      icon: "💻"
+      icon: "/Images/tech.jpeg"
     }
   ];
 
@@ -120,7 +121,14 @@ const BusinessVerticals = () => {
               whileHover={{ y: -5 }}
               onClick={() => openChatbotWithContext(vertical.title)}
             >
-              <div className="text-4xl mb-4">{vertical.icon}</div>
+              {/* Centering the image using flexbox */}
+              <div className="flex justify-center items-center mb-4">
+                {typeof vertical.icon === 'string' && vertical.icon.includes('/') ? (
+                  <img src={vertical.icon} alt={vertical.title} className="w-45 h-32 object-cover rounded" />
+                ) : (
+                  vertical.icon
+                )}
+              </div>
               <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-primary transition-colors">
                 {vertical.title}
               </h3>
@@ -169,7 +177,7 @@ const BusinessVerticals = () => {
             Platforms We <span className="text-primary">Integrate With</span>
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-            {[
+            {[ 
               "Shopify", "Amazon", "eBay", "Etsy", 
               "Daraz", "Facebook", "Instagram", "TikTok"
             ].map((platform, index) => (
