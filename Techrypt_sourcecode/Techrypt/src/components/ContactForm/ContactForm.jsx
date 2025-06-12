@@ -1,122 +1,103 @@
-import React, { useRef, useState } from 'react';
-import emailjs from '@emailjs/browser';
-import { toast } from 'react-toastify';
-import { TailSpin } from 'react-loader-spinner'; // or any other spinner you prefer
+import React, { useState } from "react";
+// Remove duplicate imports of components that should only be in main.jsx
+// Keep only form-related imports
 
-export default function ContactForm() {
-    const formRef = useRef();
-    const [isLoading, setIsLoading] = useState(false);
+const ContactForm = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
 
-    console.log({
-        serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-        publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
     });
+  };
 
-    const sendEmail = (e) => {
-        e.preventDefault();
-        setIsLoading(true);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Form submission logic
+    console.log("Form submitted:", formData);
+    
+    // Trigger chatbot with form data
+    const event = new CustomEvent('openTechryptChatbot', {
+      detail: {
+        contextMessage: `Hi ${formData.name}! Thanks for reaching out. How can I help you today?`,
+        businessType: 'Contact Form Submission'
+      }
+    });
+    window.dispatchEvent(event);
+  };
 
-        emailjs
-            .sendForm(
-                import.meta.env.VITE_EMAILJS_SERVICE_ID,
-                import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-                formRef.current,
-                import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-            )
-            .then(
-                (result) => {
-                    console.log(result.text);
-                    toast.success('Message sent successfully!');
-                    formRef.current.reset();
-                },
-                (error) => {
-                    console.error(error.text);
-                    toast.error('Failed to send message: ' + error.text);
-                }
-            )
-            .finally(() => {
-                setIsLoading(false);
-            });
-    };
-
-    return (
-        <div className="flex flex-col items-center justify-center gap-5">
-            <form ref={formRef} onSubmit={sendEmail} className="w-full max-w-4xl">
-                <div className="flex flex-col md:flex-row gap-5 justify-center">
-                    <div className="flex flex-col gap-5 w-full md:w-72">
-                        <input
-                            type="text"
-                            name="from_name"
-                            placeholder="Your Name"
-                            className="w-full bg-transparent text-white px-3 py-2 border-b-2 border-white focus:outline-none text-xl"
-                            required
-                            disabled={isLoading}
-                        />
-                        <input
-                            type="email"
-                            name="from_email"
-                            placeholder="Your Email"
-                            className="w-full bg-transparent text-white px-3 py-2 border-b-2 border-white focus:outline-none text-xl"
-                            required
-                            disabled={isLoading}
-                        />
-                    </div>
-                    <div className="flex flex-col gap-5 w-full md:w-72">
-                        <input
-                            type="text"
-                            name="company_name"
-                            placeholder="Your Company name"
-                            className="w-full bg-transparent text-white px-3 py-2 border-b-2 border-white focus:outline-none text-xl"
-                            disabled={isLoading}
-                        />
-                        <div className='border-b'>
-                            <select
-                                name="referral_source"
-                                className="w-full bg-transparent text-white px-3 border-none focus:outline-none text-xl mt-1 h-12"
-                                disabled={isLoading}
-                            >
-                                <option value="How Did You Hear About Us?">How Did You Hear About Us?</option>
-                                <option value="Social media">I found your profile on social media</option>
-                                <option value="Google search">You appeared while googling</option>
-                                <option value="Recommendation">Someone recommended you</option>
-                                <option value="Ads">I saw your ads</option>
-                                <option value="Article">Find your article or company profile</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div className="mt-5">
-                    <input
-                        type="text"
-                        name="message"
-                        placeholder="Your Goals / KPIs / Vision"
-                        className="w-full bg-transparent text-white px-3 py-2 border-b-2 border-white focus:outline-none text-xl"
-                        required
-                        disabled={isLoading}
-                    />
-                </div>
-
-                <button
-                    type="submit"
-                    className={`px-5 py-3 text-xl font-bold rounded-full mt-8 glow-hover bg-primary transition-all duration-150 flex items-center  text-white justify-center mx-auto gap-2 ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
-                        <>
-                            <TailSpin
-                                height="24"
-                                width="24"
-                                color="#ffffff"
-                                ariaLabel="loading"
-                            />
-                            Sending...
-                        </>
-                    ) : (
-                        'Submit'
-                    )}
-                </button>
-            </form>
+  return (
+    <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-6 w-full max-w-md mx-auto">
+      <h3 className="text-xl font-bold text-white mb-4">Contact Us</h3>
+      
+      <form onSubmit={handleSubmit}>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-gray-300 mb-1">Full Name *</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className="w-full bg-[#2a2a2a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+              placeholder="John Doe"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-gray-300 mb-1">Email Address *</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full bg-[#2a2a2a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+              placeholder="john@example.com"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-gray-300 mb-1">Phone Number</label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full bg-[#2a2a2a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+              placeholder="e.g., 1234567890"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-gray-300 mb-1">Message</label>
+            <textarea
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              rows="4"
+              className="w-full bg-[#2a2a2a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+              placeholder="How can we help you?"
+            ></textarea>
+          </div>
         </div>
-    );
-}
+        
+        <button
+          type="submit"
+          className="mt-6 w-full bg-primary text-white rounded-lg py-3 font-medium hover:bg-primary/90"
+        >
+          Send Message
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default ContactForm;

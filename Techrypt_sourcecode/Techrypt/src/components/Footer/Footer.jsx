@@ -19,6 +19,48 @@ const Footer = () => {
     });
   };
 
+  // Add state for form fields
+  const [formData, setFormData] = useState({
+    name: '',
+    company: '',
+    email: '',
+    source: '',
+    goals: ''
+  });
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Function to trigger appointment booking
+  const handleSubmit = () => {
+    // Use the exact appointment trigger pattern from TechryptChatbot.jsx
+    const messageText = "I want to book an appointment";
+    
+    // Create a user message to simulate typing "I want to book an appointment"
+    const userMessage = {
+      id: Date.now(),
+      text: messageText,
+      sender: 'user',
+      timestamp: new Date()
+    };
+    
+    // Dispatch the event that will open the chatbot
+    const event = new CustomEvent('openTechryptChatbot', {
+      detail: {
+        contextMessage: messageText,
+        businessType: 'Form Submission',
+        showAppointmentForm: true,
+        autoMessage: messageText
+      }
+    });
+    window.dispatchEvent(event);
+  };
 
   return (
     <div className="text-center bg-[#000] mt-10 overflow-x-hidden pt-24 px-3">
@@ -38,7 +80,67 @@ const Footer = () => {
         </div>
       </div>
 
-      {location.pathname !== "/Contact" && <ContactForm />}
+      {/*Place form here*/}
+      <div className="max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <input 
+              type="text" 
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Your Name" 
+              className="w-full bg-transparent border-b border-gray-600 py-2 px-3 text-white focus:outline-none focus:border-primary"
+            />
+          </div>
+          <div>
+            <input 
+              type="text" 
+              placeholder="Your Company name" 
+              className="w-full bg-transparent border-b border-gray-600 py-2 px-3 text-white focus:outline-none focus:border-primary"
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <input 
+              type="email" 
+              placeholder="Your Email" 
+              className="w-full bg-transparent border-b border-gray-600 py-2 px-3 text-white focus:outline-none focus:border-primary"
+            />
+          </div>
+          <div>
+            <select 
+              className="w-full bg-transparent border-b border-gray-600 py-2 px-3 text-gray-400 focus:outline-none focus:border-primary"
+            >
+              <option value="">How Did You Hear About Us</option>
+              <option value="google">Google</option>
+              <option value="social">Social Media</option>
+              <option value="referral">Referral</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        
+        <div className="mb-8">
+          <textarea 
+            placeholder="Your Goals / KPIs / Vision" 
+            rows="3" 
+            className="w-full bg-transparent border-b border-gray-600 py-2 px-3 text-white focus:outline-none focus:border-primary"
+          ></textarea>
+        </div>
+        
+        <div className="text-center">
+          <button 
+            onClick={handleSubmit}
+            className="bg-primary hover:bg-primary/90 text-black font-bold py-3 px-8 rounded-full"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+
       <div className="relative top-5 flex flex-col text-gray-400 mb-12 leading-8">
         <span>
           By clicking submit, you agree to our{' '}

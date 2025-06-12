@@ -133,62 +133,56 @@ Would you like to discuss a mobile app for your fitness business?`
   const projects = [
     {
       id: 1,
-      title: "TechCorp E-commerce Platform",
+      title: "BBQ Barn",
       category: "E-commerce",
       description: "Complete e-commerce solution with payment integration and inventory management",
-      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop",
+      image: "/Images/clients/bbqbarn.jpg",
       technologies: ["React", "Node.js", "Stripe", "MongoDB"],
-      client: "TechCorp Solutions",
       year: "2024"
     },
     {
       id: 2,
-      title: "HealthCare Pro Website",
+      title: "Bolt",
       category: "Website Development",
       description: "HIPAA-compliant healthcare website with appointment booking system",
-      image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=300&fit=crop",
+      image: "/Images/clients/bolt.jpg",
       technologies: ["React", "Express", "PostgreSQL", "AWS"],
-      client: "HealthCare Pro",
       year: "2024"
     },
     {
       id: 3,
-      title: "FoodieDelight Social Campaign",
+      title: "Echoverse",
       category: "Social Media Marketing",
       description: "Comprehensive social media strategy that increased engagement by 300%",
-      image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop",
+      image: "/Images/clients/echoverse.jpg",
       technologies: ["Instagram", "Facebook", "TikTok", "Analytics"],
-      client: "FoodieDelight Restaurant",
       year: "2023"
     },
     {
       id: 4,
-      title: "BeautyBliss Brand Identity",
+      title: "Jazzy Barbershop",
       category: "Branding",
       description: "Complete brand redesign including logo, color palette, and marketing materials",
-      image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=300&fit=crop",
+      image: "/Images/clients/jazzybarbershop.jpg",
       technologies: ["Adobe Creative Suite", "Figma", "Brand Guidelines"],
-      client: "BeautyBliss Salon",
       year: "2024"
     },
     {
       id: 5,
-      title: "AI Customer Support Bot",
+      title: "Montoya Crew",
       category: "Chatbot Development",
       description: "Intelligent chatbot with natural language processing and appointment booking",
-      image: "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=400&h=300&fit=crop",
+      image: "/Images/clients/montoyacrew.jpg",
       technologies: ["Python", "NLP", "MongoDB", "React"],
-      client: "Multiple Clients",
       year: "2024"
     },
     {
       id: 6,
-      title: "FitLife Mobile App",
+      title: "Simon Nicholas Real Estate Agency",
       category: "Mobile Apps",
       description: "Fitness tracking app with workout plans and nutrition guidance",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+      image: "/Images/clients/simonnicholas.jpg",
       technologies: ["React Native", "Firebase", "Redux", "API Integration"],
-      client: "FitLife Gym",
       year: "2023"
     },
     {

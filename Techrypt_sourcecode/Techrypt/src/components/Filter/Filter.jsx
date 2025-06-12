@@ -34,19 +34,22 @@ function Filter() {
             <option value="">All Services</option>
             <option value="Influencer Marketing">Influencer Marketing</option>
             <option value="Performance Marketing">Performance Marketing</option>
+            <option value="AI Chatbot Integration">AI Chatbot Integration</option>
+            <option value="Website Development">Website Development</option>
+            <option value="Ecommerce Store">Ecommerce Store</option>
           </select>
 
           <select value={geo} onChange={(e) => setGeo(e.target.value)}>
-            <option value="">All GEOs</option>
-            <option value="Africa">Africa</option>
-            <option value="CIS">CIS</option>
-            <option value="Eastern Europe">Eastern Europe</option>
+            <option value="">All Regions</option>
+            <option value="North America">North America</option>
+            <option value="Europe">Europe</option>
+            <option value="Asia">Asia</option>
             <option value="Latin America">Latin America</option>
             <option value="WorldWide">WorldWide</option>
           </select>
 
           <select value={vertical} onChange={(e) => setVertical(e.target.value)}>
-            <option value="">All Verticals</option>
+            <option value="">All Industries</option>
             <option value="Delivery">Delivery</option>
             <option value="E-commerce">E-commerce</option>
             <option value="Entertainment">Entertainment</option>
