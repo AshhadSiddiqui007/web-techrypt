@@ -1,0 +1,10 @@
+_id,name,email,phone,business_type,created_at,last_interaction,metadata
+6849bf7b673a8303718d878f,Test User,test@techrypt.com,+1234567890,Updated Technology,2025-06-11 17:40:11.240,2025-06-11 17:43:53.550,{}
+6849c24215c6806a46c508fb,Sarah Johnson,sarah@restaurant.com,+1-555-0101,Restaurant,2025-06-11 17:52:02.698,2025-06-11 17:52:02.698,{}
+6849c24215c6806a46c508fc,Mike Chen,mike@techstartup.com,+1-555-0102,Technology,2025-06-11 17:52:02.700,2025-06-11 17:52:02.700,{}
+6849c24215c6806a46c508fd,Emily Rodriguez,emily@fashionboutique.com,+1-555-0103,Fashion,2025-06-11 17:52:02.702,2025-06-11 17:52:02.702,{}
+6849c24215c6806a46c508fe,David Thompson,david@lawfirm.com,+1-555-0104,Legal Services,2025-06-11 17:52:02.706,2025-06-11 17:52:02.706,{}
+6849c24215c6806a46c508ff,Lisa Wang,lisa@healthclinic.com,+1-555-0105,Healthcare,2025-06-11 17:52:02.713,2025-06-11 17:52:02.713,{}
+6849c24215c6806a46c50900,James Wilson,james@realestate.com,+1-555-0106,Real Estate,2025-06-11 17:52:02.715,2025-06-11 17:52:02.715,{}
+6849c24215c6806a46c50901,Maria Garcia,maria@bakery.com,+1-555-0107,Food & Beverage,2025-06-11 17:52:02.719,2025-06-11 17:52:02.719,{}
+6849c24215c6806a46c50902,Robert Kim,robert@consulting.com,+1-555-0108,Consulting,2025-06-11 17:52:02.723,2025-06-11 17:52:02.723,{}

@@ -1,0 +1,600 @@
+_id,id,user_name,user_message,bot_response,business_type,model,response_time,timestamp,metadata
+6849c24215c6806a46c50918,conv-008,Robert Kim,What digital marketing services do you offer?,"We offer comprehensive digital marketing including SEO, social media marketing, Google Ads, content creation, and email marketing. For consulting businesses, we focus on thought leadership content and LinkedIn marketing. What's your main challenge right now?",consulting,Enhanced CSV Response,0.05s,2025-06-05T14:52:02.778106+00:00,{}
+6849c24215c6806a46c50917,conv-007,Maria Garcia,Can you help with online ordering for my bakery?,"Yes! We can create a beautiful website with integrated online ordering, payment processing, and delivery scheduling. Perfect for bakeries! Do you currently take orders by phone or in-person only?",food_beverage,Enhanced CSV Response,0.03s,2025-06-05T11:52:02.778106+00:00,{}
+6849c24215c6806a46c50916,conv-006,James Wilson,I need SEO for my real estate business,"SEO is essential for real estate! We can help you rank for local searches, optimize property listings, and create content that attracts both buyers and sellers. Are you focusing on residential or commercial properties?",real_estate,Enhanced CSV Response,0.04s,2025-06-05T08:52:02.778106+00:00,{}
+6849c24215c6806a46c50915,conv-005,Lisa Wang,Do you work with healthcare businesses?,"Absolutely! We have extensive experience with healthcare websites, ensuring HIPAA compliance, patient portal integration, and appointment booking systems. What type of healthcare services do you provide?",healthcare,Enhanced CSV Response,0.06s,2025-06-05T05:52:02.778106+00:00,{}
+6849c24215c6806a46c50914,conv-004,David Thompson,How long does it take to build a professional website?,"For a professional website, it typically takes 2-4 weeks depending on complexity. For legal services like yours, we focus on trust-building elements, client testimonials, and clear service descriptions. Would you like to see some examples of legal websites we've created?",legal,Enhanced CSV Response,0.02s,2025-06-05T02:52:02.778106+00:00,{}
+6849c24215c6806a46c50913,conv-003,Emily Rodriguez,I run a fashion boutique and need social media help,"Perfect! Social media is crucial for fashion businesses. We can help with Instagram marketing, Facebook ads, and content creation that showcases your products beautifully. What platforms are you currently using?",fashion,Enhanced CSV Response,0.04s,2025-06-04T23:52:02.778106+00:00,{}
+6849c24215c6806a46c50912,conv-002,Mike Chen,What's your pricing for a tech startup website?,"Great question! Our pricing varies based on your specific needs. For tech startups, we typically recommend our comprehensive package including modern design, mobile optimization, and SEO. Would you like to schedule a free consultation to discuss your requirements?",technology,Enhanced CSV Response,0.03s,2025-06-04T20:52:02.778106+00:00,{}
+6849c24215c6806a46c50911,conv-001,Sarah Johnson,"Hi, I need a website for my restaurant","Hello Sarah! I'd be happy to help you create a website for your restaurant. What type of cuisine do you serve, and do you need online ordering capabilities?",restaurant,Enhanced CSV Response,0.05s,2025-06-04T17:52:02.778106+00:00,{}
+6849c0596dc2c9be4b2b7ef2,d1f71461-3f3c-4c35-881f-19a992dbbeb1,Muhammad Mudassir,i have a local friust shop,"Excellent, Muhammad Mudassir! I understand you have a local friust shop. For your local friust shop, I recommend our E-commerce Website + Social Media Marketing + Payment Integration package to reach customers worldwide and increase sales. We can create stunning product galleries and secure payment systems!
+
+Our core services that would benefit your local friust shop include:
+1. Website Development - Professional online presence
+2. Social Media Marketing - Reach your target audience
+3. Branding Services - Create a memorable brand identity
+4. Chatbot Development - Automate customer service
+5. Business Automation - Streamline your operations
+6. Payment Integration - Secure online transactions
+
+NEXT STEPS:
+• Enter a service number (1-6) to learn more
+• Type 'schedule appointment' to book a FREE consultation
+• Ask about pricing for specific services
+
+Would you like to schedule a consultation to discuss your local friust shop needs in detail?",business_consultation,Fixed Direct Handler Routing,0.07s,2025-06-03T20:20:04.164767,
+6849c0596dc2c9be4b2b7ef1,36d23ca7-5448-434a-8d2e-ba291b0c4e6d,Muhammad Mudassir,yes,"Hello, Muhammad Mudassir! I'm your intelligent Techrypt business consultant. I'd love to learn more about your business to provide specific recommendations. What type of business do you run, and what are your main challenges right now?",business_consultation,Fixed Direct Handler Routing,0.01s,2025-06-03T02:41:37.253865,
+6849c0596dc2c9be4b2b7ef0,b1c00ba9-c085-453b-9051-909a2cbb99d1,Muhammad Mudassir,5,"Excellent choice, Muhammad Mudassir! Automation Packages will streamline your business operations and save you time.
+
+AUTOMATION PACKAGES DETAILS:
+
+WHAT WE OFFER:
+• Business process automation
+• Workflow optimization
+• Email marketing automation
+• CRM integration and setup
+• Inventory management systems
+• Automated reporting systems
+
+BENEFITS:
+• Save 10-20 hours per week
+• Reduce manual errors
+• Improve customer response times
+• Streamline operations
+• Better data management
+
+PRICING: Custom pricing based on automation complexity and business requirements. Detailed pricing discussions happen during our free consultation appointments.
+
+Ready to schedule a consultation to discuss automating your business processes?",service_selection,Fixed Direct Handler Routing,0.00s,2025-06-03T02:41:29.578685,
+6849c0596dc2c9be4b2b7eef,bf3f613e-bd24-4a5d-a295-43d0af53966a,Muhammad Mudassir,3,"Perfect choice, Muhammad Mudassir! Branding Services will help you create a memorable and professional brand identity.
+
+BRANDING SERVICES DETAILS:
+
+WHAT WE OFFER:
+• Logo design and brand identity
+• Brand guidelines and style guides
+• Business card and stationery design
+• Marketing materials design
+• Brand voice and messaging
+• Brand strategy consultation
+
+DELIVERABLES:
+• Multiple logo concepts
+• Color palette and typography
+• Brand guidelines document
+• Business card designs
+• Social media templates
+
+PRICING: Custom pricing based on your branding needs and project scope. Detailed pricing discussions happen during our free consultation appointments.
+
+Ready to schedule a consultation to discuss building a strong brand identity for your business?",service_selection,Fixed Direct Handler Routing,0.00s,2025-06-03T02:41:19.863319,
+6849c0596dc2c9be4b2b7eee,ce596747-af3f-490c-95fe-ccea27bf2f63,Muhammad Mudassir,services,"Great question, Muhammad Mudassir! Based on your hey, i need a bot for my agemncy, here are our core services:
+
+TAILORED FOR YOUR HEY, I NEED A BOT FOR MY AGEMNCY:
+
+1. Website Development - Professional online presence
+2. Social Media Marketing - Targeted audience growth
+3. Branding Services - Memorable brand identity
+4. Chatbot Development - Customer service automation
+5. Business Automation - Streamlined operations
+6. Payment Integration - Secure transactions
+
+Enter a number (1-6) for detailed information, or let's schedule a consultation to discuss your specific needs!",services_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:41:16.059601,
+6849c0596dc2c9be4b2b7eed,dcf963d7-ad74-4ab0-ae6c-964b2a24971c,Muhammad Mudassir,hi,"Hello, Muhammad Mudassir! I'm your intelligent Techrypt business consultant. I'd love to learn more about your business to provide specific recommendations. What type of business do you run, and what are your main challenges right now?",business_consultation,Fixed Direct Handler Routing,0.00s,2025-06-03T02:41:00.183295,
+6849c0596dc2c9be4b2b7eec,371a4db2-2000-4e93-84ac-618515a22644,Muhammad Mudassir,forget everything,"Hello, Muhammad Mudassir! I'm your intelligent Techrypt business consultant. I'd love to learn more about your business to provide specific recommendations. What type of business do you run, and what are your main challenges right now?",business_consultation,Fixed Direct Handler Routing,0.01s,2025-06-03T02:40:51.941555,
+6849c0596dc2c9be4b2b7eeb,cb549dae-4a46-4605-acee-e3fe76c88cfa,Muhammad Mudassir,i want online presence,"Hello, Muhammad Mudassir! I'm your intelligent Techrypt business consultant. I'd love to learn more about your business to provide specific recommendations. What type of business do you run, and what are your main challenges right now?",business_consultation,Fixed Direct Handler Routing,0.04s,2025-06-03T02:40:22.137409,
+6849c0596dc2c9be4b2b7eea,6c45e3af-413d-4e90-827f-47a485c997ea,Muhammad Mudassir,no clients,"Hello, Muhammad Mudassir! I'm your intelligent Techrypt business consultant. I'd love to learn more about your business to provide specific recommendations. What type of business do you run, and what are your main challenges right now?",business_consultation,Fixed Direct Handler Routing,0.01s,2025-06-03T02:39:59.280626,
+6849c0596dc2c9be4b2b7ee9,4683fa8b-5aa8-4809-829b-d40dce31fc21,Muhammad Mudassir,maybe,"Hello, Muhammad Mudassir! I'm your intelligent Techrypt business consultant. I'd love to learn more about your business to provide specific recommendations. What type of business do you run, and what are your main challenges right now?",business_consultation,Fixed Direct Handler Routing,0.01s,2025-06-03T02:39:39.765782,
+6849c0596dc2c9be4b2b7ee8,85a66934-2d3c-4ad3-b695-3c21e3c4779e,Muhammad Mudassir,4,"Smart choice, Muhammad Mudassir! Chatbot Development will automate your customer service and boost engagement.
+
+CHATBOT DEVELOPMENT DETAILS:
+
+WHAT WE OFFER:
+• AI-powered conversational chatbots
+• Lead generation and qualification
+• 24/7 customer support automation
+• Integration with your website
+• Multi-platform deployment
+• Analytics and conversation insights
+
+FEATURES:
+• Natural language processing
+• Custom conversation flows
+• Integration with CRM systems
+• Multi-language support
+• Performance analytics
+
+PRICING: Custom pricing based on chatbot complexity and features needed. Detailed pricing discussions happen during our free consultation appointments.
+
+Interested in scheduling a consultation to discuss automating your customer interactions?",service_selection,Fixed Direct Handler Routing,0.00s,2025-06-03T02:39:08.138810,
+6849c0596dc2c9be4b2b7ee7,2e219ac5-422a-451c-a691-4e3104d38cae,Muhammad Mudassir,"hey, i need a bot for my agemncy","Thanks, Muhammad Mudassir! For your hey, i need a bot for my agemncy, we recommend:
+
+• 4. Chatbot – Automate support
+• 1. Website – Build trust online
+• 5. Business – Streamline operations
+
+Type a number (4-1-5) to learn more
+Or type: schedule appointment",business_consultation,Fixed Direct Handler Routing,0.00s,2025-06-03T02:38:53.995820,
+6849c0596dc2c9be4b2b7ee6,903f91f7-3f72-44a9-ab7b-36f5a5355308,Broski,yes,"Hello, Broski! I'm your intelligent Techrypt business consultant. I'd love to learn more about your business to provide specific recommendations. What type of business do you run, and what are your main challenges right now?",business_consultation,Fixed Direct Handler Routing,0.01s,2025-06-03T02:33:26.797992,
+6849c0596dc2c9be4b2b7ee5,59d3ff5f-b061-4812-a7a1-60e68005c029,Broski,marketing,"Thanks, Broski! For your marketing, we recommend:
+
+• 2. Social – Attract customers
+• 1. Website – Build trust online
+• 3. Branding – Create unique identity
+
+Type a number (2-1-3) to learn more
+Or type: schedule appointment",business_consultation,Fixed Direct Handler Routing,0.00s,2025-06-03T02:33:07.680599,
+6849c0596dc2c9be4b2b7ee4,a2a7dda8-7bcc-4aff-b49f-b8f0da7cac5d,Broski,payment,"Thanks, Broski! For your payment, we recommend:
+
+• 6. Payment – Secure online payments
+• 1. Website – Build trust online
+• 5. Business – Streamline operations
+
+Type a number (6-1-5) to learn more
+Or type: schedule appointment",business_consultation,Fixed Direct Handler Routing,0.00s,2025-06-03T02:32:37.846221,
+6849c0596dc2c9be4b2b7ee3,09da732b-fb77-4032-acb6-93591161c77c,Broski,i sell home made cookes,"Excellent, Broski! I understand you have a home made cookes. For your home made cookes, I recommend our Website Development + Social Media Marketing + Business Automation package to grow your business and reach more customers. We can create tailored solutions that fit your specific industry needs!
+
+Our core services that would benefit your home made cookes include:
+1. Website Development - Professional online presence
+2. Social Media Marketing - Reach your target audience
+3. Branding Services - Create a memorable brand identity
+4. Chatbot Development - Automate customer service
+5. Business Automation - Streamline your operations
+6. Payment Integration - Secure online transactions
+
+NEXT STEPS:
+• Enter a service number (1-6) to learn more
+• Type 'schedule appointment' to book a FREE consultation
+• Ask about pricing for specific services
+
+Would you like to schedule a consultation to discuss your home made cookes needs in detail?",business_consultation,Fixed Direct Handler Routing,0.01s,2025-06-03T02:32:07.255482,
+6849c0596dc2c9be4b2b7ee2,125d56a9-0a58-4c8e-8881-a0f82316d949,Appointment RequestUser,schedule appointment,"Perfect, Appointment RequestUser! I'd be happy to help you schedule an appointment with our team.
+
+APPOINTMENT SCHEDULING:
+
+To schedule your consultation, please provide:
+• Your preferred date and time
+• Type of service you're interested in
+• Brief description of your project
+• Your contact information (if not already provided)
+
+AVAILABLE SERVICES FOR CONSULTATION:
+• Website Development - Custom websites and e-commerce
+• Social Media Marketing - Growth strategies and campaigns
+• Branding Services - Logo design and brand identity
+• Chatbot Development - AI-powered automation
+• Business Automation - Workflow optimization
+• Payment Integration - Secure payment systems
+
+Our consultation sessions are typically 30-60 minutes and can be conducted via:
+• Video call (Zoom, Google Meet)
+• Phone call
+• In-person (if you're in Karachi)
+
+What type of service consultation would you like to schedule, and when would be convenient for you?",appointment_request,Fixed Direct Handler Routing,0.00s,2025-06-03T02:29:23.887058,
+6849c0596dc2c9be4b2b7ee1,a8bd4d11-5edb-4ff2-a158-00a1e9cc28f1,SEO Service MappingUser,seo services,"Excellent question, SEO Service MappingUser! Here are our core services:
+
+OUR CORE SERVICES:
+
+1. Website Development
+   • Professional websites with SEO optimization
+   • E-commerce platforms and online stores
+   • Custom web applications
+
+2. Social Media Marketing
+   • Instagram, Facebook, LinkedIn growth strategies
+   • Content creation and management
+   • Targeted advertising campaigns
+
+3. Branding Services
+   • Logo design and brand identity
+   • Brand guidelines and visual systems
+   • Marketing materials design
+
+4. Chatbot Development
+   • AI-powered customer service automation
+   • Lead generation and qualification
+   • 24/7 customer support systems
+
+5. Automation Packages
+   • Business process automation
+   • Workflow optimization
+   • Integration solutions
+
+6. Payment Gateway Integration
+   • Stripe, PayPal, and local payment setup
+   • Secure transaction processing
+   • E-commerce payment solutions
+
+Please enter the number (1-6) of the service you're most interested in, or ask me about multiple services!",services_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:29:20.783302,
+6849c0596dc2c9be4b2b7ee0,eec8c3f3-f4cb-4c45-8eb9-cdcfa6185df2,Business DetectionUser,i run a restaurant business,"Excellent, Business DetectionUser! I understand you have a restaurant. For your restaurant, I recommend our Website + Social Media Marketing + Online Ordering System package to increase customers and streamline operations. We can create an attractive menu showcase and online ordering platform!
+
+Our core services that would benefit your restaurant include:
+1. Website Development - Professional online presence
+2. Social Media Marketing - Reach your target audience
+3. Branding Services - Create a memorable brand identity
+4. Chatbot Development - Automate customer service
+5. Business Automation - Streamline your operations
+6. Payment Integration - Secure online transactions
+
+NEXT STEPS:
+• Enter a service number (1-6) to learn more
+• Type 'schedule appointment' to book a FREE consultation
+• Ask about pricing for specific services
+
+Would you like to schedule a consultation to discuss your restaurant needs in detail?",business_consultation,Fixed Direct Handler Routing,0.02s,2025-06-03T02:29:17.657969,
+6849c0596dc2c9be4b2b7edf,44a08217-bac6-4b36-81f4-d9de82946d22,Logo Pricing PolicyUser,how much for logo design,"Great question, Logo Pricing PolicyUser! Logo design pricing depends on complexity, revisions, and your specific requirements. We provide customized quotes during our free consultation appointments to ensure you get the best value. Would you like to schedule a consultation?",ask_pricing,CSV Response,0.00s,2025-06-03T02:29:14.498012,
+6849c0596dc2c9be4b2b7ede,6fc13eb8-7f53-4cb6-beac-54714427f335,Pricing PolicyUser,what are your prices,"Great question, Pricing PolicyUser! Our pricing is tailored to each client's specific needs and project requirements. We believe in providing transparent, fair pricing that delivers maximum value. Detailed pricing discussions happen during our free consultation appointments. Would you like to schedule one?
+
+Would you like to schedule a free consultation to discuss your specific needs? Just type 'schedule appointment'!",ask_pricing,CSV Response,0.00s,2025-06-03T02:29:11.371257,
+6849c0596dc2c9be4b2b7edd,08f48661-8d78-46d9-b7d5-5ab3814d7b48,LocationUser,where are you located,"Great question, LocationUser! We are based in Karachi, Pakistan, but we serve clients globally. Our team works remotely to provide 24/7 support worldwide.",ask_location,CSV Response,0.00s,2025-06-03T02:29:08.242514,
+6849c0596dc2c9be4b2b7edc,860bff6d-8bb3-4146-92e0-472cc207981b,TimelineUser,how long it takes to make a website,"Great question, TimelineUser! It typically takes 2-4 weeks to launch depending on the scope. We move fast while ensuring quality.
+
+Would you like to schedule a free consultation to discuss your specific needs? Just type 'schedule appointment'!",ask_process,CSV Response,0.00s,2025-06-03T02:29:05.127578,
+6849c0596dc2c9be4b2b7edb,d8f9b614-f7aa-4f0f-8fc9-2bfcb791da78,ChatbotUser,chatbot pricing,"Great question, ChatbotUser! Our pricing is customized based on your specific requirements and project scope.
+
+🎯 WHY CUSTOM PRICING?
+• Every project is unique with different requirements
+• We provide transparent, fair pricing that delivers maximum value
+• Detailed discussions ensure you get exactly what you need
+
+💡 WHAT WE CONSIDER:
+• Project complexity and scope
+• Timeline requirements
+• Custom features needed
+• Ongoing support level
+
+📞 PRICING DISCUSSIONS:
+Detailed pricing can only be discussed during appointments to ensure we understand your specific needs and provide accurate quotes.
+
+🆓 FREE CONSULTATION:
+Let's schedule a FREE consultation to discuss your project and provide a customized quote!
+
+Type 'schedule appointment' to get started! 🚀",pricing_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:28:08.137874,
+6849c0596dc2c9be4b2b7eda,b1e629f4-277e-4e77-b6c8-f814592bd1dd,WebsiteUser,website development pricing,"Great question, WebsiteUser! Our pricing is customized based on your specific requirements and project scope.
+
+🎯 WHY CUSTOM PRICING?
+• Every project is unique with different requirements
+• We provide transparent, fair pricing that delivers maximum value
+• Detailed discussions ensure you get exactly what you need
+
+💡 WHAT WE CONSIDER:
+• Project complexity and scope
+• Timeline requirements
+• Custom features needed
+• Ongoing support level
+
+📞 PRICING DISCUSSIONS:
+Detailed pricing can only be discussed during appointments to ensure we understand your specific needs and provide accurate quotes.
+
+🆓 FREE CONSULTATION:
+Let's schedule a FREE consultation to discuss your project and provide a customized quote!
+
+Type 'schedule appointment' to get started! 🚀",pricing_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:28:05.008431,
+6849c0596dc2c9be4b2b7ed9,2078c988-88e3-449d-8f9e-391dfa415480,BrandingUser,branding package cost,"Great question, BrandingUser! Our pricing is customized based on your specific requirements and project scope.
+
+🎯 WHY CUSTOM PRICING?
+• Every project is unique with different requirements
+• We provide transparent, fair pricing that delivers maximum value
+• Detailed discussions ensure you get exactly what you need
+
+💡 WHAT WE CONSIDER:
+• Project complexity and scope
+• Timeline requirements
+• Custom features needed
+• Ongoing support level
+
+📞 PRICING DISCUSSIONS:
+Detailed pricing can only be discussed during appointments to ensure we understand your specific needs and provide accurate quotes.
+
+🆓 FREE CONSULTATION:
+Let's schedule a FREE consultation to discuss your project and provide a customized quote!
+
+Type 'schedule appointment' to get started! 🚀",pricing_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:28:01.931689,
+6849c0596dc2c9be4b2b7ed8,82e39172-9d39-4d0f-b2a5-9a42bee985e8,LogoUser,how much for logo design,"Great question, LogoUser! Logo design pricing depends on complexity, revisions, and your specific requirements. We provide customized quotes during our free consultation appointments to ensure you get the best value. Would you like to schedule a consultation?",ask_pricing,CSV Response,0.00s,2025-06-03T02:27:58.832312,
+6849c0596dc2c9be4b2b7ed7,89df4eaa-c750-48e6-869f-dc5e2fb474bd,PricingUser,what are your prices,"Great question, PricingUser! Our pricing is tailored to each client's specific needs and project requirements. We believe in providing transparent, fair pricing that delivers maximum value. Detailed pricing discussions happen during our free consultation appointments. Would you like to schedule one?
+
+Would you like to schedule a free consultation to discuss your specific needs? Just type 'schedule appointment'!",ask_pricing,CSV Response,0.00s,2025-06-03T02:27:55.673751,
+6849c0596dc2c9be4b2b7ed6,5aa3f2f2-0061-417b-a011-18da67c548b7,Appointment RequestUser,schedule appointment,"Perfect, Appointment RequestUser! I'd be happy to help you schedule an appointment with our team.
+
+APPOINTMENT SCHEDULING:
+
+To schedule your consultation, please provide:
+• Your preferred date and time
+• Type of service you're interested in
+• Brief description of your project
+• Your contact information (if not already provided)
+
+AVAILABLE SERVICES FOR CONSULTATION:
+• Website Development - Custom websites and e-commerce
+• Social Media Marketing - Growth strategies and campaigns
+• Branding Services - Logo design and brand identity
+• Chatbot Development - AI-powered automation
+• Business Automation - Workflow optimization
+• Payment Integration - Secure payment systems
+
+Our consultation sessions are typically 30-60 minutes and can be conducted via:
+• Video call (Zoom, Google Meet)
+• Phone call
+• In-person (if you're in Karachi)
+
+What type of service consultation would you like to schedule, and when would be convenient for you?",appointment_request,Fixed Direct Handler Routing,0.00s,2025-06-03T02:21:47.276577,
+6849c0596dc2c9be4b2b7ed5,c1cd67d5-cc9a-43c4-a182-76232d39915a,Payment ServiceUser,payment integration,"Great question, Payment ServiceUser! Yes, we integrate with popular payment gateways like Stripe and PayPal.",ask_capability,CSV Response,0.00s,2025-06-03T02:21:43.933959,
+6849c0596dc2c9be4b2b7ed4,5f1d9161-dc9b-4d05-9119-a2d7964435e8,SEO Service MappingUser,seo services,"Excellent question, SEO Service MappingUser! Here are our core services:
+
+OUR CORE SERVICES:
+
+1. Website Development
+   • Professional websites with SEO optimization
+   • E-commerce platforms and online stores
+   • Custom web applications
+
+2. Social Media Marketing
+   • Instagram, Facebook, LinkedIn growth strategies
+   • Content creation and management
+   • Targeted advertising campaigns
+
+3. Branding Services
+   • Logo design and brand identity
+   • Brand guidelines and visual systems
+   • Marketing materials design
+
+4. Chatbot Development
+   • AI-powered customer service automation
+   • Lead generation and qualification
+   • 24/7 customer support systems
+
+5. Automation Packages
+   • Business process automation
+   • Workflow optimization
+   • Integration solutions
+
+6. Payment Gateway Integration
+   • Stripe, PayPal, and local payment setup
+   • Secure transaction processing
+   • E-commerce payment solutions
+
+Please enter the number (1-6) of the service you're most interested in, or ask me about multiple services!",services_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:21:40.794960,
+6849c0596dc2c9be4b2b7ed3,a120a31a-8f5e-449f-8b70-111437fa8881,Business DetectionUser,i run a restaurant business,"Excellent, Business DetectionUser! I understand you have a restaurant. For your restaurant, I recommend our Website + Social Media Marketing + Online Ordering System package to increase customers and streamline operations. We can create an attractive menu showcase and online ordering platform!
+
+Our core services that would benefit your restaurant include:
+1. Website Development - Professional online presence
+2. Social Media Marketing - Reach your target audience
+3. Branding Services - Create a memorable brand identity
+4. Chatbot Development - Automate customer service
+5. Business Automation - Streamline your operations
+6. Payment Integration - Secure online transactions
+
+NEXT STEPS:
+• Enter a service number (1-6) to learn more
+• Type 'schedule appointment' to book a FREE consultation
+• Ask about pricing for specific services
+
+Would you like to schedule a consultation to discuss your restaurant needs in detail?",business_consultation,Fixed Direct Handler Routing,0.06s,2025-06-03T02:21:37.536250,
+6849c0596dc2c9be4b2b7ed2,7624d032-d0dd-4086-ac4d-1b5e175bd547,Logo PricingUser,how much for logo design,"Great question, Logo PricingUser! Logo Design pricing is $200-400 depending on complexity and revisions. However, detailed pricing can only be discussed during appointments to ensure we provide the best value for your specific needs.",ask_pricing,CSV Response,0.00s,2025-06-03T02:21:34.177930,
+6849c0596dc2c9be4b2b7ed1,a813f434-3e5b-45a3-800f-6b286a117fa2,General PricingUser,what are your prices,"Great question, General PricingUser! Our pricing varies based on your specific needs and project scope. For branding: Logo Design ($200-400), Brand Package ($500-800), Guidelines ($300-500), Marketing Materials ($150-300). Detailed pricing discussions happen during our free consultation appointments.
+
+Would you like to schedule a free consultation to discuss your specific needs? Just type 'schedule appointment'!",ask_pricing,CSV Response,0.00s,2025-06-03T02:21:30.882564,
+6849c0596dc2c9be4b2b7ed0,81daa25f-1af9-49a3-94c2-f830800afbf8,LocationUser,where are you located,"Great question, LocationUser! We are based in Karachi, Pakistan, but we serve clients globally. Our team works remotely to provide 24/7 support worldwide.",ask_location,CSV Response,0.00s,2025-06-03T02:21:27.708009,
+6849c0596dc2c9be4b2b7ecf,4dd70083-bec6-4bf0-83dd-b6d3d2559f19,TimelineUser,how long it takes to make a website,"Great question, TimelineUser! It typically takes 2-4 weeks to launch depending on the scope. We move fast while ensuring quality.
+
+Would you like to schedule a free consultation to discuss your specific needs? Just type 'schedule appointment'!",ask_process,CSV Response,0.00s,2025-06-03T02:21:24.435688,
+6849c0596dc2c9be4b2b7ece,9f8d3c36-d6d5-48fa-9b74-3ba35be1d483,PricingTester,brand package pricing,"Great question, PricingTester! Our branding pricing: Logo Design: $200-400, Complete Brand Package: $500-800, Brand Guidelines: $300-500, Marketing Materials: $150-300. However, detailed pricing can only be discussed during appointments to ensure we provide the best value for your specific needs.",ask_pricing,CSV Response,0.00s,2025-06-03T02:20:16.419689,
+6849c0596dc2c9be4b2b7ecd,5bf7a981-d3d8-455f-b4f2-d35822b60447,PricingTester,branding package cost,"Great question, PricingTester! Our pricing is flexible and depends on your specific needs:
+
+PRICING STRUCTURE:
+• Website Development: Starting from $500-2000 (depends on complexity)
+• Social Media Marketing: $300-800/month (package-based)
+• Branding Services: $200-1000 (logo, identity, guidelines)
+• Chatbot Development: $400-1200 (AI-powered, custom features)
+• Automation Packages: $300-1500 (workflow automation)
+• Payment Integration: $200-600 (Stripe, PayPal setup)
+
+We offer custom pricing plans based on your business size and requirements. Would you like me to help you get a personalized quote?",pricing_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:20:13.134249,
+6849c0596dc2c9be4b2b7ecc,f0a11701-62f0-44b4-83cc-d0cb02d8f227,PricingTester,logo pricing,"Great question, PricingTester! Logo Design pricing is $200-400 depending on complexity and revisions. However, detailed pricing can only be discussed during appointments to ensure we provide the best value for your specific needs.",ask_pricing,CSV Response,0.00s,2025-06-03T02:20:09.825198,
+6849c0596dc2c9be4b2b7ecb,83466e5a-2dbe-4567-a8aa-3374684c0cd4,PricingTester,how much for logo design,"Great question, PricingTester! Logo Design pricing is $200-400 depending on complexity and revisions. However, detailed pricing can only be discussed during appointments to ensure we provide the best value for your specific needs.",ask_pricing,CSV Response,0.00s,2025-06-03T02:20:06.522424,
+6849c0596dc2c9be4b2b7eca,c705f382-0489-4677-9762-6ea96f92e4a2,PricingTester,what are your prices,"Great question, PricingTester! Our pricing varies based on your specific needs and project scope. For branding: Logo Design ($200-400), Brand Package ($500-800), Guidelines ($300-500), Marketing Materials ($150-300). Detailed pricing discussions happen during our free consultation appointments.
+
+Would you like to schedule a free consultation to discuss your specific needs? Just type 'schedule appointment'!",ask_pricing,CSV Response,0.00s,2025-06-03T02:20:03.155880,
+6849c0596dc2c9be4b2b7ec9,a3b6faa6-8cb2-4a12-b4f6-df47885f902f,TimelineUser,how long it takes to make a website,"Great question, TimelineUser! It typically takes 2-4 weeks to launch depending on the scope. We move fast while ensuring quality.
+
+Would you like to schedule a free consultation to discuss your specific needs? Just type 'schedule appointment'!",ask_process,CSV Response,0.00s,2025-06-03T02:18:27.088842,
+6849c0596dc2c9be4b2b7ec8,c6efdd87-3fe5-4442-8131-1371bd1311c2,AppointmentUser,pricing can only be discussed during appointments,"Great question, AppointmentUser! Our pricing is flexible and depends on your specific needs:
+
+PRICING STRUCTURE:
+• Website Development: Starting from $500-2000 (depends on complexity)
+• Social Media Marketing: $300-800/month (package-based)
+• Branding Services: $200-1000 (logo, identity, guidelines)
+• Chatbot Development: $400-1200 (AI-powered, custom features)
+• Automation Packages: $300-1500 (workflow automation)
+• Payment Integration: $200-600 (Stripe, PayPal setup)
+
+We offer custom pricing plans based on your business size and requirements. Would you like me to help you get a personalized quote?",pricing_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:18:23.837425,
+6849c0596dc2c9be4b2b7ec7,597c489d-fb4e-4a8b-b6fc-62cd31f18297,BrandingUser,branding package cost,"Great question, BrandingUser! Our pricing is flexible and depends on your specific needs:
+
+PRICING STRUCTURE:
+• Website Development: Starting from $500-2000 (depends on complexity)
+• Social Media Marketing: $300-800/month (package-based)
+• Branding Services: $200-1000 (logo, identity, guidelines)
+• Chatbot Development: $400-1200 (AI-powered, custom features)
+• Automation Packages: $300-1500 (workflow automation)
+• Payment Integration: $200-600 (Stripe, PayPal setup)
+
+We offer custom pricing plans based on your business size and requirements. Would you like me to help you get a personalized quote?",pricing_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:18:20.524070,
+6849c0596dc2c9be4b2b7ec6,0ea07eb1-0559-4074-a89b-07e59339526a,LogoUser,how much for logo design,"Great question, LogoUser! Our pricing is flexible and depends on your specific needs:
+
+PRICING STRUCTURE:
+• Website Development: Starting from $500-2000 (depends on complexity)
+• Social Media Marketing: $300-800/month (package-based)
+• Branding Services: $200-1000 (logo, identity, guidelines)
+• Chatbot Development: $400-1200 (AI-powered, custom features)
+• Automation Packages: $300-1500 (workflow automation)
+• Payment Integration: $200-600 (Stripe, PayPal setup)
+
+We offer custom pricing plans based on your business size and requirements. Would you like me to help you get a personalized quote?",pricing_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:18:17.232634,
+6849c0596dc2c9be4b2b7ec5,31613108-5157-46e6-9591-b5659fd4b800,PricingUser,what are your prices,"Great question, PricingUser! Our pricing is flexible and depends on your specific needs:
+
+PRICING STRUCTURE:
+• Website Development: Starting from $500-2000 (depends on complexity)
+• Social Media Marketing: $300-800/month (package-based)
+• Branding Services: $200-1000 (logo, identity, guidelines)
+• Chatbot Development: $400-1200 (AI-powered, custom features)
+• Automation Packages: $300-1500 (workflow automation)
+• Payment Integration: $200-600 (Stripe, PayPal setup)
+
+We offer custom pricing plans based on your business size and requirements. Would you like me to help you get a personalized quote?",pricing_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:18:14.013724,
+6849c0596dc2c9be4b2b7ec4,4fe4c989-da89-4a9f-8825-0de5d0d2a292,LocationUser,where are you located,"Great question, LocationUser! We are based in Karachi, Pakistan, but we serve clients globally. Our team works remotely to provide 24/7 support worldwide.",ask_location,CSV Response,0.00s,2025-06-03T02:18:10.727026,
+6849c0596dc2c9be4b2b7ec3,c41ff05b-f093-4de4-a0bc-99e7412c3242,Kylian Mbappe,3,"Perfect choice, Kylian Mbappe! Branding Services will help you create a memorable and professional brand identity.
+
+BRANDING SERVICES DETAILS:
+
+WHAT WE OFFER:
+• Logo design and brand identity
+• Brand guidelines and style guides
+• Business card and stationery design
+• Marketing materials design
+• Brand voice and messaging
+• Brand strategy consultation
+
+PRICING:
+• Logo Design: $200-400
+• Complete Brand Package: $500-800
+• Brand Guidelines: $300-500
+• Marketing Materials: $150-300
+
+DELIVERABLES:
+• Multiple logo concepts
+• Color palette and typography
+• Brand guidelines document
+• Business card designs
+• Social media templates
+
+Ready to build a strong brand identity for your business?",service_selection,Fixed Direct Handler Routing,0.00s,2025-06-03T02:12:10.121268,
+6849c0596dc2c9be4b2b7ec2,2ed58e7f-0b60-43f0-bc70-7f11f24941ff,PaymentUser,payment integration,"Great question, PaymentUser! Yes, we integrate with popular payment gateways like Stripe and PayPal.",ask_capability,CSV Response,0.00s,2025-06-03T02:12:01.091597,
+6849c0596dc2c9be4b2b7ec1,cc862699-5ccd-459f-83ea-d5bcd1b943d1,SEOUser,seo services,"Excellent question, SEOUser! Here are our core services:
+
+OUR CORE SERVICES:
+
+1. Website Development
+   • Professional websites with SEO optimization
+   • E-commerce platforms and online stores
+   • Custom web applications
+
+2. Social Media Marketing
+   • Instagram, Facebook, LinkedIn growth strategies
+   • Content creation and management
+   • Targeted advertising campaigns
+
+3. Branding Services
+   • Logo design and brand identity
+   • Brand guidelines and visual systems
+   • Marketing materials design
+
+4. Chatbot Development
+   • AI-powered customer service automation
+   • Lead generation and qualification
+   • 24/7 customer support systems
+
+5. Automation Packages
+   • Business process automation
+   • Workflow optimization
+   • Integration solutions
+
+6. Payment Gateway Integration
+   • Stripe, PayPal, and local payment setup
+   • Secure transaction processing
+   • E-commerce payment solutions
+
+Please enter the number (1-6) of the service you're most interested in, or ask me about multiple services!",services_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T02:11:57.749788,
+6849c0596dc2c9be4b2b7ec0,7ebc3b6f-ed0c-48fd-a607-1edd80a0c50e,RestaurantOwner,i run a restaurant business,"Excellent, RestaurantOwner! I understand you have a restaurant. For your restaurant, I recommend our Website + Social Media Marketing + Online Ordering System package to increase customers and streamline operations. We can create an attractive menu showcase and online ordering platform!
+
+Our core services that would benefit your restaurant include:
+1. Website Development - Professional online presence
+2. Social Media Marketing - Reach your target audience
+3. Branding Services - Create a memorable brand identity
+4. Chatbot Development - Automate customer service
+5. Business Automation - Streamline your operations
+6. Payment Integration - Secure online transactions
+
+NEXT STEPS:
+• Enter a service number (1-6) to learn more
+• Type 'schedule appointment' to book a FREE consultation
+• Ask about pricing for specific services
+
+Would you like to schedule a consultation to discuss your restaurant needs in detail?",business_consultation,Fixed Direct Handler Routing,0.05s,2025-06-03T02:11:54.459647,
+6849c0596dc2c9be4b2b7ebf,2c09db76-91ab-42be-99d4-88646787f6c2,Alice,how long it takes to make a website,"Great question, Alice! It typically takes 2-4 weeks to launch depending on the scope. We move fast while ensuring quality.
+
+Would you like to schedule a free consultation to discuss your specific needs? Just type 'schedule appointment'!",ask_process,CSV Response,0.00s,2025-06-03T02:11:51.144246,
+6849c0596dc2c9be4b2b7ebe,00f59a3d-f514-4c1e-bf6e-9244ba53a34f,Kylian Mbappe,i make handmade footballs,"Excellent, Kylian Mbappe! I understand you have a handmade crafts. For your handmade crafts, I recommend our Website Development + Social Media Marketing + Business Automation package to grow your business and reach more customers. We can create tailored solutions that fit your specific industry needs!
+
+Our core services that would benefit your handmade crafts include:
+1. Website Development - Professional online presence
+2. Social Media Marketing - Reach your target audience
+3. Branding Services - Create a memorable brand identity
+4. Chatbot Development - Automate customer service
+5. Business Automation - Streamline your operations
+6. Payment Integration - Secure online transactions
+
+NEXT STEPS:
+• Enter a service number (1-6) to learn more
+• Type 'schedule appointment' to book a FREE consultation
+• Ask about pricing for specific services
+
+Would you like to schedule a consultation to discuss your handmade crafts needs in detail?",business_consultation,Fixed Direct Handler Routing,0.04s,2025-06-03T02:11:48.509035,
+6849c0596dc2c9be4b2b7ebd,aa352d31-0d6e-4995-bcb6-560606f7fdd4,TestUser,Hello,"Hello, TestUser! I'm your intelligent Techrypt business consultant. I'd love to learn more about your business to provide specific recommendations. What type of business do you run, and what are your main challenges right now?",business_consultation,Fixed Direct Handler Routing,0.03s,2025-06-03T02:11:47.690029,
+6849c0596dc2c9be4b2b7ebc,b8b591b7-83e3-4529-9d04-2c49867e6bba,Eve,payment integration,"Great question, Eve! Yes, we integrate with popular payment gateways like Stripe and PayPal.",ask_capability,CSV Response,0.00s,2025-06-03T01:59:39.448010,
+6849c0596dc2c9be4b2b7ebb,c0fa45c6-354a-4d1b-97a9-04f72a0c7324,David,seo services,"Excellent question, David! Here are our core services:
+
+OUR CORE SERVICES:
+
+1. Website Development
+   • Professional websites with SEO optimization
+   • E-commerce platforms and online stores
+   • Custom web applications
+
+2. Social Media Marketing
+   • Instagram, Facebook, LinkedIn growth strategies
+   • Content creation and management
+   • Targeted advertising campaigns
+
+3. Branding Services
+   • Logo design and brand identity
+   • Brand guidelines and visual systems
+   • Marketing materials design
+
+4. Chatbot Development
+   • AI-powered customer service automation
+   • Lead generation and qualification
+   • 24/7 customer support systems
+
+5. Automation Packages
+   • Business process automation
+   • Workflow optimization
+   • Integration solutions
+
+6. Payment Gateway Integration
+   • Stripe, PayPal, and local payment setup
+   • Secure transaction processing
+   • E-commerce payment solutions
+
+Please enter the number (1-6) of the service you're most interested in, or ask me about multiple services!",services_inquiry,Fixed Direct Handler Routing,0.00s,2025-06-03T01:59:36.245646,
+6849c0596dc2c9be4b2b7eba,700b5ea8-79f7-4771-9367-209ab461288a,Charlie,i run a restaurant business,"Excellent, Charlie! I understand you have a restaurant. For your restaurant, I recommend our Website + Social Media Marketing + Online Ordering System package to increase customers and streamline operations. We can create an attractive menu showcase and online ordering platform!
+
+Our core services that would benefit your restaurant include:
+1. Website Development - Professional online presence
+2. Social Media Marketing - Reach your target audience
+3. Branding Services - Create a memorable brand identity
+4. Chatbot Development - Automate customer service
+5. Business Automation - Streamline your operations
+6. Payment Integration - Secure online transactions
+
+NEXT STEPS:
+• Enter a service number (1-6) to learn more
+• Type 'schedule appointment' to book a FREE consultation
+• Ask about pricing for specific services
+
+Would you like to schedule a consultation to discuss your restaurant needs in detail?",business_consultation,Fixed Direct Handler Routing,0.04s,2025-06-03T01:59:33.014292,
+6849c0596dc2c9be4b2b7eb9,c82c9fec-a766-40ec-ad4b-70ae837d26b3,Bob,what are your support hours,"Hello, Bob! I'm your intelligent Techrypt business consultant. I'd love to learn more about your business to provide specific recommendations. What type of business do you run, and what are your main challenges right now?",business_consultation,Fixed Direct Handler Routing,0.06s,2025-06-03T01:59:29.750987,
+6849c0596dc2c9be4b2b7eb8,3e336765-f360-44e8-ae41-fe93159982ae,Alice,how long it takes to make a website,"Great question, Alice! It typically takes 2-4 weeks to launch depending on the scope. We move fast while ensuring quality.
+
+Would you like to schedule a free consultation to discuss your specific needs? Just type 'schedule appointment'!",ask_process,CSV Response,0.00s,2025-06-03T01:59:26.335476,
