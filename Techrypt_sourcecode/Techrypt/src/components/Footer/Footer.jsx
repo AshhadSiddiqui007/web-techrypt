@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { FaLinkedin, FaYoutube, FaFacebookSquare, FaTwitter } from 'react-icons/fa';
 import { RiArrowUpDoubleLine, RiInstagramFill } from 'react-icons/ri';
 import { motion } from 'framer-motion';
-import { clutch, google, meta, techryptLogo } from '../../assets/mainImages';
+import { clutch, google, meta } from '../../assets/mainImages';
+import techryptLogo from "../../assets/Images/techryptLogo.png";
 import ContactForm from '../ContactForm/ContactForm';
 import TopModal from '../TopModal/TopModal';
 import PrivacyPolicy from '../PrivacyPolicy/PrivacyPolicy';
@@ -65,7 +66,7 @@ const Footer = () => {
   return (
     <div className="text-center bg-[#000] mt-10 overflow-x-hidden pt-24 px-3">
       <div className="inline-flex flex-col items-center justify-center mb-12">
-        <img className="mx-auto object-contain w-72 mb-2" src={techryptLogo} alt="Techrypt Logo" />
+        <img className="mx-auto object-contain w-72 mb-2 pb-8" src={techryptLogo} alt="Techrypt Logo" />
         <h3 className="text-lg font-bold text-white mt-2 px-5 py-2 border-2 border-white rounded-full inline-block">
           Empowering Digital Skills & AI-Driven Business Solutions
         </h3>
@@ -157,16 +158,17 @@ const Footer = () => {
       </div>
 
       <div className="flex gap-4 md:gap-10 lg:gap-20 justify-center items-center">
-        <a href="/">
+        <a href="https://www.linkedin.com/company/techrypt-io/posts/?feedView=all" target="_blank" rel="noopener noreferrer">
           <FaLinkedin className="text-4xl text-white glowing-green transition-all duration-150" />
         </a>
+
         <a href="/">
           <FaYoutube className="text-4xl text-white glowing-green transition-all duration-150" />
         </a>
-        <a href="/">
+        <a href="https://www.instagram.com/tech.rypt/">
           <RiInstagramFill className="text-4xl text-white glowing-green transition-all duration-150" />
         </a>
-        <a href="/">
+        <a href="https://www.facebook.com/people/Techrypt/61575440404641/#">
           <FaFacebookSquare className="text-4xl text-white glowing-green transition-all duration-150" />
         </a>
         <a href="/">

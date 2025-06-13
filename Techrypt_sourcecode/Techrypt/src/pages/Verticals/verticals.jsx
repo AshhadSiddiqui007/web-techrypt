@@ -1,15 +1,20 @@
 import React from "react";
-import AboutPara from "../../components/AboutPara/AboutPara";
-import AboutWrite from "../../components/AboutWrite/AboutWrite";
-import AboutSlider from "../../components/AboutSlider/AboutSlider";
-import Hero from "../../components/Hero/Hero";
-import AboutAwards from "../../components/AboutAwards/AboutAwards";
-import Plans from "../../components/Plans/Plans";
-import AboutCards from "../../components/AboutCards/AboutCards";
-import OurVision from "../../components/OurVision/OurVision";
-import ParallaxWrapper from "../../components/ParallaxWrapper/ParallaxWrapper";
+import Hero from "../../components/Hero/Hero.jsx";
+import Verticals from "../../components/Verticals/Verticals.jsx";
 
-const About = () => {
+const VerticalsPage = () => {
+  const handleGetStarted = () => {
+    // Directly trigger the chatbot to open with a welcome message
+    const event = new CustomEvent('openTechryptChatbot', {
+      detail: {
+        contextMessage: "Hi there! I'd be happy to help you take your business to the next level. Could you share some information about yourself so I can provide personalized assistance?",
+        businessType: 'New Visitor',
+        showAppointmentForm: true
+      }
+    });
+    window.dispatchEvent(event);
+  };
+  
   return (
     <div style={{ backgroundColor: "#0f0f0f" }}>
       <div
@@ -30,7 +35,7 @@ const About = () => {
             animation: "fadeIn 1.5s ease-in-out",
           }}
         >
-          About Us
+          Our Verticals
           <span
             style={{
               color: "#a3d900",
@@ -38,7 +43,7 @@ const About = () => {
               bottom: "-15px",
               left: "50%",
               transform: "translateX(-50%)",
-              width: "240px",
+              width: "250px",
               height: "6px",
               background: "#a3d900",
               display: "block",
@@ -54,31 +59,14 @@ const About = () => {
             }
             @keyframes underlineGrow {
               0% { width: 0; }
-              100% { width: 240px; }
+              100% { width: 250px; }
             }
           `}
         </style>
       </div>
-
-      <AboutPara />
-      <OurVision />,
-      
-     
-      <ParallaxWrapper
-        children={[
-          <AboutCards />,
-          
-        ]}
-      />
-       <AboutSlider />
-      <ParallaxWrapper
-        children={[
-          <AboutWrite />,
-        ]}
-      />
-      <Plans />
+      <Verticals />
     </div>
   );
 };
 
-export default About;
+export default VerticalsPage;

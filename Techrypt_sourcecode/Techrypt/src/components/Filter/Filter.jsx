@@ -26,7 +26,7 @@ function Filter() {
   return (
     <section className='filter-section'>
       <div className="filter-section-heading">
-        <h1 className='filter-h1 glowing-green'>Other Works</h1>
+        {/*<h1 className='filter-h1 glowing-green'>Other Works</h1>*/}
       </div>
       <div className="filter-section-filter-container">
         <div className='filter-select'>

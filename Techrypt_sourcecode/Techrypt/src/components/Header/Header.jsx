@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from "react";
 import "./Header.css";
 import techryptLogo from "../../assets/Images/techryptLogo.jpeg";
-import navIcon from "../../assets/svgs/close.svg";
-import close from "../../assets/svgs/open.svg";
 import { Link, useLocation } from "react-router-dom";
 import { HeaderLogo } from "../../assets/mainImages";
-import Mobilenav from "./Mobilenav";
 import ContactForm from "../ContactForm/ContactForm";
 
 export default function Header() {
   const location = useLocation();
   const tabs = [
-    { id: "About", label: "About", path: "/About" },
     { id: "services", label: "Services", path: "/Services" },
-    { id: "Creative", label: "Creative", path: "/Creative" },
     { id: "work", label: "Work", path: "/Work" },
+    { id: "verticals", label: "Verticals", path: "/Verticals" },
+    { id: "About", label: "About", path: "/About" },
+    { id: "Creative", label: "Creative", path: "/Creative" },
   ];
-  const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("");
+
   useEffect(() => {
     const currentTab = tabs.find((tab) => location.pathname === tab.path);
     if (currentTab) {
@@ -27,12 +25,9 @@ export default function Header() {
     }
     console.log("Current path:", location.pathname, "Active tab:", currentTab?.id);
   }, [location.pathname]);
-  const toggleDropdown = () => {
-    setDropdownVisible(!isDropdownVisible);
-  };
 
   const handleLinkClick = () => {
-    setDropdownVisible(false);
+    setActiveTab(""); // Reset active tab when link is clicked
   };
 
   return (
@@ -92,53 +87,11 @@ export default function Header() {
 
         <div className="rightNav">
           <hr className="hr2" />
-          <img
-            src={isDropdownVisible ? close : navIcon}
-            alt="navIcon"
-            className="icon"
-            onClick={toggleDropdown}
-          />
-
-          {/* Dropdown Menu */}
-          {isDropdownVisible && (
-            <div
-              className={`dropdown ${isDropdownVisible ? "dropdown-visible" : "dropdown-hidden"}`}
-            >
-              <div className="yellowDiv glow-green">
-                <ul className="navList">
-                  <li className="dropDownList">
-                    <Link to="/Offers" className="dropDownAnchor" onClick={handleLinkClick}>
-                      Offers
-                    </Link>
-                  </li>
-                  <li className="dropDownList">
-                    <Link to="/Calendar" className="dropDownAnchor" onClick={handleLinkClick}>
-                      Events Calendar
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-
-              <ContactForm />
-              <div className="flex mt-4 flex-col md:flex-row gap-3 w-full justify-between items-start text-[#FFFFFF4D] footer-div">
-                <p className="">info@techrypt.io</p>
-                <p className="md:w-95 text-center max-md:order-3">
-                  By clicking submit, you agree to our{" "}
-                  <Link to="/PrivacyPolicy" className="hover:text-[#ccc] transition-all duration-150">
-                    Privacy Policy
-                  </Link>{" "}
-                  and{" "}
-                  <Link to="/Terms&Conditions" className="hover:text-[#ccc] transition-all duration-150">
-                    Terms & Conditions
-                  </Link>
-                </p>
-              </div>
-            </div>
-          )}
+          {/* Removed the hamburger menu button */}
         </div>
       </nav>
 
-      {/* Mobile Navbar */}
+      {/* Mobile Navbar - Optional if you still want to keep a simpler mobile nav */}
       <div className="small-nav">
         <div className="leftNav">
           <a href="/">
@@ -147,50 +100,8 @@ export default function Header() {
         </div>
         <div className="linehor"></div>
         <div className="rightNav">
-          <img
-            src={isDropdownVisible ? close : navIcon}
-            alt="navIcon"
-            className="icon"
-            onClick={toggleDropdown}
-          />
+          {/* You can keep your mobile navigation here if you need it */}
         </div>
-
-        {/* Mobile Dropdown Menu */}
-        {isDropdownVisible && (
-          <div className="dropdown-mobile">
-            <ul className="navList glow-green">
-              <li className="dropDownList" style={{ fontSize: "32px" }}>
-                <Link to="/Calendar" onClick={handleLinkClick}>
-                  Events Calendar
-                </Link>
-              </li>
-            </ul>
-            <div className="inputDiv">
-              <div className="leftInput">
-                <input type="text" placeholder="Your name" className="input" />
-                <input type="text" placeholder="Your email" className="input" />
-              </div>
-              <div className="rightInput">
-                <input
-                  type="text"
-                  placeholder="Your company name"
-                  className="input"
-                />
-                <input
-                  type="text"
-                  placeholder="How did you hear about us?"
-                  className="input"
-                />
-              </div>
-            </div>
-            <input
-              type="text"
-              placeholder="Your Goals / KPIs / Vision"
-              className="Secondinput"
-            />
-            <button className="submit glow-hover">Submit</button>
-          </div>
-        )}
       </div>
 
       {/* Mobile Navigation Tabs - Only show on smaller screens */}

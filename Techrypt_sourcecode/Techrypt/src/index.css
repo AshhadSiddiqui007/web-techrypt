@@ -89,8 +89,11 @@ body {
   --color-black: #0f0f0f;
   --color-black-2: #0d0d0d;
   --color-white: #fff;
-  --color-yellow: #aebb1e;
-  --color-primary: #AEBB1E;
+  /*--color-yellow: #aebb1e;
+  --color-primary: #AEBB1E;*/;
+  --color-yellow: #9cad25;
+  /*--color-primary: #9cad25; old main colour*/
+  --color-primary: #C4D322;
   --color-blue: #9bd4d7;
   --color-gray-800: #1a1a1a;
   --color-gray-700: #2a2a2a;
@@ -100,7 +103,7 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 12px; 
 }
 
 ::-webkit-scrollbar-track {
@@ -108,8 +111,14 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--color-white);
-  border-radius: 4px;
+  background-color: var(--color-primary); /* Changed from white to primary color */
+  border-radius: 6px;
+  border: 2px solid black; /* Added border for a cleaner look */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-yellow); /* Slightly lighter shade on hover */
+  cursor: pointer;
 }
 
 html {
@@ -203,9 +212,9 @@ html {
 }
 
 .btn-techrypt:hover {
-  background-color: rgba(174, 187, 30, 0.9);
+  background-color: #aebb1ee6;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(174, 187, 30, 0.3);
+  box-shadow: 0 4px 12px #aebb1e4d;
 }
 
 .btn-techrypt-outline {

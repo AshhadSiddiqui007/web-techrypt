@@ -22,6 +22,7 @@ import About from "./pages/About/About.jsx";
 import EventCalendar from "./pages/EventCalendar/EventCalendar.jsx";
 import Offers from "./pages/Offers/Offers.jsx";
 import ContactPage from "./pages/ContactPage/ContactPage.jsx";
+import VerticalsPage from "./pages/Verticals/verticals.jsx";
 
 // Import other components
 import { AnimatedLoader } from "./assets/mainImages.js";
@@ -85,6 +86,7 @@ const AppContent = () => {
         <Route path="/Terms&Conditions" element={<TermsConditions />} />
         <Route path="/Offers" element={<Offers />} />
         <Route path="/Contact" element={<ContactPage />} />
+        <Route path="/Verticals" element={<VerticalsPage />} />
       </Routes>
       <MessageSidebar />
       <Footer />

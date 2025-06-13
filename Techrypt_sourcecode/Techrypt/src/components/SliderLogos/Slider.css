@@ -1,6 +1,8 @@
 .slider-main-container {
   background-color: var(--color-black);
   margin: auto;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 .slider-image-container {
   position: relative;
@@ -11,8 +13,10 @@
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
-  width: auto;
-  height: 200px;
+  width: 50%;
+  height: 50%;
+  object-fit: contain;
+  margin: 10px auto; /* Add margin to create space for the glow effect */
 } /* Background for 1st, 4th, 7th, etc. */
 .bg1 .slider-image-container {
   background-image: url(../../assets/svgs/download.svg);
@@ -23,6 +27,9 @@
 .bg3 .slider-image-container {
   background-image: url(../../assets/svgs/mask1.svg);
 }
+.slider-container {
+  padding: 10px; /* Add padding to create space for the glow */
+}
 .slick-slider .slick-track,
 .slick-slider .slick-list {
   display: flex;
@@ -31,6 +38,7 @@
 .slider-image {
   height: 100%;
   width: auto;
+  
 }
 .slider-image > img {
   margin-right: 4rem;

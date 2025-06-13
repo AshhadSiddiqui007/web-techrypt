@@ -9,7 +9,7 @@ const Services = ({className}) => {
         {
             title: 'AI-Powered Scheduling Systems',
             img: logos.image1,
-             content: '24/7 calendar filling with qualified leads'
+            content: '24/7 calendar filling with qualified leads'
         },
         {
             title: 'Social Media Automation',
@@ -75,15 +75,22 @@ const Services = ({className}) => {
                     y:bgY,
                 }}
             />
-            <h1 className="text-4xl md:text-6xl text-white text-center flex justify-center items-center mb-16">
-                Our Services
-            </h1>
+            <motion.h1
+                className="text-white text-5xl md:text-6xl font-bold text-center mb-12"
+                initial={{ opacity: 0, y: -20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+            >
+                    Our Services
+            </motion.h1>
 
-            <div className="w-11/12 mx-auto grid gap-12 md:gap-16 grid-cols-1 md:grid-cols-2">
+
+            <div className="w-11/12 mx-auto grid gap-12 md:gap-16 grid-cols-1 md:grid-cols-3">
                 {CardContent.map((content, index) => (
                     <motion.div 
                         key={index}
-                        className="bg-[#AEBB1E] text-white w-full h-64 lg:h-80 rounded-2xl p-8 glow-green"
+                        className="bg-[#AEBB1E] text-white w-full h-45 lg:h-55 rounded-2xl p-8 glow-green" 
                         custom={index}
                         initial="hidden"
                         whileInView="visible"

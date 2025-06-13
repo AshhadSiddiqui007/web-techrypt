@@ -27,10 +27,11 @@ const main = () => {
     <div className="relative">
       <Hero title={["Development", "Branding", "Marketing"]} text={" Unlock new opportunities with expert-led training & cutting-edge digital services.Techrypt.io is a forward-thinking team on a mission to revolutionize how individuals learn and how businesses grow."} />
       
-      {/* Get Started Button */}
-      <div className="absolute inset-x-0 flex justify-center z-50" style={{ top: 'calc(80vh - 100px)' }}>
+      {/* Take business to next level button */}
+      <div className="absolute inset-x-0 flex justify-center z-50" style={{top: 'calc(80vh - 100px)'}}>
         <motion.button
           className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+          style={{ backgroundColor: '#C4D322' }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleGetStarted}
@@ -42,15 +43,9 @@ const main = () => {
       <div className="fading"></div>
       <AgencyDetails />
       <CreativeTeamSection />
-
-      {/* <VideoGallery /> */}
       <SliderLogo />
       <Services className={"z-20"} />
-      <Verticals />
-      
-      
-  
-    
+
     </div>
   );
 };
