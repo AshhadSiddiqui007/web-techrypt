@@ -799,11 +799,19 @@ Thank you for choosing Techrypt.io! 🚀`,
             {!isMinimized && (
               <>
                 <button
-                  className="techrypt-chatbot-clear"
-                  onClick={clearContactData}
-                  title="Clear Contact Data (Test)"
+                  className="techrypt-chatbot-appointment"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      name: contactData.name || '',
+                      email: contactData.email || '',
+                      phone: contactData.phone || ''
+                    }));
+                    setShowAppointmentForm(true);
+                  }}
+                  title="Book an Appointment"
                 >
-                  👤
+                  📅
                 </button>
                 <button
                   className="techrypt-chatbot-clear"
@@ -899,7 +907,7 @@ Thank you for choosing Techrypt.io! 🚀`,
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Type your message about Techrypt services..."
+              placeholder="Inquire here..."
               disabled={isLoading}
               rows="1"
             />

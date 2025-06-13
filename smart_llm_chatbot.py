@@ -40,10 +40,32 @@ except ImportError:
     PANDAS_AVAILABLE = False
     print("⚠️ Pandas not available - CSV processing disabled")
 
-# Environment controls for TinyLLaMA
-USE_TINYLLAMA = os.getenv('USE_TINYLLAMA', 'False').lower() == 'true'
-TINYLLAMA_TIMEOUT = int(os.getenv('TINYLLAMA_TIMEOUT', '5'))  # seconds
-CSV_DATA_PATH = os.getenv('CSV_DATA_PATH', 'D:\\Techrypt_projects\\techcrypt_bot\\enhanced_training_data.csv')
+# Import the business-focused API integration
+try:
+    from techrypt_business_api import TechryptBusinessAPI
+    BUSINESS_API_AVAILABLE = True
+    print("✅ Techrypt Business API integration loaded")
+except ImportError as e:
+    BUSINESS_API_AVAILABLE = False
+    print(f"⚠️ Business API integration not available: {e}")
+
+# Import enhanced business intelligence
+try:
+    from enhanced_business_intelligence import get_enhanced_response
+    ENHANCED_INTELLIGENCE_AVAILABLE = True
+    print("✅ Enhanced Business Intelligence loaded")
+except ImportError as e:
+    ENHANCED_INTELLIGENCE_AVAILABLE = False
+    print(f"⚠️ Enhanced Intelligence not available: {e}")
+
+# Environment controls for TinyLLaMA - ENABLE BY DEFAULT for intelligent responses
+USE_TINYLLAMA = os.getenv('USE_TINYLLAMA', 'True').lower() == 'true'
+TINYLLAMA_TIMEOUT = int(os.getenv('TINYLLAMA_TIMEOUT', '8'))  # Increased timeout for better responses
+CSV_DATA_PATH = os.getenv('CSV_DATA_PATH', 'data.csv')
+INTELLIGENT_MODE = os.getenv('INTELLIGENT_MODE', 'True').lower() == 'true'  # Enable intelligent LLM responses
+
+# Business API Integration controls
+USE_BUSINESS_API = os.getenv('USE_BUSINESS_API', 'True').lower() == 'true'  # Enable business API integration
 
 # Configure logging
 logging.basicConfig(
@@ -64,101 +86,436 @@ class ConversationContext:
     services_shown: bool = False  # Track if services list was already shown
     is_correction: bool = False  # Track if this is a user correction
 
+    # Enhanced fields for subservice handling
+    requested_subservices: List[str] = None
+    last_subservice_query: str = ""
+    subservice_clarification_needed: bool = False
+
+    # Intelligent conversation features
+    conversation_history: List[dict] = None
+    business_specific_context: dict = None
+    conversation_depth: int = 0
+    previous_responses: List[str] = None
+    contextual_memory: dict = None
+    business_industry_details: str = ""
+    user_questions_asked: List[str] = None
+    recommendations_provided: List[str] = None
+
     def __post_init__(self):
         if self.services_discussed is None:
             self.services_discussed = []
         if self.pain_points is None:
             self.pain_points = []
+        if self.requested_subservices is None:
+            self.requested_subservices = []
+        if self.conversation_history is None:
+            self.conversation_history = []
+        if self.business_specific_context is None:
+            self.business_specific_context = {}
+        if self.previous_responses is None:
+            self.previous_responses = []
+        if self.contextual_memory is None:
+            self.contextual_memory = {}
+        if self.user_questions_asked is None:
+            self.user_questions_asked = []
+        if self.recommendations_provided is None:
+            self.recommendations_provided = []
+
+    def add_conversation_turn(self, user_message: str, bot_response: str, source: str):
+        """Add intelligent conversation turn tracking"""
+        turn = {
+            'user_message': user_message,
+            'bot_response': bot_response,
+            'source': source,
+            'business_context': self.business_type,
+            'timestamp': time.time()
+        }
+        self.conversation_history.append(turn)
+        self.previous_responses.append(bot_response)
+        self.user_questions_asked.append(user_message)
+        self.conversation_depth += 1
+
+        # Keep memory manageable
+        if len(self.conversation_history) > 5:
+            self.conversation_history = self.conversation_history[-5:]
+        if len(self.previous_responses) > 3:
+            self.previous_responses = self.previous_responses[-3:]
+        if len(self.user_questions_asked) > 5:
+            self.user_questions_asked = self.user_questions_asked[-5:]
+
+    def get_conversation_context_summary(self) -> str:
+        """Get intelligent conversation context for prompts"""
+        context_parts = []
+
+        if self.business_type and self.business_type != "general":
+            context_parts.append(f"Business: {self.business_type}")
+
+        if self.services_discussed:
+            context_parts.append(f"Services discussed: {', '.join(self.services_discussed)}")
+
+        if self.conversation_history:
+            last_turn = self.conversation_history[-1]
+            context_parts.append(f"Last question: {last_turn['user_message']}")
+
+        if self.conversation_stage != "initial":
+            context_parts.append(f"Stage: {self.conversation_stage}")
+
+        return " | ".join(context_parts)
+
+    def should_provide_detailed_response(self) -> bool:
+        """Determine if detailed business-specific response needed"""
+        return (
+            self.business_type != "general" and
+            self.conversation_depth > 0 and
+            len(self.previous_responses) > 0
+        )
+
+    def get_business_context_for_prompt(self) -> dict:
+        """Get business context for intelligent prompt creation"""
+        return {
+            'business_type': self.business_type,
+            'conversation_depth': self.conversation_depth,
+            'services_discussed': self.services_discussed,
+            'conversation_stage': self.conversation_stage,
+            'previous_questions': self.user_questions_asked[-2:] if len(self.user_questions_asked) > 1 else [],
+            'business_details': self.business_specific_context
+        }
 
 class TinyLLaMAHandler:
-    """Enhanced TinyLLaMA integration with CPU-only configuration and timeout controls"""
+    """Optimized TinyLLaMA integration with quantization and performance enhancements"""
 
     def __init__(self):
         self.model = None
         self.tokenizer = None
         self.model_loaded = False
         self.load_attempts = 0
-        self.max_load_attempts = 3
+        self.max_load_attempts = 3  # Reduced for faster startup
+        self.working_config = None
+        self.response_cache = {}  # Cache for common responses
+        self.max_cache_size = 100
 
         if USE_TINYLLAMA and TRANSFORMERS_AVAILABLE:
-            self._load_model()
+            self._load_optimized_model()
 
-    def _load_model(self):
-        """Load TinyLLaMA model with CPU-only configuration"""
-        if self.load_attempts >= self.max_load_attempts:
-            logger.warning(f"⚠️ TinyLLaMA: Max load attempts ({self.max_load_attempts}) reached")
-            return
+    def _load_optimized_model(self):
+        """Load TinyLLaMA with performance optimizations and quantization"""
+        logger.info(f"🚀 Loading optimized TinyLLaMA for fast inference...")
 
-        self.load_attempts += 1
-        logger.info(f"🤖 Loading TinyLLaMA model (attempt {self.load_attempts}/{self.max_load_attempts})...")
+        model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
+        # Try optimized configurations in order of preference
+        optimized_configs = [
+            {
+                "name": "Quantized 8-bit",
+                "config": {
+                    "torch_dtype": torch.float16,
+                    "trust_remote_code": True,
+                    "low_cpu_mem_usage": True,
+                    "load_in_8bit": True
+                }
+            },
+            {
+                "name": "Float16 Optimized",
+                "config": {
+                    "torch_dtype": torch.float16,
+                    "trust_remote_code": True,
+                    "low_cpu_mem_usage": True
+                }
+            },
+            {
+                "name": "CPU Optimized",
+                "config": {
+                    "torch_dtype": torch.float32,
+                    "trust_remote_code": True,
+                    "low_cpu_mem_usage": True
+                }
+            }
+        ]
+
+        for config in optimized_configs:
+            if self.load_attempts >= self.max_load_attempts:
+                break
+
+            self.load_attempts += 1
+            logger.info(f"🔧 Attempt {self.load_attempts}: {config['name']}")
+
+            try:
+                # Load tokenizer once
+                if not self.tokenizer:
+                    self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+                    if self.tokenizer.pad_token is None:
+                        self.tokenizer.pad_token = self.tokenizer.eos_token
+                    logger.info("✅ Tokenizer loaded")
+
+                # Load model with optimization
+                start_time = time.time()
+                self.model = AutoModelForCausalLM.from_pretrained(model_name, **config['config'])
+
+                # Move to CPU and optimize
+                self.model = self.model.to('cpu')
+                self.model.eval()
+
+                # Enable optimizations
+                if hasattr(torch, 'compile'):
+                    try:
+                        self.model = torch.compile(self.model, mode="reduce-overhead")
+                        logger.info("✅ Model compiled for optimization")
+                    except:
+                        logger.info("⚠️ Compilation not available, using standard model")
+
+                load_time = time.time() - start_time
+
+                # Quick generation test
+                if self._test_fast_generation():
+                    self.model_loaded = True
+                    self.working_config = config['name']
+                    logger.info(f"✅ TinyLLaMA loaded in {load_time:.2f}s with {config['name']}")
+                    return
+                else:
+                    logger.warning(f"⚠️ Generation test failed with {config['name']}")
+                    self.model = None
+
+            except Exception as e:
+                logger.warning(f"❌ {config['name']} failed: {e}")
+                self.model = None
+                continue
+
+        # Fallback to lightweight alternative
+        if not self.model_loaded:
+            logger.info("🔄 Trying lightweight alternative models...")
+            self._load_lightweight_alternative()
+
+    def _test_fast_generation(self):
+        """Test fast generation with timeout"""
         try:
-            # CPU-only configuration for compatibility
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-                trust_remote_code=True
-            )
+            test_prompt = "Hello"
+            inputs = self.tokenizer(test_prompt, return_tensors="pt", max_length=50)
 
-            self.model = AutoModelForCausalLM.from_pretrained(
-                "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-                torch_dtype=torch.float32,
-                device_map="cpu",
-                trust_remote_code=True,
-                low_cpu_mem_usage=True
-            )
+            start_time = time.time()
+            with torch.no_grad():
+                outputs = self.model.generate(
+                    inputs.input_ids,
+                    max_new_tokens=10,
+                    num_return_sequences=1,
+                    do_sample=False,
+                    pad_token_id=self.tokenizer.eos_token_id,
+                    early_stopping=True
+                )
+            generation_time = time.time() - start_time
 
-            self.model_loaded = True
-            logger.info("✅ TinyLLaMA model loaded successfully (CPU mode)")
+            response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+            # Success if generates response in under 3 seconds
+            success = len(response.strip()) > len(test_prompt) and generation_time < 3.0
+
+            if success:
+                logger.info(f"✅ Fast generation test passed in {generation_time:.3f}s")
+            else:
+                logger.warning(f"⚠️ Generation too slow: {generation_time:.3f}s")
+
+            return success
 
         except Exception as e:
-            logger.error(f"❌ TinyLLaMA loading failed: {e}")
-            self.model_loaded = False
+            logger.warning(f"⚠️ Fast generation test failed: {e}")
+            return False
 
-    def generate_response(self, prompt: str, max_length: int = 200) -> Optional[str]:
-        """Generate response using TinyLLaMA with timeout control"""
+    def _load_lightweight_alternative(self):
+        """Load lightweight alternative model for fast responses"""
+        alternatives = ["distilgpt2", "gpt2"]
+
+        for model_name in alternatives:
+            try:
+                logger.info(f"🔄 Trying lightweight model: {model_name}")
+
+                self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+                if self.tokenizer.pad_token is None:
+                    self.tokenizer.pad_token = self.tokenizer.eos_token
+
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    torch_dtype=torch.float32,
+                    low_cpu_mem_usage=True
+                )
+
+                self.model = self.model.to('cpu')
+                self.model.eval()
+
+                if self._test_fast_generation():
+                    self.model_loaded = True
+                    self.working_config = f"Lightweight: {model_name}"
+                    logger.info(f"✅ Lightweight model {model_name} loaded successfully")
+                    return
+
+            except Exception as e:
+                logger.warning(f"❌ Lightweight model {model_name} failed: {e}")
+                continue
+
+        logger.error("❌ All model loading attempts failed")
+        self.model_loaded = False
+
+    def _try_alternative_models(self):
+        """Try alternative smaller models if TinyLLaMA fails completely"""
+        alternative_models = [
+            "microsoft/DialoGPT-small",
+            "gpt2",
+            "distilgpt2"
+        ]
+
+        for model_name in alternative_models:
+            try:
+                logger.info(f"🔄 Trying alternative model: {model_name}")
+
+                self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+                if self.tokenizer.pad_token is None:
+                    self.tokenizer.pad_token = self.tokenizer.eos_token
+
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    torch_dtype=torch.float32,
+                    low_cpu_mem_usage=True
+                )
+
+                self.model = self.model.to('cpu')
+                self.model.eval()
+
+                # Test generation
+                if self._test_model_generation():
+                    self.model_loaded = True
+                    self.working_config = f"Alternative: {model_name}"
+                    logger.info(f"✅ Alternative model {model_name} loaded successfully")
+                    return
+
+            except Exception as e:
+                logger.warning(f"❌ Alternative model {model_name} failed: {e}")
+                continue
+
+        logger.error("❌ All model loading attempts failed")
+        self.model_loaded = False
+
+
+
+    def generate_response(self, prompt: str, business_type: str = "general", context: dict = None) -> Optional[str]:
+        """Generate optimized response with caching and fast inference"""
         if not self.model_loaded or not self.model or not self.tokenizer:
+            logger.warning("⚠️ TinyLLaMA not available for generation")
             return None
 
-        try:
-            # Tokenize input
-            inputs = self.tokenizer.encode(prompt, return_tensors="pt", truncation=True, max_length=512)
+        # Check cache first
+        cache_key = f"{prompt[:50]}_{business_type}"
+        if cache_key in self.response_cache:
+            logger.info("✅ Using cached response")
+            return self.response_cache[cache_key]
 
-            # Generate with timeout control
+        try:
+            # Create business-specific prompt
+            enhanced_prompt = self._create_business_prompt(prompt, business_type, context or {})
+
+            # Tokenize with strict limits for speed
+            inputs = self.tokenizer(
+                enhanced_prompt,
+                return_tensors="pt",
+                truncation=True,
+                max_length=150,  # Further reduced for speed
+                padding=False  # No padding for faster processing
+            )
+
+            # Fast generation with optimized parameters
             start_time = time.time()
 
             with torch.no_grad():
-                outputs = self.model.generate(
-                    inputs,
-                    max_length=max_length,
-                    num_return_sequences=1,
-                    temperature=0.7,
-                    do_sample=True,
-                    pad_token_id=self.tokenizer.eos_token_id,
-                    timeout=TINYLLAMA_TIMEOUT
-                )
+                try:
+                    outputs = self.model.generate(
+                        inputs.input_ids,
+                        max_new_tokens=30,  # Reduced for speed
+                        num_return_sequences=1,
+                        temperature=0.9,  # Higher for creativity
+                        do_sample=True,
+                        pad_token_id=self.tokenizer.eos_token_id,
+                        eos_token_id=self.tokenizer.eos_token_id,
+                        early_stopping=True,
+                        repetition_penalty=1.2,  # Stronger repetition penalty
+                        no_repeat_ngram_size=2  # Prevent repetitive phrases
+                    )
+                except Exception as gen_error:
+                    logger.error(f"❌ Fast generation failed: {gen_error}")
+                    return None
 
-            # Check timeout
-            if time.time() - start_time > TINYLLAMA_TIMEOUT:
-                logger.warning(f"⚠️ TinyLLaMA generation timeout ({TINYLLAMA_TIMEOUT}s)")
+            generation_time = time.time() - start_time
+
+            # Strict timeout for fast responses
+            if generation_time > 2.0:  # Reduced timeout to 2 seconds
+                logger.warning(f"⚠️ Generation too slow: {generation_time:.2f}s")
                 return None
 
-            # Decode response
+            # Decode and clean response
             response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-            # Extract only the generated part (remove input prompt)
-            if prompt in response:
-                response = response.replace(prompt, "").strip()
+            # Extract generated part
+            if enhanced_prompt in response:
+                response = response.replace(enhanced_prompt, "").strip()
 
-            # Validate response quality
+            # Clean and validate
+            response = self._clean_response(response)
+
             if self._validate_response(response):
+                # Cache successful response
+                if len(self.response_cache) < self.max_cache_size:
+                    self.response_cache[cache_key] = response
+
+                logger.info(f"✅ Fast TinyLLaMA response in {generation_time:.3f}s")
                 return response
             else:
-                logger.warning("⚠️ TinyLLaMA response failed validation")
+                logger.warning("⚠️ Response failed validation")
                 return None
 
         except Exception as e:
             logger.error(f"❌ TinyLLaMA generation error: {e}")
             return None
+
+    def _create_business_prompt(self, prompt: str, business_type: str, context: dict) -> str:
+        """Create business-specific prompt for better responses"""
+        business_context = {
+            "restaurant": "restaurant/food service business",
+            "professional": "professional service business",
+            "retail_ecommerce": "retail/e-commerce business",
+            "cleaning_services": "cleaning service business",
+            "technology": "technology/software business",
+            "healthcare": "healthcare/medical business",
+            "creative": "creative/design business",
+            "automotive": "automotive service business"
+        }.get(business_type, "business")
+
+        # Create contextual prompt
+        if "help" in prompt.lower() or "how" in prompt.lower():
+            enhanced_prompt = f"For a {business_context}, {prompt.lower()}"
+        else:
+            enhanced_prompt = prompt
+
+        return enhanced_prompt[:100]  # Limit prompt length
+
+    def _clean_response(self, response: str) -> str:
+        """Clean and format the generated response"""
+        if not response:
+            return ""
+
+        # Remove common artifacts
+        response = response.strip()
+
+        # Remove repetitive patterns
+        lines = response.split('\n')
+        cleaned_lines = []
+        for line in lines:
+            line = line.strip()
+            if line and line not in cleaned_lines:
+                cleaned_lines.append(line)
+
+        response = '\n'.join(cleaned_lines)
+
+        # Limit length
+        if len(response) > 500:
+            response = response[:500] + "..."
+
+        return response
 
     def _validate_response(self, response: str) -> bool:
         """Validate TinyLLaMA response quality"""
@@ -186,18 +543,310 @@ class TinyLLaMAHandler:
 
         return has_business_context
 
-    def create_prompt(self, user_message: str, business_type: str, context: dict) -> str:
-        """Create structured prompt for TinyLLaMA"""
+    def create_intelligent_business_prompt(self, user_message: str, business_type: str, context: dict, conversation_stage: str = "initial") -> str:
+        """Create intelligent business consultation prompt for TinyLLaMA"""
+
+        # Extract business context
+        user_name = context.get('name', 'Customer')
+        services_discussed = context.get('services_discussed', [])
+
+        # Build context-aware prompt
         prompt = f"""<|system|>
-You are a helpful business consultant for Techrypt, a digital services company specializing in website development, social media marketing, branding, chatbot development, automation, and payment gateway integration.
+You are an expert business consultant for Techrypt, a leading digital solutions company. You help businesses grow through:
+- Website Development (professional sites, e-commerce, mobile optimization)
+- Social Media Marketing (Instagram, Facebook, LinkedIn campaigns, content strategy)
+- Branding Services (logo design, brand identity, marketing materials)
+- Chatbot Development (WhatsApp automation, customer service bots, lead generation)
+- Automation Packages (workflow automation, CRM integration, email marketing)
+- Payment Gateway Integration (Stripe, PayPal, secure payment processing)
+
+Your role is to understand each business's unique needs and provide specific, actionable recommendations that drive growth.
 <|user|>
-Business Type: {business_type or 'General Business'}
-User Message: {user_message}
-Context: {context.get('name', 'Customer')} is seeking digital solutions for their business.
-Provide specific, actionable digital service recommendations in 2-3 sentences.
+Business Type: {business_type or 'Business'}
+Customer: {user_name}
+Message: "{user_message}"
+Conversation Stage: {conversation_stage}
+Services Previously Discussed: {', '.join(services_discussed) if services_discussed else 'None'}
+
+Provide a helpful, contextual response that:
+1. Shows understanding of their specific business type and challenges
+2. Recommends 3-5 specific Techrypt services that would help their business grow
+3. Explains HOW each service would benefit their particular business
+4. Asks a relevant follow-up question to continue the conversation
+5. Maintains a professional, consultative tone
+
+Keep the response conversational, specific to their business, and focused on growth solutions.
 <|assistant|>
 """
         return prompt
+
+    def create_service_explanation_prompt(self, service_name: str, business_type: str, user_message: str, context: dict) -> str:
+        """Create prompt for explaining specific services"""
+        user_name = context.get('name', 'Customer')
+
+        prompt = f"""<|system|>
+You are a Techrypt service specialist explaining how our digital solutions help businesses grow. Be specific and practical.
+<|user|>
+Service: {service_name}
+Business Type: {business_type or 'Business'}
+Customer: {user_name}
+Question: "{user_message}"
+
+Explain how {service_name} specifically helps {business_type} businesses. Include:
+1. 3-4 specific benefits for their business type
+2. Real-world examples of how it works
+3. Why it's important for their industry
+4. A relevant follow-up question
+
+Be conversational and focus on practical business value.
+<|assistant|>
+"""
+        return prompt
+
+    def create_appointment_conversion_prompt(self, user_message: str, business_type: str, context: dict) -> str:
+        """Create prompt for guiding users toward appointment booking"""
+        user_name = context.get('name', 'Customer')
+
+        prompt = f"""<|system|>
+You are a Techrypt business consultant helping customers understand our services and guiding them toward a free consultation.
+<|user|>
+Business Type: {business_type or 'Business'}
+Customer: {user_name}
+Message: "{user_message}"
+
+The customer is asking about pricing or wants more information. Provide a response that:
+1. Acknowledges their interest professionally
+2. Explains that pricing is customized based on their specific needs
+3. Highlights the value of a free consultation
+4. Mentions 2-3 things you'll discuss in the consultation specific to their business
+5. Asks if they'd like to schedule a consultation
+
+Be helpful and consultative, not pushy. Focus on the value they'll get from the consultation.
+<|assistant|>
+"""
+        return prompt
+
+class IntelligentBusinessConsultant:
+    """Intelligent business consultant using TinyLLaMA for dynamic responses"""
+
+    def __init__(self, tinyllama_handler: TinyLLaMAHandler, csv_handler):
+        self.tinyllama_handler = tinyllama_handler
+        self.csv_handler = csv_handler
+
+        # Business intelligence patterns
+        self.business_patterns = {
+            'service_inquiry': ['services', 'what do you do', 'what do you offer', 'help with'],
+            'pricing_inquiry': ['price', 'cost', 'pricing', 'rates', 'fees', 'budget', 'quote'],
+            'service_explanation': ['how does', 'how will', 'what is', 'tell me about', 'explain'],
+            'business_introduction': ['i have', 'i run', 'i own', 'my business', 'my company'],
+            'appointment_interest': ['consultation', 'meeting', 'schedule', 'book', 'appointment']
+        }
+
+        # Techrypt service categories for intelligent mapping
+        self.service_categories = {
+            'website_development': ['website', 'site', 'web development', 'online presence'],
+            'social_media_marketing': ['social media', 'marketing', 'instagram', 'facebook', 'seo'],
+            'branding_services': ['branding', 'logo', 'brand identity', 'design'],
+            'chatbot_development': ['chatbot', 'bot', 'automation', 'whatsapp'],
+            'automation_packages': ['automation', 'workflow', 'crm', 'email marketing'],
+            'payment_gateway': ['payment', 'stripe', 'paypal', 'payment processing']
+        }
+
+    def detect_intent(self, message: str) -> str:
+        """Detect user intent from message"""
+        message_lower = message.lower()
+
+        for intent, patterns in self.business_patterns.items():
+            if any(pattern in message_lower for pattern in patterns):
+                return intent
+
+        return 'general_inquiry'
+
+    def detect_service_interest(self, message: str) -> list:
+        """Detect which services the user is interested in"""
+        message_lower = message.lower()
+        interested_services = []
+
+        for service, keywords in self.service_categories.items():
+            if any(keyword in message_lower for keyword in keywords):
+                interested_services.append(service)
+
+        return interested_services
+
+    def generate_intelligent_response(self, message: str, business_type: str, context: dict, conversation_stage: str = "initial", conversation_context: dict = None) -> str:
+        """Generate intelligent business consultation response with enhanced context"""
+
+        if not self.tinyllama_handler.model_loaded:
+            logger.warning("⚠️ TinyLLaMA not available, falling back to CSV")
+            return None
+
+        # Detect intent and customize prompt accordingly
+        intent = self.detect_intent(message)
+        interested_services = self.detect_service_interest(message)
+
+        try:
+            # Create business-specific prompt with conversation context
+            if intent == 'pricing_inquiry':
+                prompt = self._create_pricing_prompt(message, business_type, context, conversation_context)
+            elif intent == 'service_explanation' and interested_services:
+                service_name = interested_services[0].replace('_', ' ').title()
+                prompt = self._create_service_explanation_prompt(service_name, business_type, message, context, conversation_context)
+            else:
+                prompt = self._create_business_consultation_prompt(message, business_type, context, conversation_stage, conversation_context)
+
+            # Generate response with optimized TinyLLaMA
+            response = self.tinyllama_handler.generate_response(
+                prompt,
+                business_type=business_type,
+                context=conversation_context or {}
+            )
+
+            if response and len(response.strip()) > 15:
+                # Post-process response for quality and business context
+                response = self._post_process_intelligent_response(response, business_type, context, conversation_context)
+                logger.info(f"🧠 Intelligent business response generated | Intent: {intent} | Business: {business_type} | Length: {len(response)}")
+                return response
+            else:
+                logger.warning("⚠️ TinyLLaMA generated insufficient response")
+                return None
+
+        except Exception as e:
+            logger.error(f"❌ Intelligent response generation failed: {e}")
+            return None
+
+    def _create_business_consultation_prompt(self, message: str, business_type: str, context: dict, conversation_stage: str, conversation_context: dict) -> str:
+        """Create business-specific consultation prompt"""
+
+        # Business context mapping
+        business_contexts = {
+            'restaurant': 'restaurant/food service business',
+            'retail_ecommerce': 'retail/e-commerce business',
+            'professional': 'professional service business',
+            'healthcare': 'healthcare/medical practice',
+            'cleaning_services': 'cleaning service business',
+            'technology': 'technology/software business',
+            'automotive': 'automotive service business',
+            'food_agriculture': 'food/agriculture business'
+        }
+
+        business_context = business_contexts.get(business_type, 'business')
+        user_name = context.get('name', '')
+
+        # Create contextual prompt
+        if conversation_context and conversation_context.get('conversation_depth', 0) > 0:
+            # Multi-turn conversation
+            previous_topics = conversation_context.get('previous_topics', [])
+            context_info = f"Previous discussion: {', '.join(previous_topics[-2:])}" if previous_topics else ""
+
+            prompt = f"As a digital marketing consultant for a {business_context}, provide specific advice for: '{message}'. {context_info}. Give practical, actionable recommendations."
+        else:
+            # Initial conversation
+            prompt = f"As a digital marketing consultant, help this {business_context} owner with: '{message}'. Provide specific, actionable advice for their industry."
+
+        return prompt[:150]  # Limit prompt length for speed
+
+    def _create_service_explanation_prompt(self, service_name: str, business_type: str, message: str, context: dict, conversation_context: dict) -> str:
+        """Create service-specific explanation prompt"""
+
+        business_contexts = {
+            'restaurant': 'restaurant',
+            'retail_ecommerce': 'retail store',
+            'professional': 'professional practice',
+            'healthcare': 'medical practice',
+            'cleaning_services': 'cleaning service',
+            'technology': 'tech company',
+            'automotive': 'automotive business',
+            'food_agriculture': 'food business'
+        }
+
+        business_context = business_contexts.get(business_type, 'business')
+
+        prompt = f"Explain how {service_name} specifically helps a {business_context}. Focus on practical benefits and real-world applications for their industry."
+
+        return prompt[:120]
+
+    def _create_pricing_prompt(self, message: str, business_type: str, context: dict, conversation_context: dict) -> str:
+        """Create pricing inquiry prompt that leads to appointment booking"""
+
+        business_contexts = {
+            'restaurant': 'restaurant',
+            'retail_ecommerce': 'retail business',
+            'professional': 'professional practice',
+            'healthcare': 'medical practice',
+            'cleaning_services': 'cleaning service',
+            'technology': 'tech company',
+            'automotive': 'automotive business',
+            'food_agriculture': 'food business'
+        }
+
+        business_context = business_contexts.get(business_type, 'business')
+
+        prompt = f"A {business_context} owner asks about pricing. Explain that pricing varies by needs and offer a free consultation to discuss their specific requirements."
+
+        return prompt[:100]
+
+    def _post_process_intelligent_response(self, response: str, business_type: str, context: dict, conversation_context: dict) -> str:
+        """Post-process intelligent TinyLLaMA response for quality and business context"""
+
+        # Clean up response
+        response = response.strip()
+
+        # Remove any incomplete sentences at the end
+        sentences = response.split('.')
+        if len(sentences) > 1 and len(sentences[-1].strip()) < 5:
+            response = '.'.join(sentences[:-1]) + '.'
+
+        # Ensure response ends properly
+        if not response.endswith(('?', '.', '!')):
+            response += '.'
+
+        # Add personalization if name is available
+        user_name = context.get('name', '')
+        if user_name and user_name not in response:
+            # Add name naturally at the beginning
+            if response.startswith(('For', 'Your', 'A', 'The')):
+                response = f"{user_name}, " + response.lower()
+            elif response.startswith(('Great', 'Perfect', 'Excellent', 'Wonderful')):
+                response = response.replace('!', f', {user_name}!', 1)
+
+        # Add business-specific context if missing
+        business_keywords = {
+            'restaurant': ['food', 'dining', 'customers', 'menu'],
+            'retail_ecommerce': ['products', 'customers', 'sales', 'store'],
+            'professional': ['clients', 'practice', 'services', 'expertise'],
+            'healthcare': ['patients', 'practice', 'medical', 'care'],
+            'cleaning_services': ['clients', 'cleaning', 'service', 'local'],
+            'technology': ['users', 'software', 'digital', 'tech'],
+            'automotive': ['customers', 'vehicles', 'service', 'repair'],
+            'food_agriculture': ['customers', 'fresh', 'local', 'products']
+        }
+
+        if business_type in business_keywords:
+            keywords = business_keywords[business_type]
+            if not any(keyword in response.lower() for keyword in keywords):
+                # Add business context
+                business_context = {
+                    'restaurant': 'for your restaurant',
+                    'retail_ecommerce': 'for your retail business',
+                    'professional': 'for your practice',
+                    'healthcare': 'for your medical practice',
+                    'cleaning_services': 'for your cleaning service',
+                    'technology': 'for your tech business',
+                    'automotive': 'for your automotive business',
+                    'food_agriculture': 'for your food business'
+                }.get(business_type, 'for your business')
+
+                response = response.replace('your business', business_context, 1)
+
+        # Add call-to-action for deeper engagement
+        if conversation_context and conversation_context.get('conversation_depth', 0) == 0:
+            response += f"\n\nWhat specific challenge would you like to discuss further?"
+
+        # Ensure Techrypt branding (brief mention)
+        if 'techrypt' not in response.lower() and len(response) < 200:
+            response += f"\n\nTechrypt serves Karachi businesses with remote consultations globally."
+
+        return response
 
 class CSVTrainingDataHandler:
     """Handle CSV training data for semantic response matching"""
@@ -252,30 +901,115 @@ class CSVTrainingDataHandler:
             logger.error(f"❌ Failed to load CSV data: {e}")
 
     def find_similar_response(self, user_message: str, similarity_threshold: float = 0.7) -> Optional[str]:
-        """Find similar response from CSV data using semantic matching"""
+        """Find similar response from CSV data using TF-IDF + cosine similarity"""
         if not self.data_loaded or not self.sentence_model or self.embeddings is None:
             return None
 
         try:
-            # Encode user message
-            user_embedding = self.sentence_model.encode([user_message])
+            from sklearn.feature_extraction.text import TfidfVectorizer
+            from sklearn.metrics.pairwise import cosine_similarity
+            import re
 
-            # Calculate similarities
-            similarities = np.dot(self.embeddings, user_embedding.T).flatten()
+            # Enhanced preprocessing function for natural language variations
+            def preprocess_text(text):
+                # Handle non-string inputs (NaN, None, etc.)
+                if not isinstance(text, str):
+                    return ""
+
+                # Convert to lowercase and remove extra whitespace
+                text = text.lower().strip()
+
+                # Normalize common variations for better matching
+                text = re.sub(r'\bhow would\b', 'how does', text)
+                text = re.sub(r'\bhow will\b', 'how does', text)
+                text = re.sub(r'\bhow can\b', 'how does', text)
+                text = re.sub(r'\bhelp me\b', 'help my business', text)
+                text = re.sub(r'\bhelp us\b', 'help my business', text)
+                text = re.sub(r'\bpackages\b', 'services', text)
+                text = re.sub(r'\bpackage\b', 'service', text)
+                text = re.sub(r'\btell me about\b', 'what is', text)
+                text = re.sub(r'\bexplain\b', 'what is', text)
+                text = re.sub(r'\bwhat can.*do for\b', 'how does', text)
+
+                # Remove filler words that don't add meaning
+                filler_words = ['like', 'maybe', 'just', 'really', 'actually', 'basically', 'probably']
+                for filler in filler_words:
+                    text = re.sub(rf'\b{filler}\b', '', text)
+
+                # Handle singular/plural forms
+                text = re.sub(r'\bservices\b', 'service', text)
+                text = re.sub(r'\bwebsites\b', 'website', text)
+                text = re.sub(r'\bchatbots\b', 'chatbot', text)
+
+                # Remove special characters but keep spaces
+                text = re.sub(r'[^\w\s]', ' ', text)
+
+                # Remove extra whitespace
+                text = re.sub(r'\s+', ' ', text)
+
+                return text.strip()
+
+            # Preprocess user message
+            user_message_clean = preprocess_text(user_message)
+
+            # Get all questions from CSV data
+            csv_questions = [preprocess_text(row['user_message']) for row in self.training_data]
+
+            # Create enhanced TF-IDF vectorizer for better natural language matching
+            vectorizer = TfidfVectorizer(
+                stop_words='english',
+                ngram_range=(1, 4),  # Include up to 4-grams for better phrase matching
+                max_features=8000,   # Increased vocabulary for better coverage
+                min_df=1,           # Include rare terms for better matching
+                max_df=0.95,        # Exclude very common terms
+                lowercase=True,
+                token_pattern=r'\b\w+\b',
+                sublinear_tf=True   # Use sublinear term frequency scaling
+            )
+
+            # Fit vectorizer on CSV questions + user message
+            all_texts = csv_questions + [user_message_clean]
+            tfidf_matrix = vectorizer.fit_transform(all_texts)
+
+            # Calculate cosine similarity between user message and all CSV questions
+            user_vector = tfidf_matrix[-1]  # Last item is user message
+            csv_vectors = tfidf_matrix[:-1]  # All except last are CSV questions
+
+            similarities = cosine_similarity(user_vector, csv_vectors).flatten()
 
             # Find best match
             best_idx = np.argmax(similarities)
             best_similarity = similarities[best_idx]
 
             if best_similarity >= similarity_threshold:
+                matched_question = self.training_data[best_idx]['user_message']
                 response = self.training_data[best_idx]['response']
-                logger.info(f"📊 CSV match found (similarity: {best_similarity:.2f})")
+                logger.info(f"📊 CSV Match: '{matched_question}' | Confidence: {best_similarity:.3f}")
+                logger.info(f"🔍 Testing CSV match for: '{user_message}' | Found: {response[:100]}... | Confidence: {best_similarity:.3f}")
                 return response
-
-            return None
+            else:
+                logger.info(f"📊 No CSV match found | Best similarity: {best_similarity:.3f} < threshold: {similarity_threshold}")
+                logger.info(f"🔍 Testing CSV match for: '{user_message}' | Found: None | Confidence: {best_similarity:.3f}")
+                return None
 
         except Exception as e:
             logger.error(f"❌ CSV similarity matching error: {e}")
+            # Fallback to sentence transformer method
+            try:
+                user_embedding = self.sentence_model.encode([user_message])
+                similarities = np.dot(self.embeddings, user_embedding.T).flatten()
+                best_idx = np.argmax(similarities)
+                best_similarity = similarities[best_idx]
+
+                if best_similarity >= similarity_threshold:
+                    matched_question = self.training_data[best_idx]['user_message']
+                    response = self.training_data[best_idx]['response']
+                    logger.info(f"📊 CSV Match (fallback): '{matched_question}' | Confidence: {best_similarity:.3f}")
+                    return response
+
+            except Exception as fallback_error:
+                logger.error(f"❌ CSV fallback matching also failed: {fallback_error}")
+
             return None
 
     def get_stats(self) -> dict:
@@ -293,8 +1027,23 @@ class IntelligentLLMChatbot:
         self.tinyllama_handler = TinyLLaMAHandler()
         self.csv_handler = CSVTrainingDataHandler()
 
-        # Performance tracking for fallback chain
+        # Initialize intelligent business consultant
+        self.business_consultant = IntelligentBusinessConsultant(self.tinyllama_handler, self.csv_handler)
+
+        # Initialize business-focused API handler
+        self.business_api = None
+        if BUSINESS_API_AVAILABLE and USE_BUSINESS_API:
+            try:
+                self.business_api = TechryptBusinessAPI()
+                logger.info("✅ Techrypt Business API handler initialized")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to initialize Business API handler: {e}")
+
+        # Performance tracking for enhanced fallback chain
         self.response_stats = {
+            'enhanced_intelligence': 0,  # New: Enhanced Intelligence responses
+            'business_api': 0,  # Business API responses
+            'intelligent_llm': 0,
             'tinyllama_usage': 0,
             'csv_fallback': 0,
             'rule_based': 0,
@@ -430,7 +1179,7 @@ class IntelligentLLMChatbot:
 
             # Pet Services
             'pet_services': [
-                'pet', 'pet care', 'pet grooming', 'dog walking', 'pet sitting',
+                'pet care', 'pet grooming', 'dog walking', 'pet sitting',
                 'veterinary', 'animal care', 'pet training', 'dog training', 'pet boarding',
                 'pet daycare', 'animal hospital', 'pet store', 'pet supplies'
             ],
@@ -459,11 +1208,100 @@ class IntelligentLLMChatbot:
             'automation': ['automation', 'workflow', 'process automation', 'crm', 'email marketing']
         }
 
+        # ENHANCED: Comprehensive subservice mapping to main services
+        self.subservice_mapping = {
+            # Website Development Subservices
+            'website_development': [
+                'site redesign', 'website redesign', 'web redesign', 'site makeover',
+                'responsive design', 'mobile optimization', 'mobile-friendly site',
+                'wordpress development', 'custom website', 'business website',
+                'portfolio website', 'company website', 'professional website',
+                'landing page design', 'landing page optimization', 'conversion optimization',
+                'website maintenance', 'site updates', 'website hosting',
+                'domain setup', 'ssl certificate', 'website security',
+                'site speed optimization', 'performance optimization',
+                'woocommerce setup', 'shopify development', 'ecommerce website',
+                'online store setup', 'product catalog', 'inventory management'
+            ],
+
+            # Social Media Marketing Subservices
+            'social_media_marketing': [
+                'seo optimization', 'search engine optimization', 'google ranking',
+                'local seo', 'seo audit', 'keyword research', 'content marketing',
+                'instagram marketing', 'facebook marketing', 'linkedin marketing',
+                'tiktok content', 'youtube marketing', 'twitter marketing',
+                'social media management', 'content creation', 'post scheduling',
+                'influencer marketing', 'social media advertising', 'facebook ads',
+                'instagram ads', 'google ads', 'ppc advertising',
+                'email marketing', 'newsletter design', 'email campaigns',
+                'digital marketing strategy', 'online marketing', 'brand awareness'
+            ],
+
+            # Branding Services Subservices
+            'branding_services': [
+                'logo redesign', 'logo design', 'brand identity', 'visual identity',
+                'business card design', 'letterhead design', 'brochure design',
+                'flyer design', 'poster design', 'banner design',
+                'brand guidelines', 'color palette', 'typography selection',
+                'brand strategy', 'brand positioning', 'brand messaging',
+                'packaging design', 'label design', 'merchandise design',
+                'social media templates', 'presentation design', 'infographic design'
+            ],
+
+            # Chatbot Development Subservices
+            'chatbot_development': [
+                'whatsapp chatbot', 'whatsapp automation', 'whatsapp business',
+                'facebook messenger bot', 'telegram bot', 'discord bot',
+                'customer service bot', 'support automation', 'live chat',
+                'ai assistant', 'virtual assistant', 'conversational ai',
+                'appointment booking bot', 'lead generation bot', 'sales bot',
+                'faq automation', 'help desk automation', 'ticket system',
+                'voice assistant', 'voice bot', 'speech recognition'
+            ],
+
+            # Automation Packages Subservices
+            'automation_packages': [
+                'workflow automation', 'business process automation', 'task automation',
+                'crm automation', 'sales automation', 'marketing automation',
+                'email automation', 'lead nurturing', 'follow-up automation',
+                'inventory automation', 'order processing', 'invoice automation',
+                'social media automation', 'content scheduling', 'post automation',
+                'data entry automation', 'report generation', 'analytics automation',
+                'zapier integration', 'api integration', 'system integration'
+            ],
+
+            # Payment Gateway Integration Subservices
+            'payment_gateway_integration': [
+                'stripe integration', 'paypal integration', 'square integration',
+                'razorpay integration', 'payment processing', 'online payments',
+                'credit card processing', 'subscription billing', 'recurring payments',
+                'pos system integration', 'point of sale', 'mobile payments',
+                'digital wallet', 'cryptocurrency payments', 'payment security',
+                'fraud protection', 'payment analytics', 'transaction monitoring',
+                'refund processing', 'chargeback management', 'payment gateway setup'
+            ]
+        }
+
         self.conversation_contexts = {}  # Store conversation contexts by session
 
     def detect_business_type(self, message: str) -> str:
         """Detect business type from user message with content filtering"""
         message_lower = message.lower()
+
+        # CRITICAL: Exclude service inquiries from business type detection
+        service_inquiry_keywords = [
+            'branding services', 'chatbot development', 'website development',
+            'social media marketing', 'automation packages', 'payment gateway',
+            'how can', 'what is', 'tell me about', 'explain', 'help me with',
+            'i need', 'i want', 'looking for', 'how will', 'how does', 'how would'
+        ]
+
+        # If this looks like a service inquiry, don't detect as business type
+        if any(keyword in message_lower for keyword in service_inquiry_keywords):
+            # Exception: only detect business if it's clearly a business introduction
+            business_intro_patterns = ['i have a', 'i own a', 'i run a', 'my business is']
+            if not any(pattern in message_lower for pattern in business_intro_patterns):
+                return "general"
 
         # CRITICAL: Content filtering for prohibited businesses
         prohibited_keywords = [
@@ -472,7 +1310,18 @@ class IntelligentLLMChatbot:
             'escort', 'prostitution', 'pornography', 'strip club', 'brothel',
             'illegal drugs', 'cocaine', 'heroin', 'methamphetamine', 'cannabis business', 'cannabis products',
             'online gambling', 'sports betting', 'poker site', 'slot machine', 'gambling website',
-            'dispensary', 'weed business', 'drug dealer', 'weapon sales', 'gun sales'
+            'dispensary', 'weed business', 'drug dealer', 'weapon sales', 'gun sales',
+            # Additional illegal/restricted activities
+            'organ harvesting', 'organ trafficking', 'organ sales', 'organ trade',
+            'kidnapping services', 'human trafficking', 'human smuggling', 'trafficking business',
+            'drug manufacturing', 'illegal drug sales', 'drug production', 'drug lab',
+            'weapons trafficking', 'illegal arms sales', 'arms trafficking', 'weapon smuggling',
+            'money laundering', 'money laundering services', 'laundering money', 'financial fraud',
+            'fraud schemes', 'scam operations', 'ponzi scheme', 'pyramid scheme', 'investment fraud',
+            'illegal surveillance', 'surveillance services', 'spy services', 'wiretapping',
+            'counterfeit goods', 'counterfeit production', 'fake goods', 'piracy business',
+            'tax evasion services', 'tax fraud', 'offshore tax evasion', 'tax avoidance scheme',
+            'identity theft', 'identity theft services', 'stolen identity', 'fake documents'
         ]
 
         for keyword in prohibited_keywords:
@@ -510,8 +1359,8 @@ class IntelligentLLMChatbot:
             'retail_ecommerce': ['mobile shop', 'phone shop', 'cell phone shop', 'smartphone store', 'electronics store', 'mobile phone store', 'gadget shop', 'tech store', 'computer shop'],
             'transportation_logistics': ['mobile service', 'moving service', 'delivery service', 'courier service'],
             'pet_services': ['pet grooming', 'pet service', 'pet care', 'dog walking', 'dog walker', 'veterinary'],
-            'automotive': ['car wash', 'auto detailing', 'mobile car wash', 'mobile detailing'],
-            'crafts': ['handmade', 'pottery', 'crafts', 'artisan', 'handcrafted', 'traditional crafts', 'custom furniture', 'woodworking', 'woodworking shop', 'furniture maker', 'jewelry', 'handmade jewelry'],
+            'automotive': ['car wash', 'auto detailing', 'mobile car wash', 'mobile detailing', 'tire shop', 'auto repair', 'mechanic', 'automotive'],
+            'crafts': ['pottery', 'traditional crafts', 'furniture maker'],
             'landscaping_gardening': ['landscaping', 'landscaping business', 'landscaping company', 'gardening', 'lawn care', 'tree service', 'tree service company', 'tree removal', 'lawn maintenance'],
             'security_services': ['security company', 'security service', 'security business', 'guard service'],
             'retail_food': ['tea shop', 'coffee shop', 'specialty store', 'food retail', 'beverage store'],
@@ -524,7 +1373,19 @@ class IntelligentLLMChatbot:
             'fitness': ['yoga studio', 'gym', 'fitness'],
             'technology': ['startup', 'tech', 'software', 'app development'],
             'home_repair': ['pest control', 'pest control business', 'exterminator', 'home repair'],
-            'specialty_niche': ['butterfly breeding', 'exotic breeding', 'specialty breeding', 'rare animals', 'exotic pets', 'exotic butterfly', 'rare animal', 'specialty animal', 'unique breeding', 'niche breeding', 'collector breeding', 'rare species']
+            'specialty_niche': [
+                'butterfly breeding', 'exotic breeding', 'specialty breeding', 'rare animals', 'exotic pets',
+                'exotic butterfly', 'rare animal', 'specialty animal', 'unique breeding', 'niche breeding',
+                'collector breeding', 'rare species', 'butterfly farm', 'butterfly setup', 'breeding setup',
+                'specialty farm', 'niche business', 'unique business', 'specialty service', 'custom breeding',
+                'artisan business', 'craft business', 'handmade business', 'specialty products', 'niche market',
+                'collector business', 'hobby business', 'specialty consulting', 'niche consulting', 'expert service',
+                'specialized training', 'unique service', 'boutique business', 'custom service', 'specialty trade',
+                'artisan jewelry', 'custom woodworking', 'handcrafted', 'bespoke', 'custom design', 'artisan craft',
+                'specialty craft', 'unique craft', 'custom furniture', 'handmade jewelry', 'artisan products',
+                'specialty manufacturing', 'custom manufacturing', 'niche manufacturing', 'boutique manufacturing',
+                'specialty consulting business', 'niche consulting business', 'expert consulting', 'specialized consulting'
+            ]
         }
 
         # Check enhanced keywords first
@@ -540,6 +1401,74 @@ class IntelligentLLMChatbot:
                     return business_type
 
         return "general"
+
+    def map_subservice_to_service(self, user_input: str) -> tuple:
+        """Map specific subservice phrases to main service categories"""
+        message_lower = user_input.lower()
+        detected_subservices = []
+        main_services = []
+
+        # Check each main service category for subservice matches
+        for main_service, subservices in self.subservice_mapping.items():
+            for subservice in subservices:
+                if subservice in message_lower:
+                    detected_subservices.append(subservice)
+                    if main_service not in main_services:
+                        main_services.append(main_service)
+
+        return detected_subservices, main_services
+
+    def detect_subservice_intent(self, message: str) -> dict:
+        """Enhanced intent classification for subservices"""
+        message_lower = message.lower()
+
+        # Detect subservices and their main categories
+        detected_subservices, main_services = self.map_subservice_to_service(message)
+
+        # Classify intent types
+        intent_classification = {
+            'business_type_intent': any(phrase in message_lower for phrase in [
+                'i run', 'i have', 'i own', 'my business', 'my company', 'we are', 'we run'
+            ]),
+            'subservice_query_intent': (any(phrase in message_lower for phrase in [
+                'how does', 'what is', 'tell me about', 'explain', 'how to', 'help with', 'how do', 'what are'
+            ]) and len(detected_subservices) > 0) or (any(word in message_lower for word in ['seo', 'optimization', 'chatbot', 'automation']) and any(phrase in message_lower for phrase in ['work', 'works', 'function', 'help'])),
+            'appointment_intent': any(phrase in message_lower for phrase in [
+                'book appointment', 'schedule appointment', 'book consultation', 'schedule consultation',
+                'set up meeting', 'arrange meeting', 'book time', 'schedule time', 'make appointment',
+                'book', 'schedule', 'appointment', 'consultation', 'meeting', 'call'
+            ]),
+            'confirmation_intent': any(phrase in message_lower for phrase in [
+                'sure', 'yes', 'yeah', 'okay', 'alright', 'absolutely', 'definitely'
+            ]),
+            'pricing_intent': any(phrase in message_lower for phrase in [
+                'price', 'cost', 'pricing', 'budget', 'rates', 'fees', 'charges'
+            ]),
+            'detected_subservices': detected_subservices,
+            'main_services': main_services
+        }
+
+        return intent_classification
+
+    def resolve_service_ambiguity(self, message: str) -> dict:
+        """Handle ambiguous inputs that could be business types OR subservices"""
+        message_lower = message.lower()
+
+        # Check if input matches both business type and subservice
+        business_match = self.detect_business_type(message) != "general"
+        subservices, main_services = self.map_subservice_to_service(message)
+        subservice_match = len(subservices) > 0
+
+        classification = {
+            'is_ambiguous': business_match and subservice_match,
+            'business_type': self.detect_business_type(message) if business_match else None,
+            'detected_subservices': subservices,
+            'main_services': main_services,
+            'confidence': 'high' if business_match or subservice_match else 'low',
+            'resolution_strategy': 'dual_angle' if business_match and subservice_match else 'single_angle'
+        }
+
+        return classification
 
     def detect_service_intent(self, message: str) -> List[str]:
         """Detect which services the user is interested in"""
@@ -564,9 +1493,21 @@ class IntelligentLLMChatbot:
 
         context = self.conversation_contexts[session_id]
 
-        # Detect business type and services from current message
-        detected_business = self.detect_business_type(message)
+        # PRIORITY: Check if this is a service inquiry first (before business detection)
+        service_inquiry_result = self.detect_service_inquiry_intent(message)
+
+        if service_inquiry_result['intent'] == 'service_inquiry':
+            # This is a service inquiry - try CSV first, then use general business type
+            detected_business = "general"  # Don't change business type for service inquiries
+        else:
+            # Only detect business type if it's not a service inquiry
+            detected_business = self.detect_business_type(message)
+
         detected_services = self.detect_service_intent(message)
+
+        # ENHANCED: Detect subservices and handle ambiguity
+        subservice_intent = self.detect_subservice_intent(message)
+        ambiguity_resolution = self.resolve_service_ambiguity(message)
 
         # CRITICAL: Handle user corrections (e.g., "not petshop, a mobileshop")
         message_lower = message.lower()
@@ -601,60 +1542,340 @@ class IntelligentLLMChatbot:
         context.services_discussed.extend(detected_services)
         context.services_discussed = list(set(context.services_discussed))  # Remove duplicates
 
-        # Enhanced Response Priority Chain
-        response_text = None
-        llm_method = "fallback"
+        # ENHANCED: Update subservice context
+        if subservice_intent['detected_subservices']:
+            context.requested_subservices.extend(subservice_intent['detected_subservices'])
+            context.requested_subservices = list(set(context.requested_subservices))
+            context.last_subservice_query = message
 
-        # 1. TinyLLaMA generation (if enabled and model loaded)
-        if USE_TINYLLAMA and self.tinyllama_handler.model_loaded:
+            # Add main services to discussed services
+            if subservice_intent['main_services']:
+                context.services_discussed.extend(subservice_intent['main_services'])
+                context.services_discussed = list(set(context.services_discussed))
+
+        # PRIORITY 0: INTELLIGENT APPOINTMENT BOOKING BYPASS (Highest Priority)
+        # Check for appointment-related responses that should bypass CSV matching
+        appointment_bypass_patterns = [
+            'book appointment', 'schedule appointment', 'book consultation', 'schedule consultation',
+            'set up meeting', 'arrange meeting', 'book time', 'schedule time', 'make appointment',
+            'yes please', 'sure thing', 'sounds good', 'let\'s do it', 'i\'m interested',
+            'that works', 'perfect', 'excellent', 'great idea', 'good idea'
+        ]
+
+        # Check if this is an appointment-related response in context
+        if (any(pattern in message.lower() for pattern in appointment_bypass_patterns) and
+            context.conversation_stage in ['recommendation', 'closing']):
+            # Bypass CSV matching and use contextual appointment response
+            context.conversation_stage = 'closing'
+            user_name = user_context.get('name', '')
+            name_part = f", {user_name}" if user_name else ""
+
+            response_text = f"""Perfect{name_part}! Let's schedule your consultation.
+
+• 15-20 minute personalized consultation
+• Discuss your specific business needs
+• Custom solution recommendations
+• Transparent pricing discussion
+
+We serve Karachi locally and offer remote consultations globally. What's your preferred time and method - in-person (Karachi), phone call, or video meeting?"""
+
+            llm_method = "appointment_bypass"
+            self.response_stats['rule_based'] += 1
+
+        # ENHANCED INTELLIGENT API-POWERED RESPONSE CHAIN
+        if not response_text:
+            response_text = None
+            llm_method = "fallback"
+            csv_confidence = 0.0
+            matched_question = None
+
+        # 1. CSV RESPONSES FOR SERVICE INQUIRIES (HIGHEST PRIORITY - Use our detailed service explanations)
+        if service_inquiry_result['intent'] == 'service_inquiry' and self.csv_handler.data_loaded:
             try:
-                prompt = self.tinyllama_handler.create_prompt(message, context.business_type, user_context)
-                tinyllama_response = self.tinyllama_handler.generate_response(prompt)
-
-                if tinyllama_response:
-                    response_text = tinyllama_response
-                    llm_method = "tinyllama"
-                    self.response_stats['tinyllama_usage'] += 1
-                    logger.info("🤖 TinyLLaMA response generated")
-            except Exception as e:
-                logger.warning(f"⚠️ TinyLLaMA generation failed: {e}")
-
-        # 2. CSV semantic matching (PRIORITY: Check with lower threshold first)
-        if not response_text and self.csv_handler.data_loaded:
-            try:
-                # Try exact/high similarity match first
-                csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.8)
-
-                if not csv_response:
-                    # Try lower threshold for broader matches
-                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.6)
+                # For service inquiries, use very low threshold to catch natural language variations
+                csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.15)
 
                 if csv_response:
+                    # Get confidence score for metadata
+                    from sklearn.feature_extraction.text import TfidfVectorizer
+                    from sklearn.metrics.pairwise import cosine_similarity
+                    import re
+
+                    def preprocess_text(text):
+                        if not isinstance(text, str):
+                            return ""
+                        text = text.lower().strip()
+                        text = re.sub(r'[^\w\s]', ' ', text)
+                        text = re.sub(r'\s+', ' ', text)
+                        return text
+
+                    user_message_clean = preprocess_text(message)
+                    csv_questions = [preprocess_text(row['user_message']) for row in self.csv_handler.training_data]
+
+                    vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=5000)
+                    all_texts = csv_questions + [user_message_clean]
+                    tfidf_matrix = vectorizer.fit_transform(all_texts)
+
+                    user_vector = tfidf_matrix[-1]
+                    csv_vectors = tfidf_matrix[:-1]
+                    similarities = cosine_similarity(user_vector, csv_vectors).flatten()
+
+                    best_idx = np.argmax(similarities)
+                    csv_confidence = similarities[best_idx]
+                    matched_question = self.csv_handler.training_data[best_idx]['user_message']
+
                     # Personalize CSV response with user name and format properly
                     user_name = user_context.get('name', '')
                     name_part = f", {user_name}" if user_name else ""
 
-                    # Ensure proper formatting for CSV responses
+                    formatted_response = csv_response.replace("{name}", name_part)
+
+                    response_text = formatted_response
+                    llm_method = "csv_service_inquiry"
+                    self.response_stats['csv_fallback'] += 1
+                    logger.info(f"📊 Service inquiry CSV match used | Confidence: {csv_confidence:.3f} | Question: {matched_question}")
+
+            except Exception as e:
+                logger.warning(f"⚠️ Service inquiry CSV matching failed: {e}")
+
+        # 2. ENHANCED BUSINESS INTELLIGENCE (FALLBACK for non-service inquiries)
+        if not response_text and ENHANCED_INTELLIGENCE_AVAILABLE and context.business_type != "prohibited" and service_inquiry_result['intent'] != 'service_inquiry':
+            try:
+                # Get enhanced intelligent response (skip for service inquiries to prioritize CSV)
+                enhanced_response = get_enhanced_response(
+                    message,
+                    context.business_type,
+                    user_context
+                )
+
+                if enhanced_response and enhanced_response.success and len(enhanced_response.response_text.strip()) > 20:
+                    response_text = enhanced_response.response_text
+                    llm_method = "enhanced_intelligence"
+                    self.response_stats['enhanced_intelligence'] += 1
+
+                    # Update conversation context with successful response
+                    context.add_conversation_turn(message, enhanced_response.response_text, "enhanced_intelligence")
+
+                    # Check if appointment should be triggered
+                    if enhanced_response.triggers_appointment:
+                        context.conversation_stage = 'closing'
+
+                    logger.info(f"🚀 Enhanced Intelligence response generated | Confidence: {enhanced_response.confidence:.2f} | Time: {enhanced_response.response_time:.3f}s")
+
+            except Exception as e:
+                logger.warning(f"⚠️ Enhanced Intelligence generation failed: {e}")
+
+        # 3. TECHRYPT BUSINESS API INTEGRATION (FALLBACK - External API)
+        if not response_text and USE_BUSINESS_API and self.business_api and self.business_api.api_available and context.business_type != "prohibited":
+            try:
+                # Get business-focused API response
+                api_response = self.business_api.get_business_response(
+                    message,
+                    context.business_type,
+                    user_context
+                )
+
+                if api_response and api_response.success and len(api_response.response_text.strip()) > 20:
+                    response_text = api_response.response_text
+                    llm_method = "business_api"
+                    self.response_stats['business_api'] += 1
+
+                    # Update conversation context with successful response
+                    context.add_conversation_turn(message, api_response.response_text, "business_api")
+
+                    # Check if appointment should be triggered
+                    if api_response.triggers_appointment:
+                        context.conversation_stage = 'closing'
+
+                    logger.info(f"🚀 Business API response generated | Source: {api_response.source} | Time: {api_response.response_time:.3f}s")
+
+            except Exception as e:
+                logger.warning(f"⚠️ Business API generation failed: {e}")
+
+        # 4. INTELLIGENT BUSINESS CONSULTANT (TinyLLaMA fallback)
+        if not response_text and INTELLIGENT_MODE and self.business_consultant and context.business_type != "prohibited":
+            try:
+                # Add conversation turn to context
+                context.add_conversation_turn(message, "", "pending")
+
+                # Use intelligent LLM for business-related queries with enhanced context
+                intelligent_response = self.business_consultant.generate_intelligent_response(
+                    message,
+                    context.business_type,
+                    user_context,
+                    context.conversation_stage,
+                    conversation_context=context.get_business_context_for_prompt()
+                )
+
+                if intelligent_response:
+                    response_text = intelligent_response
+                    llm_method = "intelligent_llm"
+                    self.response_stats['intelligent_llm'] += 1
+
+                    # Update conversation context with successful response
+                    context.add_conversation_turn(message, intelligent_response, "intelligent_llm")
+
+                    logger.info("🧠 Intelligent LLM business response generated")
+
+            except Exception as e:
+                logger.warning(f"⚠️ Intelligent LLM generation failed: {e}")
+
+        # 3. CSV semantic matching (PRIORITY for service inquiries - Enhanced thresholds for better utilization)
+        if not response_text and self.csv_handler.data_loaded:
+            try:
+                # For service inquiries, use lower threshold to prioritize CSV responses
+                if service_inquiry_result['intent'] == 'service_inquiry':
+                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.4)
+                else:
+                    # Try high confidence match first (0.6 threshold - lowered from 0.7)
+                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.6)
+
+                if csv_response:
+                    # Get confidence score for metadata
+                    from sklearn.feature_extraction.text import TfidfVectorizer
+                    from sklearn.metrics.pairwise import cosine_similarity
+                    import re
+
+                    def preprocess_text(text):
+                        if not isinstance(text, str):
+                            return ""
+                        text = text.lower().strip()
+                        text = re.sub(r'[^\w\s]', ' ', text)
+                        text = re.sub(r'\s+', ' ', text)
+                        return text
+
+                    user_message_clean = preprocess_text(message)
+                    csv_questions = [preprocess_text(row['user_message']) for row in self.csv_handler.training_data]
+
+                    vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=5000)
+                    all_texts = csv_questions + [user_message_clean]
+                    tfidf_matrix = vectorizer.fit_transform(all_texts)
+
+                    user_vector = tfidf_matrix[-1]
+                    csv_vectors = tfidf_matrix[:-1]
+                    similarities = cosine_similarity(user_vector, csv_vectors).flatten()
+
+                    best_idx = np.argmax(similarities)
+                    csv_confidence = similarities[best_idx]
+                    matched_question = self.csv_handler.training_data[best_idx]['user_message']
+
+                    # Personalize CSV response with user name and format properly
+                    user_name = user_context.get('name', '')
+                    name_part = f", {user_name}" if user_name else ""
+
                     formatted_response = csv_response.replace("{name}", name_part)
 
                     # Add location context if not already present
-                    if 'karachi' not in formatted_response.lower() and any(word in message_lower for word in ['location', 'where', 'local']):
+                    if 'karachi' not in formatted_response.lower() and any(word in message.lower() for word in ['location', 'where', 'local']):
                         formatted_response += f"\n\nWe're based in Karachi and serve local businesses with remote consultations available globally."
 
                     response_text = formatted_response
                     llm_method = "csv_match"
                     self.response_stats['csv_fallback'] += 1
-                    logger.info("📊 CSV semantic match found")
+                    logger.info(f"📊 High confidence CSV match used | Confidence: {csv_confidence:.3f}")
+
             except Exception as e:
                 logger.warning(f"⚠️ CSV matching failed: {e}")
 
-        # 3. Existing rule-based intelligent responses (PRESERVE current system)
+        # 6. TinyLLaMA fallback generation (if intelligent API, LLM and CSV both failed)
+        if not response_text and USE_TINYLLAMA and self.tinyllama_handler.model_loaded:
+            try:
+                # Use business consultant for TinyLLaMA fallback too
+                fallback_response = self.business_consultant.generate_intelligent_response(
+                    message,
+                    context.business_type or "general business",
+                    user_context,
+                    context.conversation_stage
+                )
+
+                if fallback_response:
+                    response_text = fallback_response
+                    llm_method = "tinyllama_fallback"
+                    self.response_stats['tinyllama_usage'] += 1
+                    logger.info("🤖 TinyLLaMA fallback response generated")
+
+            except Exception as e:
+                logger.warning(f"⚠️ TinyLLaMA fallback generation failed: {e}")
+
+        # 7. CSV fallback with optimized thresholds (if TinyLLaMA also failed)
+        if not response_text and self.csv_handler.data_loaded:
+            try:
+                # Try lower threshold for broader matches (0.4 - optimized from 0.5)
+                csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.4)
+
+                if csv_response:
+                    # Get confidence score for metadata
+                    try:
+                        from sklearn.feature_extraction.text import TfidfVectorizer
+                        from sklearn.metrics.pairwise import cosine_similarity
+                        import re
+
+                        def preprocess_text(text):
+                            if not isinstance(text, str):
+                                return ""
+                            text = text.lower().strip()
+                            text = re.sub(r'[^\w\s]', ' ', text)
+                            text = re.sub(r'\s+', ' ', text)
+                            return text
+
+                        user_message_clean = preprocess_text(message)
+                        csv_questions = [preprocess_text(row['user_message']) for row in self.csv_handler.training_data]
+
+                        vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=5000)
+                        all_texts = csv_questions + [user_message_clean]
+                        tfidf_matrix = vectorizer.fit_transform(all_texts)
+
+                        user_vector = tfidf_matrix[-1]
+                        csv_vectors = tfidf_matrix[:-1]
+                        similarities = cosine_similarity(user_vector, csv_vectors).flatten()
+
+                        best_idx = np.argmax(similarities)
+                        csv_confidence = similarities[best_idx]
+                        matched_question = self.csv_handler.training_data[best_idx]['user_message']
+
+                    except Exception:
+                        csv_confidence = 0.5  # Default for fallback
+                        matched_question = "CSV fallback match"
+
+                    # Personalize CSV response with user name and format properly
+                    user_name = user_context.get('name', '')
+                    name_part = f", {user_name}" if user_name else ""
+
+                    formatted_response = csv_response.replace("{name}", name_part)
+
+                    # Add location context if not already present
+                    if 'karachi' not in formatted_response.lower() and any(word in message.lower() for word in ['location', 'where', 'local']):
+                        formatted_response += f"\n\nWe're based in Karachi and serve local businesses with remote consultations available globally."
+
+                    response_text = formatted_response
+                    llm_method = "csv_fallback"
+                    self.response_stats['csv_fallback'] += 1
+                    logger.info(f"📊 CSV fallback match used | Confidence: {csv_confidence:.3f}")
+                else:
+                    # Try very low threshold for fuzzy matches (0.3)
+                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.3)
+                    if csv_response:
+                        # Format fuzzy match response
+                        user_name = user_context.get('name', '')
+                        name_part = f", {user_name}" if user_name else ""
+                        formatted_response = csv_response.replace("{name}", name_part)
+
+                        response_text = formatted_response
+                        llm_method = "csv_fuzzy_match"
+                        csv_confidence = 0.3
+                        self.response_stats['csv_fallback'] += 1
+                        logger.info(f"📊 CSV fuzzy match used | Confidence: {csv_confidence:.3f}")
+
+            except Exception as e:
+                logger.warning(f"⚠️ CSV fallback matching failed: {e}")
+
+        # 8. Existing rule-based intelligent responses (PRESERVE current system)
         if not response_text:
-            response_text = self.generate_contextual_response(message, context, user_context)
+            response_text = self.generate_contextual_response(message, context, user_context, subservice_intent, ambiguity_resolution)
             llm_method = "rule_based"
             self.response_stats['rule_based'] += 1
 
-        # 4. Generic fallback (should rarely be used)
+        # 9. Generic fallback (should rarely be used)
         if not response_text:
             user_name = user_context.get('name', '')
             name_part = f", {user_name}" if user_name else ""
@@ -678,20 +1899,43 @@ class IntelligentLLMChatbot:
 
         return {
             'response': response_text,
-            'show_contact_form': show_contact_form,
-            'show_appointment_form': show_appointment_form,
+            'source': llm_method,  # 'business_api', 'intelligent_llm', 'csv_match', 'tinyllama_fallback', 'rule_based', 'csv_fallback'
+            'confidence': csv_confidence if llm_method in ['csv_match', 'csv_fallback'] else 1.0,
+            'matched_question': matched_question if llm_method in ['csv_match', 'csv_fallback'] else None,
             'business_type': context.business_type,
-            'services_discussed': context.services_discussed,
             'conversation_stage': context.conversation_stage,
+            'show_appointment_form': show_appointment_form,
+            'show_contact_form': show_contact_form,
+            'services_discussed': context.services_discussed,
             'response_time': response_time,
-            'llm_used': llm_method
+            'llm_used': llm_method,  # Backward compatibility
+            'intelligent_mode': INTELLIGENT_MODE,
+            'business_api_available': BUSINESS_API_AVAILABLE and USE_BUSINESS_API,
+            'tinyllama_available': self.tinyllama_handler.model_loaded
         }
 
-    def generate_contextual_response(self, message: str, context: ConversationContext, user_context: dict) -> str:
+    def generate_contextual_response(self, message: str, context: ConversationContext, user_context: dict, subservice_intent: dict = None, ambiguity_resolution: dict = None) -> str:
         """Generate contextual response based on business type and conversation stage"""
         message_lower = message.lower()
         user_name = user_context.get('name', '')
         name_part = f", {user_name}" if user_name else ""
+
+        # PRIORITY 1: Enhanced service inquiry detection (HIGHEST PRIORITY)
+        service_inquiry_result = self.detect_service_inquiry_intent(message)
+
+        if service_inquiry_result['intent'] == 'service_inquiry' and service_inquiry_result['detected_services']:
+            # User is asking about a service (e.g., "branding services", "chatbot help")
+            service = service_inquiry_result['detected_services'][0]
+            context.services_discussed.append(service.replace('_', ' ').title())
+            context.conversation_stage = 'service_inquiry'
+
+            return self.get_enhanced_service_response(service, context.business_type, name_part)
+
+        # Initialize subservice_intent and ambiguity_resolution if not provided
+        if subservice_intent is None:
+            subservice_intent = self.detect_subservice_intent(message)
+        if ambiguity_resolution is None:
+            ambiguity_resolution = self.resolve_service_ambiguity(message)
 
         # CRITICAL: Handle user corrections with immediate business-specific response
         if context.is_correction and context.business_type and context.business_type != "general":
@@ -700,6 +1944,42 @@ class IntelligentLLMChatbot:
         # CRITICAL: Detect general responses after service selection and redirect to appointment
         if self.is_general_response_after_service(message_lower, context):
             return self.get_appointment_redirect_response(context, name_part)
+
+        # ENHANCED: Handle specific subservice requests
+        if subservice_intent['detected_subservices'] and not subservice_intent['subservice_query_intent']:
+            # User is requesting a specific subservice
+            primary_subservice = subservice_intent['detected_subservices'][0]
+            business_context = context.business_type if context.business_type != "general" else "business"
+            return self.get_subservice_response(primary_subservice, business_context, name_part)
+
+        # ENHANCED: Handle subservice questions (how does X work, what is Y)
+        if subservice_intent['subservice_query_intent'] and subservice_intent['detected_subservices']:
+            primary_subservice = subservice_intent['detected_subservices'][0]
+            business_context = context.business_type if context.business_type != "general" else "business"
+            response = self.get_subservice_response(primary_subservice, business_context, name_part)
+            # Add educational context for query-type intents
+            return response.replace("Ready to discuss", "Would you like to learn more about how this works, or are you ready to discuss")
+
+        # ENHANCED: Handle ambiguous business/subservice inputs
+        if ambiguity_resolution['is_ambiguous'] and ambiguity_resolution['resolution_strategy'] == 'dual_angle':
+            business_type = ambiguity_resolution['business_type']
+            subservices = ambiguity_resolution['detected_subservices']
+            primary_subservice = subservices[0] if subservices else None
+
+            if primary_subservice:
+                return f"""I can help you with both angles{name_part}!
+
+**For {business_type} businesses:**
+• Industry-specific {primary_subservice} solutions
+• Tailored features for your market
+• Compliance and best practices
+
+**{primary_subservice.title()} service in general:**
+• Professional implementation
+• Custom configuration
+• Ongoing support and optimization
+
+Which perspective interests you more - {business_type} specific solutions or general {primary_subservice} services?"""
 
         # CRITICAL: Handle service number selections FIRST
         service_number_patterns = {
@@ -720,35 +2000,54 @@ class IntelligentLLMChatbot:
                 context.conversation_stage = 'recommendation'  # Update stage for service selection
                 return self.get_service_specific_response(service_name, context.business_type, name_part)
 
-        # Check for service name mentions
+        # ENHANCED: Check for service inquiries vs business introductions
+        service_inquiry_result = self.detect_service_inquiry_intent(message)
+
+        if service_inquiry_result['intent'] == 'service_inquiry' and service_inquiry_result['detected_services']:
+            # User is asking about a service (e.g., "branding services", "chatbot help")
+            service = service_inquiry_result['detected_services'][0]
+            service_name = service.replace('_', ' ').title()
+            context.services_discussed.append(service_name)
+            return self.get_enhanced_service_response(service, context.business_type, name_part)
+
+        # Check for service name mentions (legacy support)
         if any(service in message_lower for service in ['chatbot', 'branding', 'website', 'social media', 'automation', 'payment']):
             for service_name in service_number_patterns.values():
                 if any(word in message_lower for word in service_name.split()):
                     context.services_discussed.append(service_name)
                     return self.get_service_specific_response(service_name, context.business_type, name_part)
 
-        # HIGHEST PRIORITY: Direct service inquiry responses
+        # HIGHEST PRIORITY: Direct service inquiry responses - Enhanced detection
         service_inquiry_keywords = [
             'services', 'what do you do', 'what do you offer', 'offerings',
             'service list', 'your services', 'help with', 'solutions',
             'what can you help', 'what services', 'list services', 'do you provide',
-            'what kind of services', 'service offerings', 'what you offer'
+            'what kind of services', 'service offerings', 'what you offer',
+            'what services do you offer', 'what services do you provide',
+            'tell me about your services', 'tell me about services',
+            'what can you do', 'techrypt services', 'list your services'
         ]
 
-        if any(keyword in message_lower for keyword in service_inquiry_keywords):
+        # Special check for standalone "services" query
+        if message_lower.strip() == 'services' or any(keyword in message_lower for keyword in service_inquiry_keywords):
             # Check if services were already mentioned in this conversation
             if not context.services_shown:
                 context.services_shown = True
-                return f"""Great question{name_part}! Here are our 6 core services:
+                return f"""Here are Techrypt's 6 core services:
 
-• Website Development
-• Social Media Marketing
-• Branding Services
-• Chatbot Development
-• Automation Packages
-• Payment Gateway Integration
+• Website Development - Professional websites with SEO optimization
 
-Which service would help your {context.business_type or 'business'} most?"""
+• Social Media Marketing - Strategic campaigns for Instagram, Facebook, LinkedIn
+
+• Branding Services - Logo design, brand identity, and marketing materials
+
+• Chatbot Development - AI-powered customer service automation
+
+• Automation Packages - Business process automation solutions
+
+• Payment Gateway Integration - Secure payment processing (Stripe, PayPal, etc.)
+
+Which service would help your business most?"""
             else:
                 # Follow-up response if services already shown
                 return f"""As I mentioned{name_part}, we offer Website Development, Social Media Marketing, Branding, Chatbot Development, Automation, and Payment Gateway Integration.
@@ -762,9 +2061,9 @@ What specific challenge are you facing with your business that we could help sol
         # CRITICAL: Handle prohibited businesses first
         if context.business_type == 'prohibited':
             prohibited_responses = [
-                f"I apologize{name_part}, but we cannot provide services for gambling, adult entertainment, or other restricted businesses due to regulatory and policy restrictions. However, if you have other business ventures in hospitality, technology, retail, or professional services, I'd be happy to help with those!",
-                f"I'm sorry{name_part}, but we cannot provide services for businesses involving gambling, adult content, or illegal substances due to legal restrictions. If you have other legitimate business interests in healthcare, e-commerce, or digital services, I'd be glad to assist with those!",
-                f"Unfortunately{name_part}, we cannot provide services for restricted business categories due to compliance requirements. However, if you have other business projects in technology, retail, hospitality, or professional services, I'd be happy to help with those!"
+                f"I apologize{name_part}, but we cannot provide services for gambling, adult entertainment, illegal activities, or other restricted businesses due to regulatory and policy restrictions. However, if you have other business ventures in hospitality, technology, retail, or professional services, I'd be happy to help with those!",
+                f"I'm sorry{name_part}, but we cannot provide services for businesses involving gambling, adult content, illegal substances, or unlawful activities due to legal restrictions. If you have other legitimate business interests in healthcare, e-commerce, or digital services, I'd be glad to assist with those!",
+                f"Unfortunately{name_part}, we cannot provide services for restricted or illegal business categories due to compliance requirements. However, if you have other business projects in technology, retail, hospitality, or professional services, I'd be happy to help with those!"
             ]
             import random
             return random.choice(prohibited_responses)
@@ -956,9 +2255,29 @@ What's your priority - online ordering, social media marketing, or customer enga
 
         elif context.business_type == 'specialty_niche':
             if 'website' in message_lower:
-                return f"Specialty businesses like yours{name_part} need websites that educate and build trust with niche audiences. I'd recommend detailed information, expert credentials, and specialized content. What makes your business unique?"
+                return f"""Perfect{name_part}! Specialty businesses like yours need websites that educate and build trust with niche audiences.
+
+• Website Development - Educational content with expert credentials and specialized information
+• Social Media Marketing - Targeted content for specialty audiences and communities
+• Branding Services - Unique identity that reflects your specialty expertise
+• Chatbot Development - Customer education and specialized inquiry handling
+• Automation Packages - Streamlined operations for niche business processes
+• Payment Gateway Integration - Secure transactions for specialty products/services
+
+What makes your specialty business unique, and who is your target audience?"""
             elif context.conversation_stage == 'initial':
-                return f"Fascinating{name_part}! Specialty businesses need targeted marketing to reach the right audience. I'd recommend: 🦋 Educational website with expert content, 📱 Niche social media marketing, 🌐 Specialized SEO targeting, 📞 Community building and networking. What's your target market for this specialty business?"
+                return f"""Excellent{name_part}! Specialty and niche businesses need targeted digital strategies to reach the right audience.
+
+Here are our 6 core services tailored for your specialty business:
+
+• Website Development - Educational content showcasing your expertise and building credibility
+• Social Media Marketing - Niche community building and targeted audience engagement
+• Branding Services - Unique visual identity that reflects your specialty focus
+• Chatbot Development - Automated customer education and specialized inquiry handling
+• Automation Packages - Streamlined processes for efficient niche business operations
+• Payment Gateway Integration - Secure online transactions for specialty products/services
+
+What's your biggest challenge - reaching your target market, educating customers, or managing specialized operations?"""
 
         # Priority/startup guidance responses
         startup_keywords = ['start with', 'begin with', 'first step', 'priority', 'what should i start', 'where to start', 'first thing']
@@ -1029,24 +2348,328 @@ We serve Karachi locally and offer remote consultations globally. What's your pr
         # Default contextual response
         return f"Thank you for your message{name_part}! I'm here to help you grow your business with personalized digital solutions. Could you tell me more about your business type and what specific challenges you're facing?"
 
+    def detect_service_inquiry_intent(self, message: str) -> dict:
+        """Enhanced service inquiry detection that distinguishes between business types and service requests"""
+        message_lower = message.lower().strip()
+
+        # Service inquiry patterns (what user WANTS)
+        service_inquiry_patterns = {
+            'website_development': [
+                'website', 'web development', 'web design', 'online presence',
+                'website help', 'web help', 'site development', 'web solution'
+            ],
+            'social_media_marketing': [
+                'social media', 'social media marketing', 'facebook marketing',
+                'instagram marketing', 'social media help', 'social marketing'
+            ],
+            'branding_services': [
+                'branding', 'branding services', 'brand design', 'logo design',
+                'brand identity', 'branding help', 'brand development'
+            ],
+            'chatbot_development': [
+                'chatbot', 'chat bot', 'chatbot development', 'chatbot help',
+                'automated chat', 'bot development', 'chat automation'
+            ],
+            'automation_packages': [
+                'automation', 'business automation', 'process automation',
+                'workflow automation', 'automation help', 'automate business'
+            ],
+            'payment_gateway': [
+                'payment gateway', 'payment integration', 'payment processing',
+                'online payments', 'payment system', 'payment help'
+            ]
+        }
+
+        # Business introduction patterns
+        business_intro_patterns = [
+            'i have a', 'i own a', 'i run a', 'my business is', 'my company is',
+            'we have a', 'we own a', 'we run a', 'our business is'
+        ]
+
+        # Service request patterns
+        service_request_patterns = [
+            'i need', 'i want', 'can you help with', 'how can', 'what is',
+            'tell me about', 'explain', 'help me with', 'looking for'
+        ]
+
+        # Check if it's a business introduction
+        is_business_intro = any(pattern in message_lower for pattern in business_intro_patterns)
+
+        # Check if it's a service request
+        is_service_request = any(pattern in message_lower for pattern in service_request_patterns)
+
+        # Detect specific services mentioned
+        detected_services = []
+        for service, keywords in service_inquiry_patterns.items():
+            if any(keyword in message_lower for keyword in keywords):
+                detected_services.append(service)
+
+        # Determine the primary intent
+        if detected_services and (is_service_request or not is_business_intro):
+            intent = 'service_inquiry'
+        elif is_business_intro:
+            intent = 'business_introduction'
+        elif any(word in message_lower for word in ['price', 'cost', 'pricing', 'rates']):
+            intent = 'pricing_inquiry'
+        else:
+            intent = 'general_inquiry'
+
+        return {
+            'intent': intent,
+            'detected_services': detected_services,
+            'is_business_intro': is_business_intro,
+            'is_service_request': is_service_request
+        }
+
+    def get_enhanced_service_response(self, service: str, business_type: str, name_part: str) -> str:
+        """Generate enhanced service-specific responses without location mentions unless relevant"""
+
+        service_responses = {
+            "website_development": {
+                'description': "Website Development creates professional online presence that builds credibility and attracts customers 24/7.",
+                'benefits': [
+                    "Professional design that builds trust",
+                    "Mobile-responsive for all devices",
+                    "SEO optimization for Google visibility",
+                    "Easy content management system",
+                    "Integration with booking/payment systems"
+                ],
+                'cta': "Ready to establish your professional online presence?"
+            },
+            "social_media_marketing": {
+                'description': "Social Media Marketing builds your brand presence and engages customers across Facebook, Instagram, and LinkedIn.",
+                'benefits': [
+                    "Strategic content creation and posting",
+                    "Targeted advertising to reach ideal customers",
+                    "Community building and engagement",
+                    "Brand awareness and reputation management",
+                    "Analytics and performance tracking"
+                ],
+                'cta': "Want to build a strong social media presence?"
+            },
+            "branding_services": {
+                'description': "Branding Services create memorable visual identity that makes your business stand out and builds customer loyalty.",
+                'benefits': [
+                    "Custom logo design that reflects your values",
+                    "Complete brand identity (colors, fonts, style)",
+                    "Marketing materials (business cards, flyers)",
+                    "Brand guidelines for consistent application",
+                    "Professional image that attracts customers"
+                ],
+                'cta': "Ready to create a memorable brand identity?"
+            },
+            "chatbot_development": {
+                'description': "Chatbot Development automates customer service and captures leads 24/7 while you focus on growing your business.",
+                'benefits': [
+                    "24/7 customer support automation",
+                    "Lead capture and qualification",
+                    "Appointment booking integration",
+                    "FAQ handling and information delivery",
+                    "Integration with WhatsApp and websites"
+                ],
+                'cta': "Want to automate your customer service?"
+            },
+            "automation_packages": {
+                'description': "Automation Packages streamline repetitive tasks, saving time and reducing errors in your daily operations.",
+                'benefits': [
+                    "Workflow automation for efficiency",
+                    "Email marketing automation",
+                    "Inventory and order management",
+                    "Customer follow-up automation",
+                    "Integration between business systems"
+                ],
+                'cta': "Ready to automate your business processes?"
+            },
+            "payment_gateway": {
+                'description': "Payment Gateway Integration enables secure online transactions and improves customer convenience.",
+                'benefits': [
+                    "Secure online payment processing",
+                    "Multiple payment method support",
+                    "Mobile-friendly checkout experience",
+                    "Subscription and recurring billing",
+                    "Integration with your website/app"
+                ],
+                'cta': "Want to start accepting online payments?"
+            }
+        }
+
+        if service in service_responses:
+            service_info = service_responses[service]
+
+            # Build response
+            response = f"{service_info['description']}\n\n"
+            response += "Key benefits:\n"
+            for benefit in service_info['benefits']:
+                response += f"• {benefit}\n"
+
+            response += f"\n{service_info['cta']} Let's schedule a free consultation to discuss your specific needs!"
+
+            return response
+
+        # Fallback response
+        service_name = service.replace('_', ' ').title()
+        return f"I'd be happy to help you with {service_name}{name_part}. Let's schedule a consultation to discuss your specific needs and how we can help your business grow."
+
+    def get_specialty_business_response(self, business_type: str, name_part: str) -> str:
+        """Generate comprehensive response for specialty/niche businesses with all 6 services"""
+
+        specialty_responses = {
+            'specialty_niche': f"""Excellent{name_part}! Specialty and niche businesses require targeted digital strategies to reach the right audience and build credibility.
+
+Here are our 6 core services specifically tailored for your specialty business:
+
+• Website Development - Educational content showcasing expertise, building trust with niche audiences
+• Social Media Marketing - Targeted community building and specialized audience engagement
+• Branding Services - Unique visual identity that reflects your specialty focus and expertise
+• Chatbot Development - Automated customer education and specialized inquiry handling
+• Automation Packages - Streamlined processes for efficient specialty business operations
+• Payment Gateway Integration - Secure online transactions for specialty products and services
+
+What's your biggest challenge - reaching your target market, educating potential customers, or managing specialized operations?
+
+Ready to grow your specialty business? Let's schedule a free consultation to discuss your specific needs!""",
+
+            'general': f"""Great{name_part}! Every business can benefit from professional digital presence and targeted marketing strategies.
+
+Here are our 6 core services that can help grow your business:
+
+• Website Development - Professional online presence that builds credibility and attracts customers
+• Social Media Marketing - Strategic content and advertising to reach your ideal audience
+• Branding Services - Memorable visual identity that makes your business stand out
+• Chatbot Development - 24/7 customer service automation and lead capture
+• Automation Packages - Streamlined workflows that save time and reduce errors
+• Payment Gateway Integration - Secure online payment processing for customer convenience
+
+What's your main business challenge - attracting customers, building online presence, or improving operations?
+
+Let's schedule a free consultation to create a customized digital strategy for your business!"""
+        }
+
+        return specialty_responses.get(business_type, specialty_responses['general'])
+
+    def get_service_explanation_response(self, service_name: str, business_type: str, name_part: str) -> str:
+        """Generate detailed explanations for 'how will [service] help me' questions"""
+        explanations = {
+            'website': f"""A professional website will help your {business_type} business by:
+
+• Building credibility and trust with potential customers
+• Providing 24/7 online presence for customer inquiries
+• Showcasing your services and expertise professionally
+• Improving local search visibility for "near me" searches
+• Enabling online bookings and customer contact
+• Displaying customer reviews and testimonials
+
+For {business_type} businesses specifically, we focus on industry-relevant features and local SEO optimization. Would you like to schedule a consultation to discuss your website goals?""",
+
+            'chatbot': f"""A professional chatbot will help your {business_type} business by:
+
+• Providing 24/7 automated customer support
+• Handling common questions and inquiries instantly
+• Qualifying leads and collecting customer information
+• Booking appointments and scheduling consultations
+• Reducing response time from hours to seconds
+• Freeing up your time for core business activities
+
+For {business_type} businesses, we customize conversation flows for industry-specific needs. Would you like to see a demo of how chatbot automation works?""",
+
+            'social media': f"""Professional social media marketing will help your {business_type} business by:
+
+• Increasing brand awareness and local visibility
+• Engaging with customers and building community
+• Showcasing your work and customer testimonials
+• Driving traffic to your website and location
+• Generating leads through targeted advertising
+• Building trust through consistent professional presence
+
+For {business_type} businesses, we focus on platforms and content that work best for your industry. Would you like to discuss a social media strategy consultation?""",
+
+            'branding': f"""Professional branding services will help your {business_type} business by:
+
+• Creating a memorable and professional visual identity
+• Building customer trust and recognition
+• Differentiating you from competitors
+• Ensuring consistent presentation across all materials
+• Increasing perceived value of your services
+• Supporting marketing and advertising efforts
+
+For {business_type} businesses, we design branding that reflects industry expertise and builds credibility. Would you like to explore branding concepts for your business?""",
+
+            'automation': f"""Business automation will help your {business_type} business by:
+
+• Streamlining repetitive tasks and processes
+• Reducing manual work and human errors
+• Improving customer response times
+• Organizing customer data and communications
+• Scheduling and managing appointments automatically
+• Generating reports and tracking performance
+
+For {business_type} businesses, we identify the most time-consuming processes and automate them effectively. Would you like to schedule a consultation to analyze your workflow?""",
+
+            'payment': f"""Payment gateway integration will help your {business_type} business by:
+
+• Enabling secure online payment processing
+• Accepting multiple payment methods (cards, digital wallets)
+• Automating invoicing and receipt generation
+• Reducing payment collection time
+• Providing detailed transaction reporting
+• Ensuring PCI compliance and fraud protection
+
+For {business_type} businesses, we set up payment systems that work seamlessly with your operations. Would you like to discuss your payment processing needs?"""
+        }
+
+        # Map common service variations to standard names
+        service_mapping = {
+            'website development': 'website',
+            'web development': 'website',
+            'site': 'website',
+            'chatbot development': 'chatbot',
+            'bot': 'chatbot',
+            'social media marketing': 'social media',
+            'social media': 'social media',
+            'branding services': 'branding',
+            'brand': 'branding',
+            'automation packages': 'automation',
+            'workflow automation': 'automation',
+            'payment gateway': 'payment',
+            'payment integration': 'payment'
+        }
+
+        # Get the explanation
+        service_key = service_mapping.get(service_name.lower(), service_name.lower())
+        explanation = explanations.get(service_key)
+
+        if explanation:
+            return explanation
+        else:
+            # Fallback for unmapped services
+            return f"""Great question{name_part}! {service_name.title()} will help your {business_type} business by providing professional digital solutions tailored to your industry needs.
+
+Let me schedule a consultation to explain exactly how {service_name} can benefit your specific business situation. We serve Karachi locally and offer remote consultations worldwide.
+
+Would you like to book a consultation to discuss your {service_name} requirements in detail?"""
+
     def get_service_specific_response(self, service_name: str, business_type: str, name_part: str) -> str:
         """Generate service-specific responses"""
         service_responses = {
             'website development': {
+                'specialty_niche': f"Perfect choice{name_part}! Specialty businesses need websites that educate and build trust with niche audiences:\n\n• Educational content showcasing your expertise\n• Professional design that builds credibility\n• Specialized information and resources\n• Mobile-responsive for all devices\n• SEO optimization for niche keywords\n• Integration with booking and payment systems\n\nWhat makes your specialty business unique?",
                 'retail_ecommerce': f"Perfect choice{name_part}! For mobile/electronics shops, I recommend:\n\n• E-commerce website with product catalog\n• Secure payment processing\n• Inventory management integration\n• Mobile-responsive design\n• Customer reviews system\n\nWhat products do you specialize in?",
                 'restaurant': f"Excellent{name_part}! Restaurant websites should include:\n\n• Online ordering system\n• Menu display with photos\n• Reservation booking\n• Location and hours\n• Customer reviews\n\nDo you need delivery integration?",
                 'default': f"Great choice{name_part}! Website development includes:\n\n• Professional responsive design\n• SEO optimization\n• Content management system\n• Contact forms\n• Analytics integration\n\nWhat's your main goal for the website?"
             },
             'social media marketing': {
+                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses need targeted social media strategies:\n\n• Niche community building and engagement\n• Educational content for specialty audiences\n• Expert positioning and thought leadership\n• Targeted advertising to reach ideal customers\n• Community management and networking\n• Analytics and performance tracking\n\nWhat's your target audience for this specialty business?",
                 'retail_ecommerce': f"Smart choice{name_part}! For electronics/mobile shops:\n\n• Product showcase posts\n• Tech tips and tutorials\n• Customer testimonials\n• New arrival announcements\n• Promotional campaigns\n\nWhich platforms interest you most?",
                 'restaurant': f"Perfect{name_part}! Restaurant social media should focus on:\n\n• Food photography\n• Behind-the-scenes content\n• Customer reviews sharing\n• Daily specials promotion\n• Event announcements\n\nInstagram or Facebook priority?",
                 'default': f"Excellent choice{name_part}! Social media marketing includes:\n\n• Content strategy development\n• Platform management\n• Audience engagement\n• Analytics and reporting\n• Paid advertising campaigns\n\nWhat's your target audience?"
             },
             'branding services': {
+                'specialty_niche': f"Perfect choice{name_part}! Specialty businesses need unique branding that reflects expertise:\n\n• Custom logo design reflecting your specialty focus\n• Professional brand identity and color palette\n• Marketing materials for niche audiences\n• Expert positioning and credibility elements\n• Brand guidelines for consistent application\n• Specialized business card and letterhead design\n\nWhat makes your specialty business unique?",
                 'retail_ecommerce': f"Great choice{name_part}! Electronics/mobile shop branding includes:\n\n• Professional logo design\n• Store signage design\n• Business card design\n• Social media templates\n• Brand guidelines\n\nWhat's your shop's personality?",
                 'default': f"Perfect{name_part}! Branding services include:\n\n• Logo design and brand identity\n• Color palette and typography\n• Business card and letterhead\n• Social media templates\n• Brand guidelines document\n\nWhat image do you want to project?"
             },
             'chatbot development': {
+                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses benefit from educational chatbots:\n\n• Automated customer education about your specialty\n• FAQ handling for common specialty questions\n• Lead qualification for serious inquiries\n• Appointment booking for consultations\n• 24/7 availability for customer support\n• Integration with WhatsApp and website\n\nWhat type of customer questions do you get most often?",
                 'retail_ecommerce': f"""Excellent choice{name_part}! For mobile/electronics shops:
 
 • Product recommendation chatbot
@@ -1076,9 +2699,11 @@ Ordering or reservations priority? We serve Karachi restaurants with local deliv
 What tasks should it handle? We provide ongoing support and optimization."""
             },
             'automation packages': {
+                'specialty_niche': f"Smart choice{name_part}! Specialty businesses benefit from targeted automation:\n\n• Customer inquiry automation and routing\n• Specialized email marketing sequences\n• Appointment booking and reminders\n• Customer education follow-up sequences\n• Inventory management for specialty products\n• Social media scheduling for niche content\n\nWhat specialty business processes take most of your time?",
                 'default': f"Smart choice{name_part}! Automation packages include:\n\n• Email marketing automation\n• Social media scheduling\n• Customer follow-up sequences\n• Appointment reminders\n• Invoice and payment automation\n\nWhat processes take most of your time?"
             },
             'payment gateway integration': {
+                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses need secure payment solutions:\n\n• Secure online payment processing for specialty products\n• Multiple payment methods for customer convenience\n• Subscription billing for ongoing services\n• Automated invoicing and receipts\n• Integration with booking and consultation systems\n• PCI compliance and fraud protection\n\nDo you sell products, services, or consultations?",
                 'retail_ecommerce': f"Essential choice{name_part}! For electronics/mobile shops:\n\n• Secure online payments\n• Multiple payment methods\n• Inventory sync\n• Receipt automation\n• Fraud protection\n\nOnline store or in-person payments?",
                 'default': f"Excellent choice{name_part}! Payment gateway integration includes:\n\n• Secure payment processing\n• Multiple payment methods\n• Automated invoicing\n• Transaction reporting\n• PCI compliance\n\nOnline or in-person payments?"
             }
@@ -1093,10 +2718,122 @@ What tasks should it handle? We provide ongoing support and optimization."""
             'retail_ecommerce': f"Ah, I understand now{name_part}! For your mobile/electronics shop, I recommend:\n\n• E-commerce website with product catalog\n• Secure payment processing\n• Inventory management integration\n• Social media marketing for tech products\n• Customer review system\n\nWhat products do you specialize in - smartphones, accessories, or general electronics?",
             'restaurant': f"Got it{name_part}! For your restaurant business, I recommend:\n\n• Website with online ordering\n• Social media with food photography\n• Google My Business optimization\n• Customer review management\n• Delivery platform integration\n\nWhat type of cuisine do you serve?",
             'construction': f"Perfect{name_part}! For your construction/plumbing business, I recommend:\n\n• Professional website with project portfolio\n• Local SEO optimization\n• Google My Business setup\n• Online booking system\n• Customer testimonials\n\nDo you focus on residential or commercial projects?",
-            'specialty_niche': f"Fascinating{name_part}! For specialty businesses like yours, I recommend:\n\n• Educational website with expert content\n• Niche social media marketing\n• Specialized SEO targeting\n• Community building\n• Expert positioning content\n\nWhat makes your business unique in this specialty market?"
+            'specialty_niche': f"""Perfect{name_part}! For specialty businesses like yours, here are our 6 core services tailored to your niche:
+
+• Website Development - Educational content showcasing your expertise and building credibility
+• Social Media Marketing - Niche community building and targeted audience engagement
+• Branding Services - Unique visual identity that reflects your specialty focus
+• Chatbot Development - Automated customer education and specialized inquiry handling
+• Automation Packages - Streamlined processes for efficient specialty operations
+• Payment Gateway Integration - Secure transactions for specialty products/services
+
+What makes your specialty business unique, and what's your biggest challenge right now?"""
         }
 
         return correction_responses.get(business_type, f"Thank you for the clarification{name_part}! Now I understand your business better. Let me provide specific recommendations for your {business_type} business. What's your main challenge - attracting customers, managing operations, or building online presence?")
+
+    def get_subservice_response(self, subservice: str, business_type: str, name_part: str) -> str:
+        """Generate specific responses for subservice requests"""
+
+        # Map subservice to main service category
+        main_service = None
+        for service_category, subservices in self.subservice_mapping.items():
+            if subservice in subservices:
+                main_service = service_category
+                break
+
+        if not main_service:
+            return f"I'd be happy to help you with {subservice}{name_part}! Let me connect you with our specialists to discuss your specific requirements."
+
+        # Subservice-specific responses with business context
+        subservice_responses = {
+            # Website Development Subservices
+            'site redesign': f"""Perfect{name_part}! Website redesign can transform your business presence:
+
+• Modern, responsive design that converts visitors
+• Improved user experience and navigation
+• SEO optimization for better search rankings
+• Mobile-first approach for all devices
+• Performance optimization for faster loading
+
+For your {business_type} business, we'll focus on industry-specific features. Ready to schedule a consultation to discuss your redesign goals? We serve Karachi locally and offer remote consultations worldwide.""",
+
+            'seo optimization': f"""Excellent choice{name_part}! SEO optimization will boost your online visibility:
+
+• Keyword research and optimization
+• Local SEO for Karachi market dominance
+• Technical SEO improvements
+• Content strategy for search rankings
+• Google My Business optimization
+
+For {business_type} businesses, we focus on industry-specific keywords. Shall we schedule a consultation to analyze your current SEO? We serve Karachi locally and offer remote consultations worldwide.""",
+
+            'whatsapp chatbot': f"""Smart choice{name_part}! WhatsApp automation can revolutionize your customer service:
+
+• 24/7 automated customer support
+• Order taking and status updates
+• Appointment booking automation
+• FAQ responses and product info
+• Lead qualification and follow-up
+
+Perfect for {business_type} businesses to handle customer inquiries efficiently. Want to schedule a consultation to see how WhatsApp automation works? We serve Karachi locally and offer remote consultations worldwide.""",
+
+            'stripe integration': f"""Great choice{name_part}! Stripe integration provides secure payment processing:
+
+• Accept credit cards, debit cards, and digital wallets
+• Subscription and recurring payment management
+• International payment support
+• Advanced fraud protection
+• Real-time payment analytics
+
+For {business_type} businesses, we ensure seamless checkout experiences. Ready to schedule a consultation to discuss your payment processing needs? We serve Karachi locally and offer remote consultations worldwide.""",
+
+            'logo redesign': f"""Excellent{name_part}! A fresh logo can revitalize your brand identity:
+
+• Modern, memorable logo design
+• Brand guidelines and color palette
+• Multiple format delivery (vector, PNG, etc.)
+• Social media and print variations
+• Brand consistency across all platforms
+
+For {business_type} businesses, we create logos that build trust and recognition. Want to schedule a consultation to explore logo concepts? We serve Karachi locally and offer remote consultations worldwide.""",
+
+            'workflow automation': f"""Perfect{name_part}! Workflow automation can streamline your operations:
+
+• Automated task management and scheduling
+• CRM integration and lead nurturing
+• Email marketing automation
+• Inventory and order processing
+• Report generation and analytics
+
+For {business_type} businesses, we identify time-saving automation opportunities. Shall we schedule a consultation to analyze your current workflows? We serve Karachi locally and offer remote consultations worldwide."""
+        }
+
+        # Return specific response or generate dynamic one
+        if subservice in subservice_responses:
+            return subservice_responses[subservice]
+        else:
+            # Generate dynamic response based on main service category
+            service_names = {
+                'website_development': 'website development',
+                'social_media_marketing': 'digital marketing',
+                'branding_services': 'branding',
+                'chatbot_development': 'chatbot development',
+                'automation_packages': 'automation',
+                'payment_gateway_integration': 'payment integration'
+            }
+
+            service_name = service_names.get(main_service, main_service)
+
+            return f"""Great choice{name_part}! Here's how we can help with {subservice}:
+
+• Customized solution for your {business_type} business
+• Industry-specific features and optimization
+• Professional implementation and setup
+• Ongoing support and maintenance
+• Integration with your existing systems
+
+Let's schedule a consultation to discuss your {service_name} needs in detail. We serve Karachi locally and offer remote consultations worldwide."""
 
     def is_general_response_after_service(self, message_lower: str, context: ConversationContext) -> bool:
         """Detect if user gave general/vague response after service selection"""
@@ -1207,13 +2944,70 @@ We serve Karachi locally and offer remote consultations worldwide. What's your p
         contact_triggers = ['contact', 'email', 'phone', 'reach out', 'get in touch', 'call me']
         return any(trigger in message.lower() for trigger in contact_triggers)
 
-    def should_show_appointment_form(self, message: str, context: ConversationContext) -> bool:
-        """Determine if appointment form should be shown"""
-        appointment_triggers = ['book', 'schedule', 'appointment', 'consultation', 'meeting', 'call', 'yes please', 'sure', 'excellent', 'pricing', 'price', 'cost']
+    def get_enhanced_statistics(self) -> dict:
+        """Get comprehensive statistics including Business API performance"""
+        stats = {
+            'response_stats': self.response_stats,
+            'csv_handler_stats': self.csv_handler.get_stats() if self.csv_handler.data_loaded else {},
+            'tinyllama_stats': {
+                'model_loaded': self.tinyllama_handler.model_loaded,
+                'working_config': getattr(self.tinyllama_handler, 'working_config', 'Unknown'),
+                'cache_size': len(getattr(self.tinyllama_handler, 'response_cache', {}))
+            },
+            'business_api_integration': {
+                'available': BUSINESS_API_AVAILABLE and USE_BUSINESS_API,
+                'handler_initialized': self.business_api is not None,
+                'api_functional': self.business_api.api_available if self.business_api else False
+            }
+        }
 
-        # Show appointment form if conversation stage is closing or if specific triggers are mentioned
-        return (context.conversation_stage == 'closing' or
-                any(trigger in message.lower() for trigger in appointment_triggers))
+        # Add Business API statistics if available
+        if self.business_api:
+            try:
+                api_stats = self.business_api.get_api_stats()
+                stats['business_api_stats'] = api_stats
+            except Exception as e:
+                stats['business_api_stats'] = {'error': str(e)}
+
+        return stats
+
+    def should_show_appointment_form(self, message: str, context: ConversationContext) -> bool:
+        """Determine if appointment form should be shown with intelligent context-aware detection"""
+        message_lower = message.lower().strip()
+
+        # Direct appointment booking phrases
+        direct_appointment_triggers = [
+            'book appointment', 'schedule appointment', 'set up meeting', 'book consultation',
+            'schedule consultation', 'book a meeting', 'schedule a meeting', 'arrange meeting',
+            'set appointment', 'make appointment', 'reserve time', 'book time'
+        ]
+
+        # Positive responses to appointment-related questions
+        positive_responses = [
+            'yes', 'yeah', 'sure', 'okay', 'ok', 'alright', 'absolutely', 'definitely',
+            'yes please', 'sure thing', 'sounds good', 'let\'s do it', 'i\'m interested',
+            'that works', 'perfect', 'excellent', 'great', 'good idea'
+        ]
+
+        # Pricing-related triggers that should lead to appointment
+        pricing_triggers = ['pricing', 'price', 'cost', 'budget', 'rates', 'fees', 'charges', 'quote']
+
+        # Check for direct appointment booking phrases
+        if any(trigger in message_lower for trigger in direct_appointment_triggers):
+            return True
+
+        # Check for positive responses in appointment context
+        if (context.conversation_stage in ['recommendation', 'closing'] and
+            any(response in message_lower for response in positive_responses)):
+            return True
+
+        # Check for pricing inquiries (should lead to appointment)
+        if any(trigger in message_lower for trigger in pricing_triggers):
+            context.conversation_stage = 'closing'  # Update stage to trigger appointment
+            return True
+
+        # Show appointment form if conversation stage is closing
+        return context.conversation_stage == 'closing'
 
 # Initialize the intelligent chatbot
 intelligent_chatbot = IntelligentLLMChatbot()
@@ -1362,6 +3156,7 @@ def smart_chat():
             'conversation_stage': intelligent_response['conversation_stage'],
             'response_time': intelligent_response['response_time'],
             'llm_used': intelligent_response['llm_used'],
+            'source': intelligent_response['llm_used'],  # Add source field for testing
             'session_id': session_id
         }
 
