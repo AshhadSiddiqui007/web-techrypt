@@ -1,20 +1,15 @@
 "user_message","business_type","intent","response"
 "I have a cleaning business","cleaning_services","business_growth","Perfect! Cleaning businesses need local visibility and trust. I'd recommend: 1) Google My Business profile for local searches, 2) Professional website with online booking, 3) Before/after photo collection for social media, 4) Customer review management system. What's your biggest challenge - finding new customers or managing bookings?"
-"What are your services","general","service_inquiry","Here are Techrypt's 6 core services:
+"What are your services","general","service_inquiry","Great! For your business, we can help with:
 
-• Website Development - Professional websites with SEO optimization
+1. Website Development
+2. Social Media Marketing
+3. Branding Services
+4. Chatbot Development
+5. Automation Packages
+6. Payment Gateway Integration
 
-• Social Media Marketing - Strategic campaigns for Instagram, Facebook, LinkedIn
-
-• Branding Services - Logo design, brand identity, and marketing materials
-
-• Chatbot Development - AI-powered customer service automation
-
-• Automation Packages - Business process automation solutions
-
-• Payment Gateway Integration - Secure payment processing (Stripe, PayPal, etc.)
-
-Which service would help your business most?"
+Would you like to schedule a consultation or learn more about any specific service?"
 "I have an egg selling business","food_agriculture","business_growth","Great! Food businesses need local presence and fresh product marketing. I'd recommend: 1) Simple website with product photos and contact info, 2) Social media marketing to showcase freshness and quality, 3) Local SEO optimization for 'fresh eggs near me' searches, 4) Customer communication system for orders. What's your main challenge - reaching new customers or managing orders?"
 "I run a dental practice","healthcare","business_growth","Excellent! Healthcare practices need trust and compliance. For your dental practice, I'd recommend: 1) HIPAA-compliant website with patient portal, 2) Online appointment booking system, 3) Patient review management, 4) Educational content marketing, 5) Local SEO for dental searches. What's your priority - attracting new patients or improving patient experience?"
 "I sell handmade pottery","crafts","business_growth","Wonderful! Craft businesses thrive on visual storytelling and personal connection. For your pottery business, I'd recommend: 1) Professional website with high-quality product photos, 2) Instagram and Pinterest marketing to showcase your work, 3) Online store with secure payment processing, 4) Local craft fair and market presence, 5) Custom order management system. What's your biggest challenge - reaching customers or managing orders?"
@@ -484,63 +479,53 @@ Which service would help your business most?"
 "How do I migrate to a new payment gateway?","payment_gateway","service_inquiry","We handle payment gateway migration with minimal downtime, data transfer, and testing to ensure smooth transitions. Professional migration prevents payment disruptions. Techrypt serves businesses in Karachi with remote consultations globally."
 "What is payment gateway redundancy?","payment_gateway","service_inquiry","Payment gateway redundancy uses multiple processors to ensure payment availability if one system fails. Redundant systems maximize uptime and prevent lost sales. Techrypt serves businesses in Karachi with remote consultations globally."
 "Can payment gateways integrate with accounting?","payment_gateway","service_inquiry","Yes, we integrate payment gateways with accounting software for automatic transaction recording, reconciliation, and financial reporting. Integration streamlines bookkeeping and reduces errors. Techrypt serves businesses in Karachi with remote consultations globally."
-"services","general","service_inquiry","Here are Techrypt's 6 core services:
+"services","general","service_inquiry","Great! For your business, we can help with:
 
-• Website Development - Professional websites with SEO optimization
+1. Website Development
+2. Social Media Marketing
+3. Branding Services
+4. Chatbot Development
+5. Automation Packages
+6. Payment Gateway Integration
 
-• Social Media Marketing - Strategic campaigns for Instagram, Facebook, LinkedIn
+Would you like to schedule a consultation or learn more about any specific service?"
+"list services","general","service_inquiry","Great! For your business, we can help with:
 
-• Branding Services - Logo design, brand identity, and marketing materials
+1. Website Development
+2. Social Media Marketing
+3. Branding Services
+4. Chatbot Development
+5. Automation Packages
+6. Payment Gateway Integration
 
-• Chatbot Development - AI-powered customer service automation
+Would you like to schedule a consultation or learn more about any specific service?"
+"what do you do","general","service_inquiry","Great! For your business, we can help with:
 
-• Automation Packages - Business process automation solutions
+1. Website Development
+2. Social Media Marketing
+3. Branding Services
+4. Chatbot Development
+5. Automation Packages
+6. Payment Gateway Integration
 
-• Payment Gateway Integration - Secure payment processing (Stripe, PayPal, etc.)
+Would you like to schedule a consultation or learn more about any specific service?"
+"list your services","general","service_inquiry","Great! For your business, we can help with:
 
-Which service would help your business most?"
-"list services","general","service_inquiry","Here are Techrypt's 6 core services:
+1. Website Development
+2. Social Media Marketing
+3. Branding Services
+4. Chatbot Development
+5. Automation Packages
+6. Payment Gateway Integration
 
-• Website Development - Professional websites with SEO optimization
-
-• Social Media Marketing - Strategic campaigns for Instagram, Facebook, LinkedIn
-
-• Branding Services - Logo design, brand identity, and marketing materials
-
-• Chatbot Development - AI-powered customer service automation
-
-• Automation Packages - Business process automation solutions
-
-• Payment Gateway Integration - Secure payment processing (Stripe, PayPal, etc.)
-
-Which service would help your business most?"
-"what do you do","general","service_inquiry","Here are Techrypt's 6 core services:
-
-• Website Development - Professional websites with SEO optimization
-
-• Social Media Marketing - Strategic campaigns for Instagram, Facebook, LinkedIn
-
-• Branding Services - Logo design, brand identity, and marketing materials
-
-• Chatbot Development - AI-powered customer service automation
-
-• Automation Packages - Business process automation solutions
-
-• Payment Gateway Integration - Secure payment processing (Stripe, PayPal, etc.)
-
-Which service would help your business most?"
-"list your services","general","service_inquiry","Here are Techrypt's 6 core services:
-
-• Website Development - Professional websites with SEO optimization
-
-• Social Media Marketing - Strategic campaigns for Instagram, Facebook, LinkedIn
-
-• Branding Services - Logo design, brand identity, and marketing materials
-
-• Chatbot Development - AI-powered customer service automation
-
-• Automation Packages - Business process automation solutions
-
-• Payment Gateway Integration - Secure payment processing (Stripe, PayPal, etc.)
-
-Which service would help your business most?"
+Would you like to schedule a consultation or learn more about any specific service?"
+"help with illegal business","prohibited","illegal_inquiry","Sorry, I am not supposed to help with that type of business."
+"money laundering business","prohibited","illegal_inquiry","Sorry, I am not supposed to help with that type of business."
+"drug business","prohibited","illegal_inquiry","Sorry, I am not supposed to help with that type of business."
+"gambling business","prohibited","illegal_inquiry","Sorry, I am not supposed to help with that type of business."
+"fraud schemes","prohibited","illegal_inquiry","Sorry, I am not supposed to help with that type of business."
+"counterfeit goods","prohibited","illegal_inquiry","Sorry, I am not supposed to help with that type of business."
+"human trafficking","prohibited","illegal_inquiry","Sorry, I am not supposed to help with that type of business."
+"weapons trafficking","prohibited","illegal_inquiry","Sorry, I am not supposed to help with that type of business."
+"identity theft services","prohibited","illegal_inquiry","Sorry, I am not supposed to help with that type of business."
+"illegal surveillance","prohibited","illegal_inquiry","Sorry, I am not supposed to help with that type of business."

@@ -58,8 +58,8 @@ except ImportError as e:
     ENHANCED_INTELLIGENCE_AVAILABLE = False
     print(f"⚠️ Enhanced Intelligence not available: {e}")
 
-# Environment controls for TinyLLaMA - ENABLE BY DEFAULT for intelligent responses
-USE_TINYLLAMA = os.getenv('USE_TINYLLAMA', 'True').lower() == 'true'
+# Environment controls for TinyLLaMA - TEMPORARILY DISABLED for faster startup
+USE_TINYLLAMA = os.getenv('USE_TINYLLAMA', 'False').lower() == 'true'
 TINYLLAMA_TIMEOUT = int(os.getenv('TINYLLAMA_TIMEOUT', '8'))  # Increased timeout for better responses
 CSV_DATA_PATH = os.getenv('CSV_DATA_PATH', 'data.csv')
 INTELLIGENT_MODE = os.getenv('INTELLIGENT_MODE', 'True').lower() == 'true'  # Enable intelligent LLM responses
@@ -857,19 +857,28 @@ class CSVTrainingDataHandler:
         self.sentence_model = None
         self.data_loaded = False
 
-        if SENTENCE_TRANSFORMERS_AVAILABLE:
-            self._load_sentence_model()
-
+        # Load CSV data first (required for TF-IDF matching)
         if PANDAS_AVAILABLE:
             self._load_csv_data()
 
+        # Load sentence transformer model optionally (for enhanced matching)
+        # TEMPORARILY DISABLED to focus on TF-IDF matching
+        # if SENTENCE_TRANSFORMERS_AVAILABLE:
+        #     try:
+        #         self._load_sentence_model()
+        #     except Exception as e:
+        #         logger.warning(f"⚠️ Sentence transformer loading failed, continuing with TF-IDF only: {e}")
+        logger.info("📊 Sentence transformer disabled - using TF-IDF only for CSV matching")
+
     def _load_sentence_model(self):
-        """Load sentence transformer model for similarity matching"""
+        """Load sentence transformer model for similarity matching (optional)"""
         try:
+            logger.info("🔄 Loading sentence transformer model (this may take a moment)...")
             self.sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
             logger.info("✅ Sentence transformer model loaded")
         except Exception as e:
-            logger.error(f"❌ Failed to load sentence transformer: {e}")
+            logger.warning(f"⚠️ Sentence transformer not available: {e}")
+            logger.info("📊 CSV matching will use TF-IDF only (still functional)")
 
     def _load_csv_data(self):
         """Load and process CSV training data"""
@@ -902,7 +911,8 @@ class CSVTrainingDataHandler:
 
     def find_similar_response(self, user_message: str, similarity_threshold: float = 0.7) -> Optional[str]:
         """Find similar response from CSV data using TF-IDF + cosine similarity"""
-        if not self.data_loaded or not self.sentence_model or self.embeddings is None:
+        if not self.data_loaded:
+            logger.info(f"🔍 CSV matching failed: data_loaded={self.data_loaded}")
             return None
 
         try:
@@ -1305,23 +1315,50 @@ class IntelligentLLMChatbot:
 
         # CRITICAL: Content filtering for prohibited businesses
         prohibited_keywords = [
-            'casino', 'gambling', 'betting', 'adult entertainment', 'adult website', 'adult content',
-            'marijuana', 'drug business', 'firearms', 'weapons store', 'gun store', 'weapons online',
-            'escort', 'prostitution', 'pornography', 'strip club', 'brothel',
-            'illegal drugs', 'cocaine', 'heroin', 'methamphetamine', 'cannabis business', 'cannabis products',
-            'online gambling', 'sports betting', 'poker site', 'slot machine', 'gambling website',
-            'dispensary', 'weed business', 'drug dealer', 'weapon sales', 'gun sales',
-            # Additional illegal/restricted activities
-            'organ harvesting', 'organ trafficking', 'organ sales', 'organ trade',
-            'kidnapping services', 'human trafficking', 'human smuggling', 'trafficking business',
-            'drug manufacturing', 'illegal drug sales', 'drug production', 'drug lab',
+            # Gambling and betting
+            'casino', 'gambling', 'betting', 'online gambling', 'sports betting', 'poker site',
+            'slot machine', 'gambling website', 'lottery business', 'bingo hall',
+
+            # Adult entertainment
+            'adult entertainment', 'adult website', 'adult content', 'escort', 'prostitution',
+            'pornography', 'strip club', 'brothel', 'adult services', 'sex work',
+
+            # Drugs and substances
+            'marijuana', 'drug business', 'illegal drugs', 'cocaine', 'heroin', 'methamphetamine',
+            'cannabis business', 'cannabis products', 'dispensary', 'weed business', 'drug dealer',
+            'drug manufacturing', 'illegal drug sales', 'drug production', 'drug lab', 'narcotics',
+
+            # Weapons and firearms
+            'firearms', 'weapons store', 'gun store', 'weapons online', 'weapon sales', 'gun sales',
             'weapons trafficking', 'illegal arms sales', 'arms trafficking', 'weapon smuggling',
+            'ammunition sales', 'explosive devices', 'bomb making',
+
+            # Human trafficking and organ trade
+            'organ harvesting', 'organ trafficking', 'organ sales', 'organ trade', 'body parts',
+            'kidnapping services', 'human trafficking', 'human smuggling', 'trafficking business',
+            'child trafficking', 'forced labor', 'slavery business',
+
+            # Financial crimes
             'money laundering', 'money laundering services', 'laundering money', 'financial fraud',
             'fraud schemes', 'scam operations', 'ponzi scheme', 'pyramid scheme', 'investment fraud',
-            'illegal surveillance', 'surveillance services', 'spy services', 'wiretapping',
-            'counterfeit goods', 'counterfeit production', 'fake goods', 'piracy business',
             'tax evasion services', 'tax fraud', 'offshore tax evasion', 'tax avoidance scheme',
-            'identity theft', 'identity theft services', 'stolen identity', 'fake documents'
+            'embezzlement', 'insider trading', 'securities fraud',
+
+            # Identity and document crimes
+            'identity theft', 'identity theft services', 'stolen identity', 'fake documents',
+            'document forgery', 'passport fraud', 'visa fraud', 'fake id', 'counterfeit documents',
+
+            # Surveillance and privacy violations
+            'illegal surveillance', 'surveillance services', 'spy services', 'wiretapping',
+            'hacking services', 'cyber crime', 'data theft', 'privacy violation',
+
+            # Counterfeiting and piracy
+            'counterfeit goods', 'counterfeit production', 'fake goods', 'piracy business',
+            'copyright infringement', 'trademark violation', 'bootleg products', 'knockoff goods',
+
+            # Other illegal activities
+            'illegal business', 'criminal enterprise', 'black market', 'underground business',
+            'extortion', 'blackmail', 'bribery', 'corruption', 'racketeering'
         ]
 
         for keyword in prohibited_keywords:
@@ -1484,328 +1521,42 @@ class IntelligentLLMChatbot:
 
     def get_intelligent_response(self, message: str, user_context: dict, session_id: str = "default") -> dict:
         """Generate intelligent, contextual response with enhanced AI fallback chain"""
+        logger.info(f"🔍 DEBUG: Method started for message: '{message}'")
+        print(f"🔍 PRINT DEBUG: Method started for message: '{message}'")
         start_time = time.time()
-        self.response_stats['total_responses'] += 1
-
-        # Get or create conversation context
-        if session_id not in self.conversation_contexts:
-            self.conversation_contexts[session_id] = ConversationContext()
-
-        context = self.conversation_contexts[session_id]
-
-        # PRIORITY: Check if this is a service inquiry first (before business detection)
-        service_inquiry_result = self.detect_service_inquiry_intent(message)
-
-        if service_inquiry_result['intent'] == 'service_inquiry':
-            # This is a service inquiry - try CSV first, then use general business type
-            detected_business = "general"  # Don't change business type for service inquiries
-        else:
-            # Only detect business type if it's not a service inquiry
-            detected_business = self.detect_business_type(message)
-
-        detected_services = self.detect_service_intent(message)
-
-        # ENHANCED: Detect subservices and handle ambiguity
-        subservice_intent = self.detect_subservice_intent(message)
-        ambiguity_resolution = self.resolve_service_ambiguity(message)
-
-        # CRITICAL: Handle user corrections (e.g., "not petshop, a mobileshop")
-        message_lower = message.lower()
-        correction_patterns = ['not ', 'no ', 'actually ', 'i mean ', 'correction', 'not a ', 'not an ']
-        is_correction = any(pattern in message_lower for pattern in correction_patterns)
-
-        if is_correction:
-            # Reset business type to allow re-detection
-            context.business_type = "general"
-            # Extract the corrected business type from the message
-            # Look for business keywords after correction words
-            correction_message = message_lower
-            for pattern in correction_patterns:
-                if pattern in correction_message:
-                    correction_message = correction_message.split(pattern)[-1].strip()
-                    break
-            detected_business = self.detect_business_type(correction_message)
-            logger.info(f"🔄 User correction detected: '{correction_message}' -> {detected_business}")
-
-            # CRITICAL: Force contextual response for corrections
-            context.business_type = detected_business
-            context.conversation_stage = 'initial'  # Reset to get fresh business-specific response
-            context.is_correction = True  # Flag to ensure contextual response
-        else:
-            detected_business = self.detect_business_type(message)
-            context.is_correction = False
-
-        # Update context
-        if detected_business != "general":
-            context.business_type = detected_business
-
-        context.services_discussed.extend(detected_services)
-        context.services_discussed = list(set(context.services_discussed))  # Remove duplicates
-
-        # ENHANCED: Update subservice context
-        if subservice_intent['detected_subservices']:
-            context.requested_subservices.extend(subservice_intent['detected_subservices'])
-            context.requested_subservices = list(set(context.requested_subservices))
-            context.last_subservice_query = message
-
-            # Add main services to discussed services
-            if subservice_intent['main_services']:
-                context.services_discussed.extend(subservice_intent['main_services'])
-                context.services_discussed = list(set(context.services_discussed))
-
-        # PRIORITY 0: INTELLIGENT APPOINTMENT BOOKING BYPASS (Highest Priority)
-        # Check for appointment-related responses that should bypass CSV matching
-        appointment_bypass_patterns = [
-            'book appointment', 'schedule appointment', 'book consultation', 'schedule consultation',
-            'set up meeting', 'arrange meeting', 'book time', 'schedule time', 'make appointment',
-            'yes please', 'sure thing', 'sounds good', 'let\'s do it', 'i\'m interested',
-            'that works', 'perfect', 'excellent', 'great idea', 'good idea'
-        ]
-
-        # Check if this is an appointment-related response in context
-        if (any(pattern in message.lower() for pattern in appointment_bypass_patterns) and
-            context.conversation_stage in ['recommendation', 'closing']):
-            # Bypass CSV matching and use contextual appointment response
-            context.conversation_stage = 'closing'
-            user_name = user_context.get('name', '')
-            name_part = f", {user_name}" if user_name else ""
-
-            response_text = f"""Perfect{name_part}! Let's schedule your consultation.
-
-• 15-20 minute personalized consultation
-• Discuss your specific business needs
-• Custom solution recommendations
-• Transparent pricing discussion
-
-We serve Karachi locally and offer remote consultations globally. What's your preferred time and method - in-person (Karachi), phone call, or video meeting?"""
-
-            llm_method = "appointment_bypass"
-            self.response_stats['rule_based'] += 1
-
-        # ENHANCED INTELLIGENT API-POWERED RESPONSE CHAIN
-        if not response_text:
-            response_text = None
-            llm_method = "fallback"
-            csv_confidence = 0.0
-            matched_question = None
-
-        # 1. CSV RESPONSES FOR SERVICE INQUIRIES (HIGHEST PRIORITY - Use our detailed service explanations)
-        if service_inquiry_result['intent'] == 'service_inquiry' and self.csv_handler.data_loaded:
-            try:
-                # For service inquiries, use very low threshold to catch natural language variations
-                csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.15)
-
-                if csv_response:
-                    # Get confidence score for metadata
-                    from sklearn.feature_extraction.text import TfidfVectorizer
-                    from sklearn.metrics.pairwise import cosine_similarity
-                    import re
-
-                    def preprocess_text(text):
-                        if not isinstance(text, str):
-                            return ""
-                        text = text.lower().strip()
-                        text = re.sub(r'[^\w\s]', ' ', text)
-                        text = re.sub(r'\s+', ' ', text)
-                        return text
-
-                    user_message_clean = preprocess_text(message)
-                    csv_questions = [preprocess_text(row['user_message']) for row in self.csv_handler.training_data]
-
-                    vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=5000)
-                    all_texts = csv_questions + [user_message_clean]
-                    tfidf_matrix = vectorizer.fit_transform(all_texts)
-
-                    user_vector = tfidf_matrix[-1]
-                    csv_vectors = tfidf_matrix[:-1]
-                    similarities = cosine_similarity(user_vector, csv_vectors).flatten()
-
-                    best_idx = np.argmax(similarities)
-                    csv_confidence = similarities[best_idx]
-                    matched_question = self.csv_handler.training_data[best_idx]['user_message']
-
-                    # Personalize CSV response with user name and format properly
-                    user_name = user_context.get('name', '')
-                    name_part = f", {user_name}" if user_name else ""
-
-                    formatted_response = csv_response.replace("{name}", name_part)
-
-                    response_text = formatted_response
-                    llm_method = "csv_service_inquiry"
-                    self.response_stats['csv_fallback'] += 1
-                    logger.info(f"📊 Service inquiry CSV match used | Confidence: {csv_confidence:.3f} | Question: {matched_question}")
-
-            except Exception as e:
-                logger.warning(f"⚠️ Service inquiry CSV matching failed: {e}")
-
-        # 2. ENHANCED BUSINESS INTELLIGENCE (FALLBACK for non-service inquiries)
-        if not response_text and ENHANCED_INTELLIGENCE_AVAILABLE and context.business_type != "prohibited" and service_inquiry_result['intent'] != 'service_inquiry':
-            try:
-                # Get enhanced intelligent response (skip for service inquiries to prioritize CSV)
-                enhanced_response = get_enhanced_response(
-                    message,
-                    context.business_type,
-                    user_context
-                )
-
-                if enhanced_response and enhanced_response.success and len(enhanced_response.response_text.strip()) > 20:
-                    response_text = enhanced_response.response_text
-                    llm_method = "enhanced_intelligence"
-                    self.response_stats['enhanced_intelligence'] += 1
-
-                    # Update conversation context with successful response
-                    context.add_conversation_turn(message, enhanced_response.response_text, "enhanced_intelligence")
-
-                    # Check if appointment should be triggered
-                    if enhanced_response.triggers_appointment:
-                        context.conversation_stage = 'closing'
-
-                    logger.info(f"🚀 Enhanced Intelligence response generated | Confidence: {enhanced_response.confidence:.2f} | Time: {enhanced_response.response_time:.3f}s")
-
-            except Exception as e:
-                logger.warning(f"⚠️ Enhanced Intelligence generation failed: {e}")
-
-        # 3. TECHRYPT BUSINESS API INTEGRATION (FALLBACK - External API)
-        if not response_text and USE_BUSINESS_API and self.business_api and self.business_api.api_available and context.business_type != "prohibited":
-            try:
-                # Get business-focused API response
-                api_response = self.business_api.get_business_response(
-                    message,
-                    context.business_type,
-                    user_context
-                )
-
-                if api_response and api_response.success and len(api_response.response_text.strip()) > 20:
-                    response_text = api_response.response_text
-                    llm_method = "business_api"
-                    self.response_stats['business_api'] += 1
-
-                    # Update conversation context with successful response
-                    context.add_conversation_turn(message, api_response.response_text, "business_api")
-
-                    # Check if appointment should be triggered
-                    if api_response.triggers_appointment:
-                        context.conversation_stage = 'closing'
-
-                    logger.info(f"🚀 Business API response generated | Source: {api_response.source} | Time: {api_response.response_time:.3f}s")
-
-            except Exception as e:
-                logger.warning(f"⚠️ Business API generation failed: {e}")
-
-        # 4. INTELLIGENT BUSINESS CONSULTANT (TinyLLaMA fallback)
-        if not response_text and INTELLIGENT_MODE and self.business_consultant and context.business_type != "prohibited":
-            try:
-                # Add conversation turn to context
-                context.add_conversation_turn(message, "", "pending")
-
-                # Use intelligent LLM for business-related queries with enhanced context
-                intelligent_response = self.business_consultant.generate_intelligent_response(
-                    message,
-                    context.business_type,
-                    user_context,
-                    context.conversation_stage,
-                    conversation_context=context.get_business_context_for_prompt()
-                )
-
-                if intelligent_response:
-                    response_text = intelligent_response
-                    llm_method = "intelligent_llm"
-                    self.response_stats['intelligent_llm'] += 1
-
-                    # Update conversation context with successful response
-                    context.add_conversation_turn(message, intelligent_response, "intelligent_llm")
-
-                    logger.info("🧠 Intelligent LLM business response generated")
-
-            except Exception as e:
-                logger.warning(f"⚠️ Intelligent LLM generation failed: {e}")
-
-        # 3. CSV semantic matching (PRIORITY for service inquiries - Enhanced thresholds for better utilization)
-        if not response_text and self.csv_handler.data_loaded:
-            try:
-                # For service inquiries, use lower threshold to prioritize CSV responses
-                if service_inquiry_result['intent'] == 'service_inquiry':
-                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.4)
-                else:
-                    # Try high confidence match first (0.6 threshold - lowered from 0.7)
-                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.6)
-
-                if csv_response:
-                    # Get confidence score for metadata
-                    from sklearn.feature_extraction.text import TfidfVectorizer
-                    from sklearn.metrics.pairwise import cosine_similarity
-                    import re
-
-                    def preprocess_text(text):
-                        if not isinstance(text, str):
-                            return ""
-                        text = text.lower().strip()
-                        text = re.sub(r'[^\w\s]', ' ', text)
-                        text = re.sub(r'\s+', ' ', text)
-                        return text
-
-                    user_message_clean = preprocess_text(message)
-                    csv_questions = [preprocess_text(row['user_message']) for row in self.csv_handler.training_data]
-
-                    vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=5000)
-                    all_texts = csv_questions + [user_message_clean]
-                    tfidf_matrix = vectorizer.fit_transform(all_texts)
-
-                    user_vector = tfidf_matrix[-1]
-                    csv_vectors = tfidf_matrix[:-1]
-                    similarities = cosine_similarity(user_vector, csv_vectors).flatten()
-
-                    best_idx = np.argmax(similarities)
-                    csv_confidence = similarities[best_idx]
-                    matched_question = self.csv_handler.training_data[best_idx]['user_message']
-
-                    # Personalize CSV response with user name and format properly
-                    user_name = user_context.get('name', '')
-                    name_part = f", {user_name}" if user_name else ""
-
-                    formatted_response = csv_response.replace("{name}", name_part)
-
-                    # Add location context if not already present
-                    if 'karachi' not in formatted_response.lower() and any(word in message.lower() for word in ['location', 'where', 'local']):
-                        formatted_response += f"\n\nWe're based in Karachi and serve local businesses with remote consultations available globally."
-
-                    response_text = formatted_response
-                    llm_method = "csv_match"
-                    self.response_stats['csv_fallback'] += 1
-                    logger.info(f"📊 High confidence CSV match used | Confidence: {csv_confidence:.3f}")
-
-            except Exception as e:
-                logger.warning(f"⚠️ CSV matching failed: {e}")
-
-        # 6. TinyLLaMA fallback generation (if intelligent API, LLM and CSV both failed)
-        if not response_text and USE_TINYLLAMA and self.tinyllama_handler.model_loaded:
-            try:
-                # Use business consultant for TinyLLaMA fallback too
-                fallback_response = self.business_consultant.generate_intelligent_response(
-                    message,
-                    context.business_type or "general business",
-                    user_context,
-                    context.conversation_stage
-                )
-
-                if fallback_response:
-                    response_text = fallback_response
-                    llm_method = "tinyllama_fallback"
-                    self.response_stats['tinyllama_usage'] += 1
-                    logger.info("🤖 TinyLLaMA fallback response generated")
-
-            except Exception as e:
-                logger.warning(f"⚠️ TinyLLaMA fallback generation failed: {e}")
-
-        # 7. CSV fallback with optimized thresholds (if TinyLLaMA also failed)
-        if not response_text and self.csv_handler.data_loaded:
-            try:
-                # Try lower threshold for broader matches (0.4 - optimized from 0.5)
-                csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.4)
-
-                if csv_response:
-                    # Get confidence score for metadata
-                    try:
+        logger.info(f"🔍 DEBUG: start_time set")
+
+        # ✅ FIX: Initialize ALL variables at the very beginning to prevent UnboundLocalError
+        response_text = ""
+        llm_method = "fallback"
+        csv_confidence = 0.0
+        matched_question = None
+        show_contact_form = False
+        show_appointment_form = False
+        logger.info(f"🔍 DEBUG: Variables initialized")
+        logger.info(f"🔍 DEBUG: CSV handler data_loaded: {self.csv_handler.data_loaded}")
+        logger.info(f"🔍 DEBUG: CSV handler training_data length: {len(self.csv_handler.training_data) if self.csv_handler.training_data else 0}")
+
+        try:
+            # Update response stats safely
+            self.response_stats['total_responses'] += 1
+
+            # Get or create conversation context
+            if session_id not in self.conversation_contexts:
+                self.conversation_contexts[session_id] = ConversationContext()
+
+            context = self.conversation_contexts[session_id]
+
+            # 🚨 ABSOLUTE PRIORITY: CSV RESPONSES FIRST (BYPASS ALL OTHER LOGIC)
+            print(f"🔍 PRIORITY CHECK: CSV handler data_loaded = {self.csv_handler.data_loaded}")
+            if self.csv_handler.data_loaded:
+                try:
+                    print(f"🔍 ATTEMPTING CSV MATCH for: '{message}'")
+                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.15)
+                    print(f"🔍 CSV MATCH RESULT: {csv_response is not None}")
+
+                    if csv_response:
+                        # Get confidence score for metadata
                         from sklearn.feature_extraction.text import TfidfVectorizer
                         from sklearn.metrics.pairwise import cosine_similarity
                         import re
@@ -1829,86 +1580,286 @@ We serve Karachi locally and offer remote consultations globally. What's your pr
                         csv_vectors = tfidf_matrix[:-1]
                         similarities = cosine_similarity(user_vector, csv_vectors).flatten()
 
+                        import numpy as np
                         best_idx = np.argmax(similarities)
                         csv_confidence = similarities[best_idx]
                         matched_question = self.csv_handler.training_data[best_idx]['user_message']
 
-                    except Exception:
-                        csv_confidence = 0.5  # Default for fallback
-                        matched_question = "CSV fallback match"
-
-                    # Personalize CSV response with user name and format properly
-                    user_name = user_context.get('name', '')
-                    name_part = f", {user_name}" if user_name else ""
-
-                    formatted_response = csv_response.replace("{name}", name_part)
-
-                    # Add location context if not already present
-                    if 'karachi' not in formatted_response.lower() and any(word in message.lower() for word in ['location', 'where', 'local']):
-                        formatted_response += f"\n\nWe're based in Karachi and serve local businesses with remote consultations available globally."
-
-                    response_text = formatted_response
-                    llm_method = "csv_fallback"
-                    self.response_stats['csv_fallback'] += 1
-                    logger.info(f"📊 CSV fallback match used | Confidence: {csv_confidence:.3f}")
-                else:
-                    # Try very low threshold for fuzzy matches (0.3)
-                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.3)
-                    if csv_response:
-                        # Format fuzzy match response
+                        # Personalize CSV response with user name and format properly
                         user_name = user_context.get('name', '')
                         name_part = f", {user_name}" if user_name else ""
+
                         formatted_response = csv_response.replace("{name}", name_part)
 
                         response_text = formatted_response
-                        llm_method = "csv_fuzzy_match"
-                        csv_confidence = 0.3
+                        llm_method = "csv_priority_match"
                         self.response_stats['csv_fallback'] += 1
-                        logger.info(f"📊 CSV fuzzy match used | Confidence: {csv_confidence:.3f}")
 
+                        print(f"✅ CSV PRIORITY MATCH FOUND! Confidence: {csv_confidence:.3f}")
+                        print(f"📊 Matched Question: {matched_question}")
+                        print(f"📝 Response: {response_text[:100]}...")
+
+                        # IMMEDIATE RETURN - BYPASS ALL OTHER LOGIC
+                        response_time = time.time() - start_time
+                        return {
+                            'response': response_text,
+                            'source': llm_method,
+                            'confidence': csv_confidence,
+                            'matched_question': matched_question,
+                            'business_type': context.business_type,
+                            'conversation_stage': context.conversation_stage,
+                            'show_appointment_form': False,
+                            'show_contact_form': False,
+                            'services_discussed': context.services_discussed,
+                            'response_time': response_time,
+                            'llm_used': llm_method,
+                            'intelligent_mode': INTELLIGENT_MODE,
+                            'business_api_available': BUSINESS_API_AVAILABLE and USE_BUSINESS_API,
+                            'tinyllama_available': self.tinyllama_handler.model_loaded
+                        }
+
+                except Exception as e:
+                    print(f"❌ CSV PRIORITY MATCHING ERROR: {e}")
+                    logger.error(f"❌ CSV priority matching failed: {e}")
+            else:
+                print(f"❌ CSV handler not loaded - data_loaded = {self.csv_handler.data_loaded}")
+
+            # PRIORITY: Check if this is a service inquiry first (before business detection)
+            logger.info(f"🔍 DEBUG: About to call detect_service_inquiry_intent")
+            try:
+                service_inquiry_result = self.detect_service_inquiry_intent(message)
+                logger.info(f"🔍 DEBUG: detect_service_inquiry_intent completed")
             except Exception as e:
-                logger.warning(f"⚠️ CSV fallback matching failed: {e}")
+                logger.error(f"❌ ERROR in detect_service_inquiry_intent: {e}")
+                service_inquiry_result = {'intent': 'general', 'detected_services': []}
 
-        # 8. Existing rule-based intelligent responses (PRESERVE current system)
-        if not response_text:
-            response_text = self.generate_contextual_response(message, context, user_context, subservice_intent, ambiguity_resolution)
-            llm_method = "rule_based"
-            self.response_stats['rule_based'] += 1
+            if service_inquiry_result['intent'] == 'service_inquiry':
+                # This is a service inquiry - try CSV first, then use general business type
+                detected_business = "general"  # Don't change business type for service inquiries
+            else:
+                # Only detect business type if it's not a service inquiry
+                detected_business = self.detect_business_type(message)
 
-        # 9. Generic fallback (should rarely be used)
-        if not response_text:
-            user_name = user_context.get('name', '')
-            name_part = f", {user_name}" if user_name else ""
-            response_text = f"Thank you for your message{name_part}! I'm here to help you grow your business with personalized digital solutions. Could you tell me more about your business type and what specific challenges you're facing?"
-            llm_method = "generic_fallback"
-            self.response_stats['generic_fallback'] += 1
+            detected_services = self.detect_service_intent(message)
 
-        # Determine if forms should be shown
-        show_contact_form = self.should_show_contact_form(message, context)
-        show_appointment_form = self.should_show_appointment_form(message, context)
+            # ENHANCED: Detect subservices and handle ambiguity
+            subservice_intent = self.detect_subservice_intent(message)
+            ambiguity_resolution = self.resolve_service_ambiguity(message)
 
-        # Update conversation stage
-        if any(word in message.lower() for word in ['book', 'schedule', 'appointment', 'consultation']):
-            context.conversation_stage = 'closing'
-        elif context.services_discussed:
-            context.conversation_stage = 'recommendation'
-        elif context.business_type:
-            context.conversation_stage = 'discovery'
+            # CRITICAL: Handle user corrections (e.g., "not petshop, a mobileshop")
+            message_lower = message.lower()
+            correction_patterns = ['not ', 'no ', 'actually ', 'i mean ', 'correction', 'not a ', 'not an ']
+            is_correction = any(pattern in message_lower for pattern in correction_patterns)
 
+            if is_correction:
+                # Reset business type to allow re-detection
+                context.business_type = "general"
+                # Extract the corrected business type from the message
+                # Look for business keywords after correction words
+                correction_message = message_lower
+                for pattern in correction_patterns:
+                    if pattern in correction_message:
+                        correction_message = correction_message.split(pattern)[-1].strip()
+                        break
+                detected_business = self.detect_business_type(correction_message)
+                logger.info(f"🔄 User correction detected: '{correction_message}' -> {detected_business}")
+
+                # CRITICAL: Force contextual response for corrections
+                context.business_type = detected_business
+                context.conversation_stage = 'initial'  # Reset to get fresh business-specific response
+                context.is_correction = True  # Flag to ensure contextual response
+            else:
+                detected_business = self.detect_business_type(message)
+                context.is_correction = False
+
+            # Update context
+            if detected_business != "general":
+                context.business_type = detected_business
+
+            context.services_discussed.extend(detected_services)
+            context.services_discussed = list(set(context.services_discussed))  # Remove duplicates
+
+            # ENHANCED: Update subservice context
+            if subservice_intent['detected_subservices']:
+                context.requested_subservices.extend(subservice_intent['detected_subservices'])
+                context.requested_subservices = list(set(context.requested_subservices))
+                context.last_subservice_query = message
+
+                # Add main services to discussed services
+                if subservice_intent['main_services']:
+                    context.services_discussed.extend(subservice_intent['main_services'])
+                    context.services_discussed = list(set(context.services_discussed))
+
+            # ENHANCED INTELLIGENT API-POWERED RESPONSE CHAIN
+            # Variables already initialized at method start
+
+            # PRIORITY 0: INTELLIGENT APPOINTMENT BOOKING BYPASS (Highest Priority)
+            # Check for appointment-related responses that should bypass CSV matching
+            appointment_bypass_patterns = [
+                'book appointment', 'schedule appointment', 'book consultation', 'schedule consultation',
+                'set up meeting', 'arrange meeting', 'book time', 'schedule time', 'make appointment',
+                'yes please', 'sure thing', 'sounds good', 'let\'s do it', 'i\'m interested',
+                'that works', 'perfect', 'excellent', 'great idea', 'good idea'
+            ]
+
+            # Check if this is an appointment-related response in context
+            if (any(pattern in message.lower() for pattern in appointment_bypass_patterns) and
+                context.conversation_stage in ['recommendation', 'closing']):
+                # Bypass CSV matching and use contextual appointment response
+                context.conversation_stage = 'closing'
+                user_name = user_context.get('name', '')
+                name_part = f", {user_name}" if user_name else ""
+
+                response_text = f"""Perfect{name_part}! Let's schedule your consultation.
+
+• 15-20 minute personalized consultation
+• Discuss your specific business needs
+• Custom solution recommendations
+• Transparent pricing discussion
+
+We serve Karachi locally and offer remote consultations globally. What's your preferred time and method - in-person (Karachi), phone call, or video meeting?"""
+
+                llm_method = "appointment_bypass"
+                self.response_stats['rule_based'] += 1
+
+            # 0. CSV RESPONSES FOR ALL QUERIES (HIGHEST PRIORITY - Use our detailed explanations)
+            if not response_text and self.csv_handler.data_loaded:
+                try:
+                    logger.info(f"🔍 DEBUG: Attempting CSV matching for: '{message}'")
+                    # For all queries, prioritize CSV responses with 0.15 threshold
+                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.15)
+                    logger.info(f"🔍 DEBUG: CSV response result: {csv_response is not None}")
+
+                    if csv_response:
+                        # Get confidence score for metadata
+                        from sklearn.feature_extraction.text import TfidfVectorizer
+                        from sklearn.metrics.pairwise import cosine_similarity
+                        import re
+
+                        def preprocess_text(text):
+                            if not isinstance(text, str):
+                                return ""
+                            text = text.lower().strip()
+                            text = re.sub(r'[^\w\s]', ' ', text)
+                            text = re.sub(r'\s+', ' ', text)
+                            return text
+
+                        user_message_clean = preprocess_text(message)
+                        csv_questions = [preprocess_text(row['user_message']) for row in self.csv_handler.training_data]
+
+                        vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=5000)
+                        all_texts = csv_questions + [user_message_clean]
+                        tfidf_matrix = vectorizer.fit_transform(all_texts)
+
+                        user_vector = tfidf_matrix[-1]
+                        csv_vectors = tfidf_matrix[:-1]
+                        similarities = cosine_similarity(user_vector, csv_vectors).flatten()
+
+                        import numpy as np
+                        best_idx = np.argmax(similarities)
+                        csv_confidence = similarities[best_idx]
+                        matched_question = self.csv_handler.training_data[best_idx]['user_message']
+
+                        # Personalize CSV response with user name and format properly
+                        user_name = user_context.get('name', '')
+                        name_part = f", {user_name}" if user_name else ""
+
+                        formatted_response = csv_response.replace("{name}", name_part)
+
+                        response_text = formatted_response
+                        llm_method = "csv_priority_match"
+                        self.response_stats['csv_fallback'] += 1
+                        logger.info(f"📊 Priority CSV match used | Confidence: {csv_confidence:.3f} | Question: {matched_question}")
+
+                except Exception as e:
+                    logger.warning(f"⚠️ Service inquiry CSV matching failed: {e}")
+
+            # 1. STANDARDIZED SERVICE INQUIRIES (FALLBACK - only for general service lists when CSV doesn't match)
+            if not response_text:
+                service_inquiry_patterns = ['services', 'what are your services', 'list services', 'your services', 'what services', 'service list', 'what do you offer', 'what can you do']
+                if any(pattern in message.lower() for pattern in service_inquiry_patterns):
+                    user_name = user_context.get('name', '')
+                    name_part = f", {user_name}" if user_name else ""
+                    response_text = f"""Great{name_part}! For your business, we can help with:
+
+1. Website Development
+2. Social Media Marketing
+3. Branding Services
+4. Chatbot Development
+5. Automation Packages
+6. Payment Gateway Integration
+
+Would you like to schedule a consultation or learn more about any specific service?"""
+                    llm_method = "standardized_service_inquiry"
+                    self.response_stats['rule_based'] += 1
+
+            # 2. Existing rule-based intelligent responses (PRESERVE current system)
+            if not response_text:
+                response_text = self.generate_contextual_response(message, context, user_context, subservice_intent, ambiguity_resolution)
+                llm_method = "rule_based"
+                self.response_stats['rule_based'] += 1
+
+            # 9. Generic fallback (should rarely be used)
+            if not response_text:
+                user_name = user_context.get('name', '')
+                name_part = f", {user_name}" if user_name else ""
+                response_text = f"Thank you for your message{name_part}! I'm here to help you grow your business with personalized digital solutions. Could you tell me more about your business type and what specific challenges you're facing?"
+                llm_method = "generic_fallback"
+                self.response_stats['generic_fallback'] += 1
+
+            # Final safety check to ensure response_text is never empty
+            if not response_text or response_text.strip() == "":
+                response_text = "Thank you for your message! I'm here to help you grow your business with personalized digital solutions. Could you tell me more about your business type and what specific challenges you're facing?"
+                llm_method = "final_fallback"
+
+            # Determine if forms should be shown
+            show_contact_form = self.should_show_contact_form(message, context)
+            show_appointment_form = self.should_show_appointment_form(message, context)
+
+            # Update conversation stage
+            if any(word in message.lower() for word in ['book', 'schedule', 'appointment', 'consultation']):
+                context.conversation_stage = 'closing'
+            elif context.services_discussed:
+                context.conversation_stage = 'recommendation'
+            elif context.business_type:
+                context.conversation_stage = 'discovery'
+
+        except Exception as e:
+            logger.error(f"❌ Error during intelligent response generation: {e}")
+            response_time = time.time() - start_time
+            return {
+                'response': "I apologize for the technical difficulty. How can Techrypt help your business today?",
+                'source': "error_fallback",
+                'confidence': 0.0,
+                'matched_question': None,
+                'business_type': "general",
+                'conversation_stage': "initial",
+                'show_appointment_form': False,
+                'show_contact_form': False,
+                'services_discussed': [],
+                'response_time': response_time,
+                'llm_used': "error_fallback",
+                'intelligent_mode': INTELLIGENT_MODE,
+                'business_api_available': False,
+                'tinyllama_available': False
+            }
+
+        # Calculate response time
         response_time = time.time() - start_time
 
+        # Return successful response
         return {
             'response': response_text,
-            'source': llm_method,  # 'business_api', 'intelligent_llm', 'csv_match', 'tinyllama_fallback', 'rule_based', 'csv_fallback'
-            'confidence': csv_confidence if llm_method in ['csv_match', 'csv_fallback'] else 1.0,
-            'matched_question': matched_question if llm_method in ['csv_match', 'csv_fallback'] else None,
+            'source': llm_method,
+            'confidence': csv_confidence if llm_method in ['csv_match', 'csv_fallback', 'csv_priority_match'] else 1.0,
+            'matched_question': matched_question if llm_method in ['csv_match', 'csv_fallback', 'csv_priority_match'] else None,
             'business_type': context.business_type,
             'conversation_stage': context.conversation_stage,
             'show_appointment_form': show_appointment_form,
             'show_contact_form': show_contact_form,
             'services_discussed': context.services_discussed,
             'response_time': response_time,
-            'llm_used': llm_method,  # Backward compatibility
+            'llm_used': llm_method,
             'intelligent_mode': INTELLIGENT_MODE,
             'business_api_available': BUSINESS_API_AVAILABLE and USE_BUSINESS_API,
             'tinyllama_available': self.tinyllama_handler.model_loaded
@@ -2017,56 +1968,11 @@ Which perspective interests you more - {business_type} specific solutions or gen
                     context.services_discussed.append(service_name)
                     return self.get_service_specific_response(service_name, context.business_type, name_part)
 
-        # HIGHEST PRIORITY: Direct service inquiry responses - Enhanced detection
-        service_inquiry_keywords = [
-            'services', 'what do you do', 'what do you offer', 'offerings',
-            'service list', 'your services', 'help with', 'solutions',
-            'what can you help', 'what services', 'list services', 'do you provide',
-            'what kind of services', 'service offerings', 'what you offer',
-            'what services do you offer', 'what services do you provide',
-            'tell me about your services', 'tell me about services',
-            'what can you do', 'techrypt services', 'list your services'
-        ]
 
-        # Special check for standalone "services" query
-        if message_lower.strip() == 'services' or any(keyword in message_lower for keyword in service_inquiry_keywords):
-            # Check if services were already mentioned in this conversation
-            if not context.services_shown:
-                context.services_shown = True
-                return f"""Here are Techrypt's 6 core services:
-
-• Website Development - Professional websites with SEO optimization
-
-• Social Media Marketing - Strategic campaigns for Instagram, Facebook, LinkedIn
-
-• Branding Services - Logo design, brand identity, and marketing materials
-
-• Chatbot Development - AI-powered customer service automation
-
-• Automation Packages - Business process automation solutions
-
-• Payment Gateway Integration - Secure payment processing (Stripe, PayPal, etc.)
-
-Which service would help your business most?"""
-            else:
-                # Follow-up response if services already shown
-                return f"""As I mentioned{name_part}, we offer Website Development, Social Media Marketing, Branding, Chatbot Development, Automation, and Payment Gateway Integration.
-
-What specific challenge are you facing with your business that we could help solve? For example:
-• Need more customers? (Website + Social Media Marketing)
-• Want to automate customer service? (Chatbot Development)
-• Looking to streamline operations? (Automation Packages)
-• Need professional branding? (Branding Services)"""
 
         # CRITICAL: Handle prohibited businesses first
         if context.business_type == 'prohibited':
-            prohibited_responses = [
-                f"I apologize{name_part}, but we cannot provide services for gambling, adult entertainment, illegal activities, or other restricted businesses due to regulatory and policy restrictions. However, if you have other business ventures in hospitality, technology, retail, or professional services, I'd be happy to help with those!",
-                f"I'm sorry{name_part}, but we cannot provide services for businesses involving gambling, adult content, illegal substances, or unlawful activities due to legal restrictions. If you have other legitimate business interests in healthcare, e-commerce, or digital services, I'd be glad to assist with those!",
-                f"Unfortunately{name_part}, we cannot provide services for restricted or illegal business categories due to compliance requirements. However, if you have other business projects in technology, retail, hospitality, or professional services, I'd be happy to help with those!"
-            ]
-            import random
-            return random.choice(prohibited_responses)
+            return "Sorry, I am not supposed to help with that type of business."
 
         # Business-specific contextual responses with global coverage
         if context.business_type == 'food_agriculture':
@@ -3133,6 +3039,7 @@ def smart_chat():
             user_message = "hello"
 
         logger.info(f"📨 Intelligent chat request: '{user_message}' from user: '{user_name}'")
+        print(f"📨 PRINT: Intelligent chat request: '{user_message}' from user: '{user_name}'")
 
         # Generate intelligent response using the new LLM chatbot
         session_id = user_context.get('session_id', f"session_{int(time.time())}")
@@ -3301,6 +3208,7 @@ def reset_context():
 def main():
     """Main function to start the enhanced intelligent LLM chatbot server"""
     print("🤖 ENHANCED INTELLIGENT LLM CHATBOT SERVER")
+    print("🔍 DEBUG: Main function called")
     print("=" * 70)
     print("🎯 Advanced Business Intelligence with TinyLLaMA Integration")
     print("⚡ Sub-3-second response times with AI fallback chain")
