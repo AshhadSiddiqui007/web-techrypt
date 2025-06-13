@@ -20,15 +20,91 @@ logger = logging.getLogger(__name__)
 class TechryptMongoDBBackend:
     """MongoDB backend for Techrypt chatbot system"""
     
-    def __init__(self, mongo_uri: str = None, db_name: str = "techrypt_chatbot"):
-        """Initialize MongoDB backend"""
-        self.mongo_uri = mongo_uri or os.getenv("MONGO_URI", "mongodb://localhost:27017/")
-        self.db_name = db_name
-        self.client = None
-        self.db = None
-        self.connected = False
-        self.connect()
-    
+        def __init__(self, connection_string=None, database_name=None):
+        """
+        Initialize MongoDB connection with Atlas support
+        
+        Args:
+            connection_string: MongoDB connection string (Atlas or local)
+            database_name: Database name (default: techrypt_chatbot)
+        """
+        self.logger = logging.getLogger(__name__)
+        
+        # Get connection string from environment or parameter
+        if connection_string:
+            self.connection_string = connection_string
+        else:
+            # Try Atlas first, then local
+            self.connection_string = (
+                os.getenv('MONGODB_URI') or 
+                os.getenv('MONGO_URI') or 
+                'mongodb://localhost:27017/'
+            )
+        
+        # Get database name
+        self.database_name = (
+            database_name or 
+            os.getenv('MONGODB_DATABASE') or 
+            'techrypt_chatbot'
+        )
+        
+        # Connect to MongoDB
+        self._connect()
+        
+        # Initialize collections
+        self._initialize_collections()
+        
+        # Ensure indexes
+        self._ensure_indexes()
+
+    def _connect(self):
+        """Establish MongoDB connection with error handling"""
+        try:
+            # Configure client options for Atlas
+            client_options = {
+                'serverSelectionTimeoutMS': 5000,  # 5 second timeout
+                'connectTimeoutMS': 10000,         # 10 second connection timeout
+                'socketTimeoutMS': 10000,          # 10 second socket timeout
+            }
+            
+            # Add SSL options for Atlas connections
+            if 'mongodb+srv://' in self.connection_string or 'ssl=true' in self.connection_string:
+                client_options.update({
+                    'ssl': True,
+                    'ssl_cert_reqs': 'CERT_NONE'  # For development - use proper certs in production
+                })
+            
+            self.client = MongoClient(self.connection_string, **client_options)
+            self.db = self.client[self.database_name]
+            
+            # Test connection
+            self.client.admin.command('ping')
+            
+            # Log connection info (without exposing credentials)
+            connection_type = "Atlas" if "mongodb+srv://" in self.connection_string else "Local"
+            self.logger.info(f"✅ Connected to MongoDB ({connection_type}): {self.database_name}")
+            
+        except (ConnectionFailure, ServerSelectionTimeoutError) as e:
+            self.logger.error(f"❌ MongoDB connection failed: {e}")
+            
+            # Try fallback to local if Atlas fails
+            if 'mongodb+srv://' in self.connection_string:
+                self.logger.info("🔄 Attempting fallback to local MongoDB...")
+                try:
+                    fallback_uri = os.getenv('MONGODB_LOCAL_URI', 'mongodb://localhost:27017/')
+                    self.client = MongoClient(fallback_uri, serverSelectionTimeoutMS=3000)
+                    self.db = self.client[self.database_name]
+                    self.client.admin.command('ping')
+                    self.logger.info(f"✅ Connected to local MongoDB: {self.database_name}")
+                except Exception as fallback_error:
+                    self.logger.error(f"❌ Fallback connection also failed: {fallback_error}")
+                    raise
+            else:
+                raise
+        
+        except Exception as e:
+            self.logger.error(f"❌ Unexpected MongoDB error: {e}")
+            raise
     def connect(self) -> bool:
         """Establish MongoDB connection"""
         try:
