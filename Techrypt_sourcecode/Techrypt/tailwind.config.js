@@ -13,7 +13,7 @@ export default {
         eight: "#FF56A5",
         nine: "#0a0f14",
         ten: "#CFE5FF",
-        primary: "#AEBB1E",
+        primary: "#C4D322",
         primaryLight: "#D3DC5A",
         black: "#0f0f0f"
       },

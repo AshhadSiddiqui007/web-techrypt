@@ -6,6 +6,9 @@ import mask3 from "../../assets/svgs/mask3.svg";
 import mask4 from "../../assets/svgs/mask4.svg";
 import mask5 from "../../assets/svgs/mask5.svg";
 import VerticlesCard from "../VerticlesCard/VerticlesCard.jsx";
+import "./Verticals.css"; // Import the CSS file
+
+
 
 export default function Verticals() {
   const handleGetStarted = () => {
@@ -42,21 +45,24 @@ export default function Verticals() {
       class: mask3,
       type: "medium",
       subtitle: "Technology",
-      description: "Learning management systems"
+      description: "Learning management systems",
+      showVisual: "education"
     },
     {
       text: "Fashion",
       class: mask2,
       type: "medium",
       subtitle: "Industry",
-      description: "Style and trend platforms"
+      description: "Style and trend platforms",
+      showVisual: "fashion"
     },
     {
       text: "Travel",
       class: mask4,
       type: "medium",
       subtitle: "Services",
-      description: "Booking and management systems"
+      description: "Booking and management systems",
+      showVisual: "travel"
     },
     {
       text: "Finance",
@@ -69,14 +75,15 @@ export default function Verticals() {
     {
       text: "Pet Industry",
       class: mask2,
-      type: "medium", // Reverted to original type
+      type: "medium",
       subtitle: "Care",
-      description: "Pet care and service platforms"
+      description: "Pet care and service platforms",
+      showVisual: "pet"
     },
     {
       text: "Health",
       class: mask3,
-      type: "medium", // Reverted to original type
+      type: "medium",
       subtitle: "Tech",
       description: "Healthcare management systems",
       showVisual: "mobile"
@@ -84,7 +91,7 @@ export default function Verticals() {
     {
       text: "Entertainment",
       class: mask5,
-      type: "wide", // Reverted to original type
+      type: "wide",
       subtitle: "Platforms",
       description: "Media and content distribution",
       showVisual: "social"
@@ -120,17 +127,76 @@ export default function Verticals() {
     })
   };
 
-  const EcommerceVisual = () => (
-    <div className="absolute top-6 right-6 opacity-30">
-      <div className="bg-primary/20 rounded-2xl p-4 w-32 h-24">
-        <div className="bg-primary/40 rounded-xl w-full h-16 flex items-center justify-center mb-2">
-          <div className="w-8 h-8 bg-primary/60 rounded-lg"></div>
+  const ShoppingCartVisual = () => (
+  <div className="absolute bottom-6 right-6 opacity-60">
+    <div className="bg-primary/20 rounded-xl w-32 h-32 flex items-center justify-center">
+      <div className="w-20 h-20 relative">
+        {/* Main cart body */}
+          <div className="w-16 h-10 border-4 border-primary/60 rounded-t-2xl"></div>
+          
+          {/* Cart wheels */}
+          <div className="absolute bottom-0 left-2 w-4 h-8 border-4 border-primary/60 rounded-full"></div>
+          <div className="absolute bottom-0 right-2 w-4 h-8 border-4 border-primary/60 rounded-full"></div>
+          
+          {/* Cart handle */}
+          <div className="absolute top-4 right-0 w-8 h-12 border-4 border-primary/60 rounded-r-xl"></div>
+          
+          {/* Cart items (optional decorative elements) */}
+          <div className="absolute top-2 left-2 w-3 h-3 bg-primary/40 rounded"></div>
+          <div className="absolute top-2 left-6 w-2 h-4 bg-primary/40 rounded"></div>
+          <div className="absolute top-2 left-9 w-4 h-2 bg-primary/40 rounded"></div>
         </div>
       </div>
-      <div className="flex space-x-1 mt-2">
-        <div className="w-4 h-4 bg-primary/40 rounded"></div>
-        <div className="w-4 h-4 bg-primary/50 rounded"></div>
-        <div className="w-4 h-4 bg-primary/60 rounded"></div>
+    </div>
+  );
+
+  const EducationVisual = () => (
+    <div className="absolute bottom-6 right-6 opacity-30">
+      <div className="bg-primary/20 rounded-lg w-16 h-16 flex items-center justify-center">
+        <div className="w-12 h-8 relative">
+          <div className="w-12 h-2 bg-primary/60 absolute bottom-0"></div>
+          <div className="w-8 h-6 bg-primary/50 absolute bottom-2 left-2 rounded-t-lg"></div>
+          <div className="w-4 h-1 bg-primary/70 absolute top-0 left-4 rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const FashionVisual = () => (
+    <div className="absolute bottom-6 right-6 opacity-30">
+      <div className="bg-primary/20 rounded-lg w-16 h-16 flex items-center justify-center">
+        <div className="w-10 h-10 relative">
+          <div className="w-8 h-1 bg-primary/60 absolute top-0 left-1 rounded"></div>
+          <div className="w-1 h-8 bg-primary/60 absolute top-1 left-4.5 rounded"></div>
+          <div className="w-6 h-6 border-2 border-primary/50 absolute bottom-0 left-2 rounded-b-lg"></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const TravelVisual = () => (
+    <div className="absolute bottom-6 right-6 opacity-30">
+      <div className="bg-primary/20 rounded-lg w-16 h-16 flex items-center justify-center">
+        <div className="w-12 h-10 relative">
+          <div className="w-10 h-2 bg-primary/60 absolute bottom-0 left-1 rounded"></div>
+          <div className="w-8 h-6 bg-primary/50 absolute bottom-2 left-2 rounded"></div>
+          <div className="w-4 h-1 bg-primary/70 absolute top-1 left-4 rounded transform -rotate-45"></div>
+          <div className="w-6 h-1 bg-primary/70 absolute top-3 left-3 rounded transform rotate-45"></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const PetVisual = () => (
+    <div className="absolute bottom-6 right-6 opacity-30">
+      <div className="bg-primary/20 rounded-lg w-16 h-16 flex items-center justify-center">
+        <div className="w-12 h-12 relative">
+          <div className="w-3 h-3 bg-primary/60 absolute top-0 left-1 rounded-full"></div>
+          <div className="w-3 h-3 bg-primary/60 absolute top-0 right-1 rounded-full"></div>
+          <div className="w-4 h-4 bg-primary/50 absolute bottom-1 left-4 rounded-full"></div>
+          <div className="w-2 h-2 bg-primary/60 absolute bottom-4 left-2 rounded-full"></div>
+          <div className="w-2 h-2 bg-primary/60 absolute bottom-4 right-2 rounded-full"></div>
+        </div>
       </div>
     </div>
   );
@@ -148,7 +214,7 @@ export default function Verticals() {
   );
 
   const MobileVisual = () => (
-    <div className="absolute top-6 right-6 opacity-30">
+    <div className="absolute bottom-6 right-6 opacity-60">
       <div className="bg-primary/20 rounded-lg w-12 h-20 p-1">
         <div className="bg-primary/40 rounded w-full h-3 mb-1"></div>
         <div className="bg-primary/30 rounded w-full h-1 mb-1"></div>
@@ -171,10 +237,14 @@ export default function Verticals() {
 
   const renderVisual = (type) => {
     switch(type) {
-      case 'ecommerce': return <EcommerceVisual />;
+      case 'ecommerce': return <ShoppingCartVisual />;
       case 'chart': return <ChartVisual />;
       case 'mobile': return <MobileVisual />;
       case 'social': return <SocialVisual />;
+      case 'education': return <EducationVisual />;
+      case 'fashion': return <FashionVisual />;
+      case 'travel': return <TravelVisual />;
+      case 'pet': return <PetVisual />;
       default: return null;
     }
   };
@@ -208,166 +278,213 @@ export default function Verticals() {
     item.text !== "Entertainment"
   );
 
+  // Create a custom component for the E-commerce card
+  const EcommerceCard = ({ itemData }) => (
+    <VerticlesCard
+      foldSize={50}
+      className="w-full h-full backdrop-blur-sm border border-primary/20 bg-[#D8E35A] bg-opacity-30"
+    >
+      <div className="relative h-full p-6 flex flex-col">
+        <div className="flex justify-between items-start mb-4">
+          <div className="h-3 w-3 rounded-full bg-primary"></div>
+          {itemData.showVisual && renderVisual(itemData.showVisual)}
+        </div>
+        <div className="flex-1 flex flex-col justify-between">
+          <div>
+            {/* Custom styled title */}
+            <h2 
+              className="text-primary/80 font-medium mb-2"
+              style={{
+                fontSize: '32px',
+                '@media (min-width: 768px)': { fontSize: '48px' }
+              }}
+            >
+              {itemData.text.toUpperCase()}
+            </h2>
+            
+            {/* Custom styled subtitle */}
+            <h3 
+              className="text-primary font-bold mb-4"
+              style={{
+                fontSize: '56px',
+                lineHeight: '1.1',
+                '@media (min-width: 768px)': { fontSize: '72px' }
+              }}
+            >
+              {itemData.subtitle?.toUpperCase()}
+            </h3>
+          </div>
+        </div>
+      </div>
+    </VerticlesCard>
+  );
+
   return (
     <div className="bg-black flex flex-col items-center justify-center min-h-screen pt-10 overflow-hidden">
-        <div className="w-11/12 max-w-7xl mx-auto grid gap-6 grid-cols-1 md:grid-cols-3 auto-rows-min px-5 py-4">
-            {/* Render all other cards first */}
-            {remainingVerticals.map((itemData, i) => (
-                <motion.div
-                    key={i} // Use original index as they are flowing naturally
-                    className={`relative ${getCardClasses(itemData.type)}`}
-                    custom={i}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: false }}
-                    variants={cardAnimation}
-                    whileHover={{ scale: 1.02 }}
-                >
-                    <VerticlesCard
-                        foldSize={50}
-                        className={`w-full h-full backdrop-blur-sm border border-primary/20 ${itemData.isSpecial ? 'bg-[#C4D322]' : 'bg-[#D8E35A] bg-opacity-30'}`}
-                    >
-                        <div className="relative h-full p-6 flex flex-col">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="h-3 w-3 rounded-full bg-primary"></div>
-                                {itemData.showVisual && renderVisual(itemData.showVisual)}
-                            </div>
-                            <div className="flex-1 flex flex-col justify-between">
-                                <div>
-                                    <motion.h2
-                                        className={`${itemData.isSpecial ? 'text-black' : 'text-primary/80'} text-lg md:text-xl font-medium mb-2`}
-                                    >
-                                        {itemData.text.toUpperCase()}
-                                    </motion.h2>
-                                    <motion.h3
-                                        className={`${itemData.isSpecial ? 'text-black' : 'text-primary'} text-2xl md:text-4xl lg:text-5xl font-bold mb-4`}
-                                    >
-                                        {itemData.subtitle?.toUpperCase()}
-                                    </motion.h3>
-                                </div>
-                                {itemData.isSpecial && (
-                                    <div className="mt-auto flex flex-col items-start w-full">
-                                        <button
-                                            onClick={handleGetStarted}
-                                            className="mt-2 bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition-colors align:left"
-                                        >
-                                            Tell Us Your Industry
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </VerticlesCard>
-                </motion.div>
-            ))}
+      <div className="w-11/12 max-w-7xl mx-auto grid gap-6 grid-cols-1 md:grid-cols-3 auto-rows-min px-5 py-4">
+        {/* Render all cards */}
+        {remainingVerticals.map((itemData, i) => (
+          <motion.div
+            key={i}
+            className={`relative ${getCardClasses(itemData.type)}`}
+            custom={i}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: false }}
+            variants={cardAnimation}
+            whileHover={{ scale: 1.02 }}
+          >
+            {itemData.text === "E-commerce" ? (
+              // Use custom E-commerce card with explicit font sizes
+              <EcommerceCard itemData={itemData} />
+            ) : (
+              // Use regular card for other verticals
+              <VerticlesCard
+                foldSize={50}
+                className={`w-full h-full backdrop-blur-sm border border-primary/20 ${itemData.isSpecial ? 'bg-[#C4D322]' : 'bg-[#D8E35A] bg-opacity-30'}`}
+              >
+                <div className="relative h-full p-6 flex flex-col">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="h-3 w-3 rounded-full bg-primary"></div>
+                    {itemData.showVisual && renderVisual(itemData.showVisual)}
+                  </div>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <motion.h2
+                        className={`${itemData.isSpecial ? 'text-black' : 'text-primary/80'} text-lg md:text-xl font-medium mb-2`}
+                      >
+                        {itemData.text.toUpperCase()}
+                      </motion.h2>
+                      <motion.h3
+                        className={`${itemData.isSpecial ? 'text-black' : 'text-primary'} text-2xl md:text-4xl lg:text-5xl font-bold mb-4`}
+                      >
+                        {itemData.subtitle?.toUpperCase()}
+                      </motion.h3>
+                    </div>
+                    {itemData.isSpecial && (
+                      <div className="mt-auto flex flex-col items-start w-full">
+                        <button
+                          onClick={handleGetStarted}
+                          className="mt-2 bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition-colors align:left"
+                        >
+                          Approach Now
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </VerticlesCard>
+            )}
+          </motion.div>
+        ))}
 
-            {/* Render the specific row (Pet, Health, Entertainment) at the very bottom */}
-            {/* This div will occupy the full width of the grid, ensuring these three cards form their own row */}
-            <div className="col-span-full md:col-span-3 grid md:grid-cols-3 gap-6">
-                {petIndustryCard && (
-                    <motion.div
-                        key="pet-industry"
-                        className={`relative ${getCardClasses(petIndustryCard.type)}`} // Uses 'medium' type
-                        custom={10} // Increased delay to appear after others
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: false }}
-                        variants={cardAnimation}
-                        whileHover={{ scale: 1.02 }}
-                    >
-                        <VerticlesCard
-                            foldSize={50}
-                            className={`w-full h-full backdrop-blur-sm border border-primary/20 bg-[#D8E35A] bg-opacity-30`}
-                        >
-                            <div className="relative h-full p-6 flex flex-col">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="h-3 w-3 rounded-full bg-primary"></div>
-                                    {petIndustryCard.showVisual && renderVisual(petIndustryCard.showVisual)}
-                                </div>
-                                <div className="flex-1 flex flex-col justify-between">
-                                    <div>
-                                        <motion.h2 className={'text-primary/80 text-lg md:text-xl font-medium mb-2'}>
-                                            {petIndustryCard.text.toUpperCase()}
-                                        </motion.h2>
-                                        <motion.h3 className={'text-primary text-2xl md:text-4xl lg:text-5xl font-bold mb-4'}>
-                                            {petIndustryCard.subtitle?.toUpperCase()}
-                                        </motion.h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </VerticlesCard>
-                    </motion.div>
-                )}
-                {healthCard && (
-                    <motion.div
-                        key="health-tech"
-                        className={`relative ${getCardClasses(healthCard.type)}`} // Uses 'medium' type
-                        custom={11} // Increased delay
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: false }}
-                        variants={cardAnimation}
-                        whileHover={{ scale: 1.02 }}
-                    >
-                        <VerticlesCard
-                            foldSize={50}
-                            className={`w-full h-full backdrop-blur-sm border border-primary/20 bg-[#D8E35A] bg-opacity-30`}
-                        >
-                            <div className="relative h-full p-6 flex flex-col">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="h-3 w-3 rounded-full bg-primary"></div>
-                                    {healthCard.showVisual && renderVisual(healthCard.showVisual)}
-                                </div>
-                                <div className="flex-1 flex flex-col justify-between">
-                                    <div>
-                                        <motion.h2 className={'text-primary/80 text-lg md:text-xl font-medium mb-2'}>
-                                            {healthCard.text.toUpperCase()}
-                                        </motion.h2>
-                                        <motion.h3 className={'text-primary text-2xl md:text-4xl lg:text-5xl font-bold mb-4'}>
-                                            {healthCard.subtitle?.toUpperCase()}
-                                        </motion.h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </VerticlesCard>
-                    </motion.div>
-                )}
-                {entertainmentCard && (
-                    <motion.div
-                        key="entertainment"
-                        className={`relative ${getCardClasses(entertainmentCard.type)}`} // Uses 'wide' type
-                        custom={12} // Increased delay
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: false }}
-                        variants={cardAnimation}
-                        whileHover={{ scale: 1.02 }}
-                    >
-                        <VerticlesCard
-                            foldSize={50}
-                            className={`w-full h-full backdrop-blur-sm border border-primary/20 bg-[#D8E35A] bg-opacity-30`}
-                        >
-                            <div className="relative h-full p-6 flex flex-col">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="h-3 w-3 rounded-full bg-primary"></div>
-                                    {entertainmentCard.showVisual && renderVisual(entertainmentCard.showVisual)}
-                                </div>
-                                <div className="flex-1 flex flex-col justify-between">
-                                    <div>
-                                        <motion.h2 className={'text-primary/80 text-lg md:text-xl font-medium mb-2'}>
-                                            {entertainmentCard.text.toUpperCase()}
-                                        </motion.h2>
-                                        <motion.h3 className={'text-primary text-2xl md:text-4xl lg:text-5xl font-bold mb-4'}>
-                                            {entertainmentCard.subtitle?.toUpperCase()}
-                                        </motion.h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </VerticlesCard>
-                    </motion.div>
-                )}
-            </div>
+        {/* Render the specific row (Pet, Health, Entertainment) at the very bottom */}
+        {/* This div will occupy the full width of the grid, ensuring these three cards form their own row */}
+        <div className="col-span-full md:col-span-3 grid md:grid-cols-3 gap-6">
+          {petIndustryCard && (
+            <motion.div
+              key="pet-industry"
+              className={`relative ${getCardClasses(petIndustryCard.type)}`} // Uses 'medium' type
+              custom={10} // Increased delay to appear after others
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: false }}
+              variants={cardAnimation}
+              whileHover={{ scale: 1.02 }}
+            >
+              <VerticlesCard
+                foldSize={50}
+                className={`w-full h-full backdrop-blur-sm border border-primary/20 bg-[#D8E35A] bg-opacity-30`}
+              >
+                <div className="relative h-full p-6 flex flex-col">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="h-3 w-3 rounded-full bg-primary"></div>
+                    {petIndustryCard.showVisual && renderVisual(petIndustryCard.showVisual)}
+                  </div>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <motion.h2 className={'text-primary/80 text-lg md:text-xl font-medium mb-2'}>
+                        {petIndustryCard.text.toUpperCase()}
+                      </motion.h2>
+                      <motion.h3 className={'text-primary text-2xl md:text-4xl lg:text-5xl font-bold mb-4'}>
+                        {petIndustryCard.subtitle?.toUpperCase()}
+                      </motion.h3>
+                    </div>
+                  </div>
+                </div>
+              </VerticlesCard>
+            </motion.div>
+          )}
+          {healthCard && (
+            <motion.div
+              key="health-tech"
+              className={`relative ${getCardClasses(healthCard.type)}`} // Uses 'medium' type
+              custom={11} // Increased delay
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: false }}
+              variants={cardAnimation}
+              whileHover={{ scale: 1.02 }}
+            >
+              <VerticlesCard
+                foldSize={50}
+                className={`w-full h-full backdrop-blur-sm border border-primary/20 bg-[#D8E35A] bg-opacity-30`}
+              >
+                <div className="relative h-full p-6 flex flex-col">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="h-3 w-3 rounded-full bg-primary"></div>
+                    {healthCard.showVisual && renderVisual(healthCard.showVisual)}
+                  </div>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <motion.h2 className={'text-primary/80 text-lg md:text-xl font-medium mb-2'}>
+                        {healthCard.text.toUpperCase()}
+                      </motion.h2>
+                      <motion.h3 className={'text-primary text-2xl md:text-4xl lg:text-5xl font-bold mb-4'}>
+                        {healthCard.subtitle?.toUpperCase()}
+                      </motion.h3>
+                    </div>
+                  </div>
+                </div>
+              </VerticlesCard>
+            </motion.div>
+          )}
+          {entertainmentCard && (
+            <motion.div
+              key="entertainment"
+              className={`relative ${getCardClasses(entertainmentCard.type)}`} // Uses 'wide' type
+              custom={12} // Increased delay
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: false }}
+              variants={cardAnimation}
+              whileHover={{ scale: 1.02 }}
+            >
+              <VerticlesCard
+                foldSize={50}
+                className={`w-full h-full backdrop-blur-sm border border-primary/20 bg-[#D8E35A] bg-opacity-30`}
+              >
+                <div className="relative h-full p-6 flex flex-col">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="h-3 w-3 rounded-full bg-primary"></div>
+                    {entertainmentCard.showVisual && renderVisual(entertainmentCard.showVisual)}
+                  </div>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <motion.h2 className={'text-primary/80 text-lg md:text-xl font-medium mb-2'}>
+                        {entertainmentCard.text.toUpperCase()}
+                      </motion.h2>
+                      <motion.h3 className={'text-primary text-2xl md:text-4xl lg:text-5xl font-bold mb-4'}>
+                        {entertainmentCard.subtitle?.toUpperCase()}
+                      </motion.h3>
+                    </div>
+                  </div>
+                </div>
+              </VerticlesCard>
+            </motion.div>
+          )}
         </div>
+      </div>
     </div>
   );
 }

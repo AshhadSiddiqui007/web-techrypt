@@ -126,7 +126,7 @@ const Footer = () => {
         
         <div className="mb-8">
           <textarea 
-            placeholder="Your Goals / KPIs / Vision" 
+            placeholder="What is the biggest challenge with your business right now?" 
             rows="3" 
             className="w-full bg-transparent border-b border-gray-600 py-2 px-3 text-white focus:outline-none focus:border-primary"
           ></textarea>
@@ -178,35 +178,47 @@ const Footer = () => {
 
 
 
-      <div className="flex md:px-10 py-10 px-2 max-md:flex-col items-center md:items-end justify-between gap-5 w-full mb-12">
+      <div className="flex md:px-20 py-3 px-2 max-md:flex-col items-center md:items-end justify-between gap-3 w-full mb-2">
 
-        <div className="  flex flex-col items-center justify-start  gap-5 max-md:order-3 max-md:mt-7">
-          <div
-            className="h-10 md:w-16 w-10 md:h-16    flex justify-center items-center  text-5xl text-primary cursor-pointer rounded-full border border-primary hover:bg-primary hover:text-white glowing-yellow transition-all duration-300  "
-            title='Scroll to top'
-            onClick={scrollToTop}
-          // style={{ 
-          //   backgroundImage:
-          //     `url("data:image/svg+xml;charset=utf-8;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNDgiIGN5PSI0OCIgcj0iNDciIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTIzIDE3aDUwIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTQ3IDgxYTEgMSAwIDEgMCAyIDBoLTJabTItNTZhMSAxIDAgMSAwLTIgMGgyWk0yOS41NjggNDEuNDhhMSAxIDAgMSAwIDAgMnYtMlpNNDkuMDQ4IDI0YTEgMSAwIDEgMC0yIDBoMlptMTcuMSAxOS4xYTEgMSAwIDEgMCAwLTJ2MlpNNDkgODFWMjVoLTJ2NTZoMlpNMjkuNTY4IDQzLjQ4YzQuNzk1IDAgOC40NTgtMS4yMDEgMTEuMjM4LTMuMDU1IDIuNzc1LTEuODUgNC42MTItNC4zMDkgNS44MjctNi43MzggMS4yMTItMi40MjQgMS44MTMtNC44MzcgMi4xMTMtNi42MzUuMTUtLjkwMS4yMjYtMS42NTUuMjY0LTIuMTg3YTE2LjU3IDE2LjU3IDAgMCAwIC4wMzgtLjg0NFYyNC4wMDFsLTEtLjAwMWgtMXYtLjAwMS4wMzdsLS4wMDQuMTM4Yy0uMDA0LjEyNC0uMDEyLjMxLS4wMy41NDktLjAzNC40NzktLjEwMiAxLjE2OS0uMjQxIDItLjI3OCAxLjY2Ny0uODMyIDMuODc1LTEuOTMgNi4wNy0xLjA5NSAyLjE5MS0yLjcyMyA0LjM1Mi01LjE0NiA1Ljk2OC0yLjQxNyAxLjYxLTUuNjg0IDIuNzItMTAuMTMgMi43MnYyWk00OC4wNDggMjRsLTEgLjAwMXYuMDA2YS43NTQuNzU0IDAgMCAwIDAgLjA2MWwuMDA1LjE2OWMuMDA1LjE0NC4wMTQuMzUxLjAzMy42MTIuMDM3LjUyMS4xMTEgMS4yNi4yNTkgMi4xNDQuMjkzIDEuNzYyLjg4MyA0LjEyNyAyLjA3MSA2LjUwNCAxLjE5IDIuMzgyIDIuOTkyIDQuNzkzIDUuNzE0IDYuNjA3IDIuNzI3IDEuODE4IDYuMzE4IDIuOTk2IDExLjAxOCAyLjk5NnYtMmMtNC4zNSAwLTcuNTQ2LTEuMDg0LTkuOTEtMi42Ni0yLjM2OS0xLjU4LTMuOTYtMy42OTMtNS4wMzMtNS44MzctMS4wNzQtMi4xNDgtMS42MTYtNC4zMDgtMS44ODgtNS45NGEyMS4yMTggMjEuMjE4IDAgMCAxLS4yMzYtMS45NTcgMTQuMjQgMTQuMjQgMCAwIDEtLjAzMi0uNjd2LS4wMzdsLTEgLjAwMVoiIGZpbGw9IiNmZmYiLz48L3N2Zz4=")`
-          // }}
-          >
-            <RiArrowUpDoubleLine />
-          </div>
-          <a href="mailto:INFO@TECHRYPT.IO" className="text-gray-400 text-xs glowing-green">
-            INFO@TECHRYPT.IO
-          </a>
+      <div className="flex flex-col items-center justify-start gap-5 max-md:order-3 max-md:mt-7">
+        <div
+          className="h-10 md:w-16 w-10 md:h-16 flex justify-center items-center text-5xl text-primary cursor-pointer rounded-full border border-primary hover:bg-primary hover:text-white glowing-yellow transition-all duration-300"
+          title='Scroll to top'
+          onClick={scrollToTop}
+        >
+          <RiArrowUpDoubleLine />
         </div>
-        <div className=" flex gap-10 justify-center    text-gray-400">
-         
-          <Link to={"/PrivacyPolicy"} onClick={() => setPrivacy(true)} className="">
-            Privacy Policy
-          </Link>
-          <Link to={"/Terms&Conditions"} className="ml-1">
-            Terms & Conditions
-          </Link>
-        </div>
-
+        <a href="mailto:INFO@TECHRYPT.IO" className="text-gray-400 text-xs glowing-green">
+          INFO@TECHRYPT.IO
+        </a>
       </div>
+
+      <div className="flex flex-col items-center justify-center w-full text-center">
+        <p
+          className="text-white glowing-green"
+          style={{
+            display: 'flex',
+            justifyContent: 'center',  // Horizontally center
+            textAlign: 'center',       // Center text inside the element
+            width: '100%',             // Take full width of its container
+            marginLeft: '100px'
+          }}
+        >
+          Powered by Techrypt.io
+        </p>
+      </div>
+
+      <div className="flex gap-10 justify-center text-gray-400">
+        <Link to={"/PrivacyPolicy"} onClick={() => setPrivacy(true)} className="">
+          Privacy Policy
+        </Link>
+        <Link to={"/Terms&Conditions"} className="ml-1">
+          Terms & Conditions
+        </Link>
+      </div>
+
+    </div>
+
       {/* <TopModal isOpen={privacy} onClose={() => setPrivacy(false)}>
         <PrivacyPolicy />
       </TopModal> */}

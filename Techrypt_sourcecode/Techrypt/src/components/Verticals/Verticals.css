@@ -1,0 +1,24 @@
+.ecommerce-title {
+  font-size: 90px !important;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: rgba(196, 211, 34, 0.8);
+}
+
+.ecommerce-subtitle {
+  font-size: 300px !important;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: rgb(196, 211, 34);
+  line-height: 1.1;
+}
+
+@media (min-width: 768px) {
+  .ecommerce-title {
+    font-size: 48px !important;
+  }
+  
+  .ecommerce-subtitle {
+    font-size: 72px !important;
+  }
+}

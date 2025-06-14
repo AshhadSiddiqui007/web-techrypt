@@ -12,8 +12,8 @@ function Filter() {
   // Function to filter data based on selected filters
   const filteredData = data.filter(item => {
     return (
-      (service === '' || item.Services === service) &&
-      (geo === '' || item.GEO === geo) &&
+      (service === '' || item.Services.includes(service)) &&
+      (geo === '' || item.GEO.includes(geo)) && // Use includes instead of exact match
       (vertical === '' || item.Vertical === vertical)
     );
   });
@@ -22,6 +22,11 @@ function Filter() {
   const showMoreItems = () => {
     setVisibleCount(prevCount => prevCount + 6); // Show 6 more items on each click
   };
+
+  // Reset visible count when filters change
+  React.useEffect(() => {
+    setVisibleCount(6);
+  }, [service, geo, vertical]);
 
   return (
     <section className='filter-section'>
@@ -32,7 +37,7 @@ function Filter() {
         <div className='filter-select'>
           <select className='' value={service} onChange={(e) => setService(e.target.value)}>
             <option value="">All Services</option>
-            <option value="Influencer Marketing">Influencer Marketing</option>
+            <option value="Social Media Automation">Social Media Automation</option>
             <option value="Performance Marketing">Performance Marketing</option>
             <option value="AI Chatbot Integration">AI Chatbot Integration</option>
             <option value="Website Development">Website Development</option>
@@ -53,7 +58,7 @@ function Filter() {
             <option value="Delivery">Delivery</option>
             <option value="E-commerce">E-commerce</option>
             <option value="Entertainment">Entertainment</option>
-            <option value="Finance">Finance</option>
+            <option value="Visa">Visa</option>
             <option value="Food & Drinks">Food & Drinks</option>
             <option value="Games">Games</option>
             <option value="Health">Health</option>

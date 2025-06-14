@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './TechryptChatbot.css';
-import { BsRobot, BsPerson, BsSend, BsMic, BsMicMute, BsVolumeUp, BsX } from 'react-icons/bs';
+import { BsRobot, BsPerson, BsSend, BsVolumeUp, BsX } from 'react-icons/bs';
+import calenderIcon from "/Images/chatbot/calender.svg";
+import minimizeIcon from "/Images/chatbot/minimize.svg";
+import binIcon from "/Images/chatbot/bin.svg";
+import closeIcon from "/Images/chatbot/close.svg";
 
 const TechryptChatbot = ({ isOpen, onClose }) => {
   // Load messages from localStorage or use default
@@ -811,14 +815,14 @@ Thank you for choosing Techrypt.io! 🚀`,
                   }}
                   title="Book an Appointment"
                 >
-                  📅
+                  <img src={calenderIcon} alt="Appointment" className="header-icon" />
                 </button>
                 <button
                   className="techrypt-chatbot-clear"
                   onClick={clearChatHistory}
                   title="Clear Chat History"
                 >
-                  🗑️
+                  <img src={binIcon} alt="Clear Chat" className="header-icon" />
                 </button>
               </>
             )}
@@ -830,15 +834,24 @@ Thank you for choosing Techrypt.io! 🚀`,
               }}
               title={isMinimized ? "Expand" : "Minimize"}
             >
-              {isMinimized ? "⬆️" : "⬇️"}
+              <img
+                src={isMinimized ? calenderIcon : minimizeIcon} // Switch between calendar and minimize icons
+                alt={isMinimized ? "Expand" : "Minimize"}
+                className="header-icon"
+              />
             </button>
-            {!isMinimized && (
-              <button className="techrypt-chatbot-close" onClick={onClose}>
-                <BsX />
-              </button>
-            )}
+            {/* Add the close button with the imported closeIcon */}
+            <button
+              className="techrypt-chatbot-close"
+              onClick={onClose} // onClose will be passed as a prop and handle closing
+              title="Close Chatbot"
+            >
+              <img src={closeIcon} alt="Close Chatbot" className="header-icon" />
+            </button>
           </div>
         </div>
+
+
 
         {/* Error Alert */}
         {error && !isMinimized && (
@@ -884,7 +897,10 @@ Thank you for choosing Techrypt.io! 🚀`,
           {isLoading && (
             <div className="techrypt-message bot-message">
               <div className="techrypt-message-avatar">
-                <BsRobot />
+                {/* Apply green background and black icon */}
+                <div className="avatar-icon">
+                  <BsRobot />
+                </div>
               </div>
               <div className="techrypt-message-content">
                 <div className="techrypt-typing-indicator">
@@ -894,6 +910,7 @@ Thank you for choosing Techrypt.io! 🚀`,
                 </div>
               </div>
             </div>
+
           )}
           <div ref={messagesEndRef} />
         </div>
@@ -911,14 +928,7 @@ Thank you for choosing Techrypt.io! 🚀`,
               disabled={isLoading}
               rows="1"
             />
-            <button
-              className={`techrypt-mic-button ${isListening ? 'listening' : ''}`}
-              onClick={isListening ? stopListening : startListening}
-              disabled={isLoading}
-              title={isListening ? 'Stop Listening' : 'Start Voice Input'}
-            >
-              {isListening ? <BsMicMute /> : <BsMic />}
-            </button>
+            
             <button
               className="techrypt-send-button"
               onClick={() => sendMessage()}
@@ -928,12 +938,6 @@ Thank you for choosing Techrypt.io! 🚀`,
               <BsSend />
             </button>
           </div>
-          {isListening && (
-            <div className="techrypt-listening-indicator">
-              <div className="techrypt-pulse-dot"></div>
-              <span>🎤 Listening... Speak about Techrypt services</span>
-            </div>
-          )}
         </div>
         )}
 

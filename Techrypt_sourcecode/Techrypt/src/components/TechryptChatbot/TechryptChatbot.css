@@ -17,6 +17,15 @@
   border: 1px solid #e5e7eb;
 }
 
+/* Resize the icons for appoints and things*/
+.header-icon {
+  width: 20px; /* Resize the icons */
+  height: 20px; /* Resize the icons */
+  margin-right: 8px; /* Space between icon and text */
+  vertical-align: middle; /* Align the icon with the text */
+}
+
+
 .smart-chatbot-container.closed {
   transform: translateY(100%) scale(0.8);
   opacity: 0;
@@ -279,17 +288,22 @@
   }
 
   .techrypt-chatbot-header-content {
-    gap: 12px;
+    gap: 1px;
+    display: flex;
+    align-items: center;
   }
 
   .techrypt-chatbot-avatar {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     font-size: 20px;
-  }
+    margin-right: 8px; /* Adjust margin between the avatar icon and the title */
+    }
 
   .techrypt-chatbot-title h3 {
-    font-size: 18px;
+    font-size: 22px; 
+    font-weight: bold; 
+    margin: 0; 
   }
 
   .techrypt-chatbot-title p {
@@ -350,9 +364,10 @@
   background: linear-gradient(135deg, #AEBB1E 0%, #D3DC5A 100%);
   border-bottom: 1px solid rgba(174, 187, 30, 0.3);
   display: flex;
-  flex-direction: column;
-  transition: all 0.3s ease;
-  min-height: 78px;
+  flex-direction: row; /* Change to row instead of column */
+  justify-content: space-between; /* Space between left and right elements */
+  align-items: center; /* Center align all elements vertically */
+  min-height: 60px; /* Reduce min-height for better alignment */
   position: relative;
 }
 
@@ -363,6 +378,8 @@
   border-radius: 12px 12px 0 0;
   background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
   cursor: pointer;
+  flex-direction: row; /* Ensure it stays as row */
+  align-items: center;
 }
 
 .techrypt-chatbot-container.minimized .techrypt-chatbot-header:hover {
@@ -376,9 +393,8 @@
   gap: 10px;
   flex: 1;
   min-width: 0;
-  padding: 16px 4px 4px 4px;
-  margin-top: auto;
-  position: relative;
+  padding: 0; /* Remove padding that was causing misalignment */
+  margin: 0; /* Remove margin that was causing misalignment */
 }
 
 .techrypt-chatbot-avatar {
@@ -393,7 +409,7 @@
   font-size: 16px;
   border: 2px solid #AEBB1E;
   flex-shrink: 0;
-  margin-right: 2px;
+  margin-right: 8px;
 }
 
 .techrypt-chatbot-title h3 {
@@ -405,7 +421,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.3;
+  line-height: 1; /* Adjust line height for better vertical alignment */
   flex: 1;
   min-width: 0;
   letter-spacing: 0.2px;
@@ -438,10 +454,8 @@
   align-items: center;
   justify-content: flex-end;
   flex-shrink: 0;
-  padding: 2px 4px 8px 0;
-  position: absolute;
-  top: 12px;
-  right: 18px;
+  height: 30px;
+  /* Remove position: absolute and related properties */
 }
 
 .techrypt-chatbot-appointment,
@@ -451,15 +465,14 @@
   background: none;
   border: none;
   color: rgba(0, 0, 0, 0.8);
-  font-size: 14px;
   cursor: pointer;
   padding: 5px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
 }
 
@@ -537,7 +550,13 @@
 }
 
 .bot-message .techrypt-message-avatar {
-  background: linear-gradient(135deg, #ff6b35 0%, #cc4a1a 100%);
+  background: #C4D322; /* Changed from orange gradient to Techrypt green */
+  color: black; /* Changed from white to black */
+}
+
+/* Also update the user message avatar for consistency */
+.user-message .techrypt-message-avatar {
+  background: linear-gradient(135deg, #AEBB1E 0%, #D3DC5A 100%);
 }
 
 .techrypt-message-content {

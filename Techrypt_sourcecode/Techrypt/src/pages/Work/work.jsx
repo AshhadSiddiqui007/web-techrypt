@@ -129,11 +129,10 @@ const work = () => {
             e.currentTarget.style.boxShadow = '0 5px 15px rgba(196, 211, 34, 0.3)'; /* UPDATED: Back to original shadow on leave */
           }}
         >
-          Open Chatbot
+          Talk To Our Expert
         </button>
       </div>
 
-      {/* Existing Filter component */}
       <Filter />
     </div>
   );

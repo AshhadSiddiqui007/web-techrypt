@@ -71,8 +71,8 @@ export default function AboutSlider() {
 
   return (
     <div className="flex justify-center items-center bg-black pb-20">
-      <div className="bg-primary glow-green rounded-[50px] w-[80vw] flex flex-col items-center justify-center p-5">
-        <h1 className="text-[45px] text-black font-[450]">Certified By</h1>
+      <div className="bg-primary rounded-[50px] w-[80vw] flex flex-col items-center justify-center p-5">
+        <h1 className="text-[45px] text-blackS font-[450]">Certified By</h1>
         <div className="w-full mt-[10px]">
           <Slider {...settings}>
             {aboutSliderData.map((item, i) => (
