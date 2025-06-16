@@ -87,47 +87,24 @@ const Services = ({className}) => {
                     Our Services
                 </motion.h1>
 
-                <div className="grid gap-6 md:gap-8 lg:gap-12 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                <div className="w-11/12 mx-auto grid gap-12 md:gap-16 grid-cols-1 md:grid-cols-3">
                     {CardContent.map((content, index) => (
                         <motion.div
                             key={index}
-                            className="bg-primary text-black w-full rounded-2xl glow-green shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                            style={{
-                                minHeight: 'clamp(280px, 35vh, 400px)', /* Proportional height scaling */
-                                padding: 'clamp(1.5rem, 4vw, 2.5rem)' /* Proportional padding */
-                            }}
+                            className="bg-[#AEBB1E] text-white w-full h-45 lg:h-55 rounded-2xl p-8 glow-green service-card-responsive"
                             custom={index}
                             initial="hidden"
                             whileInView="visible"
-                            viewport={{ once: false, margin: "-50px" }}
+                            viewport={{ once:false, margin: "-50px" }}
                             variants={cardVariants}
-                            whileHover={{ y: -5 }}
                         >
-                            <div
-                                className="w-full flex justify-center items-center mb-4"
-                                style={{ height: 'clamp(60px, 8vh, 100px)' }} /* Proportional icon area */
-                            >
-                                <img
-                                    src={content.img}
-                                    alt={content.title}
-                                    className="object-contain"
-                                    style={{
-                                        maxHeight: '100%',
-                                        width: 'auto',
-                                        maxWidth: 'clamp(50px, 8vw, 80px)' /* Proportional icon size */
-                                    }}
-                                />
+                            <div className="w-full h-20 flex justify-center items-center service-icon-container">
+                                <img src={content.img} alt="" className="max-h-full service-icon" />
                             </div>
-                            <h2
-                                className="font-['Bebas_Neue'] text-center mb-3 md:mb-4 font-bold"
-                                style={{ fontSize: 'clamp(1.25rem, 4vw, 2rem)' }} /* Proportional title */
-                            >
+                            <h2 className="font-['Bebas_Neue'] text-xl md:text-2xl lg:text-3xl text-center mt-2 mb-2 service-title">
                                 {content.title}
                             </h2>
-                            <p
-                                className="font-['Inter'] text-center leading-relaxed"
-                                style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)' }} /* Proportional text */
-                            >
+                            <p className="font-['Inter'] text-center text-sm md:text-base service-description">
                                 {content.content}
                             </p>
                         </motion.div>

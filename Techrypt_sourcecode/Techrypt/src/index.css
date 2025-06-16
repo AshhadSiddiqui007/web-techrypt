@@ -329,6 +329,28 @@ html {
     margin-bottom: 1rem;
     border-radius: 0.75rem;
   }
+
+  /* Mobile-specific service card enhancements */
+  .service-card-responsive {
+    min-height: 280px !important;
+    height: auto !important;
+    padding: 1.5rem !important;
+  }
+
+  .service-icon-container {
+    height: 60px !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .service-title {
+    font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
+    margin: 0.75rem 0 !important;
+  }
+
+  .service-description {
+    font-size: clamp(0.875rem, 2.5vw, 1rem) !important;
+    line-height: 1.5 !important;
+  }
 }
 
 /* Techrypt Brand Colors */

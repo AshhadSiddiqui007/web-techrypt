@@ -1766,10 +1766,18 @@ We serve Karachi locally and offer remote consultations globally. What's your pr
 
                         formatted_response = csv_response.replace("{name}", name_part)
 
+                        # CRITICAL: Check for direct booking requests in CSV matches
+                        matched_row = self.csv_handler.training_data[best_idx]
+                        intent_type = matched_row.get('intent_type', 'general')
+
+                        if intent_type == 'direct_booking_request':
+                            context.conversation_stage = 'closing'  # Trigger appointment form
+                            logger.info(f"🎯 Direct booking request detected from CSV - triggering appointment form")
+
                         response_text = formatted_response
                         llm_method = "csv_priority_match"
                         self.response_stats['csv_fallback'] += 1
-                        logger.info(f"📊 Priority CSV match used | Confidence: {csv_confidence:.3f} | Question: {matched_question}")
+                        logger.info(f"📊 Priority CSV match used | Confidence: {csv_confidence:.3f} | Question: {matched_question} | Intent: {intent_type}")
 
                 except Exception as e:
                     logger.warning(f"⚠️ Service inquiry CSV matching failed: {e}")

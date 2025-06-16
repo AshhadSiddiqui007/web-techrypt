@@ -26,7 +26,11 @@
   align-items: center;
 }
 .leftNav{
-  height: 80px;
+  height: 80px; /* Restore original fixed height for proper alignment */
+  display: flex;
+  align-items: center; /* Center logo vertically */
+  flex-shrink: 0; /* Prevent shrinking */
+  overflow: visible; /* Allow logo to display fully */
 }
 .leftNav 
 .hr1,
@@ -99,6 +103,35 @@
   cursor: pointer;
   /* height: 120px; */
   object-fit: cover;
+}
+
+/* Custom Desktop Header Logo - Properly sized and aligned */
+.desktop-header-logo {
+  width: 280px !important;
+  height: auto !important;
+  object-fit: cover !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  max-width: none !important;
+}
+
+/* Responsive breakpoints for desktop logo - proportional sizing */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .desktop-header-logo {
+    width: 280px !important;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .desktop-header-logo {
+    width: 320px !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .desktop-header-logo {
+    width: 350px !important;
+  }
 }
 /* Dropdown initially hidden */
 .dropdown {
@@ -286,9 +319,30 @@
 
 
 
+/* Restore original desktop navigation visibility */
+@media only screen and (min-width: 769px) {
+  .navbar {
+    display: flex !important; /* Restore original desktop navbar */
+  }
+
+  .main-tabs {
+    display: flex !important;
+  }
+
+  .main-tab {
+    display: block !important;
+  }
+}
+
 @media only screen and (max-width: 768px) {
   .navbar {
-    display: none;
+    display: none !important;
+  }
+
+  /* Hide desktop navigation elements on mobile only */
+  .main-tabs,
+  .main-tab {
+    display: none !important;
   }
 }
 
@@ -312,9 +366,9 @@
   width: 160px;
 }
 
-/* Mobile Navigation Styles */
+/* Mobile Navigation Styles - Hidden since we use hamburger menu */
 .mobile-nav-tabs {
-  display: none;
+  display: none !important; /* Force hide the old mobile tabs */
   position: fixed;
   top: 80px;
   left: 0;
@@ -364,7 +418,7 @@
 
 @media only screen and (max-width: 768px) {
   .mobile-nav-tabs {
-    display: block;
+    display: none !important; /* Keep hidden - using hamburger menu instead */
   }
 }
 
