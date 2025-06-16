@@ -1,7 +1,17 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
-export default function Payment() {
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  return isMobile;
+}
+
+const Payment = () => {
   const container = {
     hidden: { opacity: 0 },
     visible: {
@@ -40,10 +50,14 @@ export default function Payment() {
     "Education",
     "Fitness",
     "Beauty",
-     "Automotive",
+    "Automotive",
     "Professional Services"
-   
   ];
+
+  const isMobile = useIsMobile();
+
+  // Only show top 4 industries on mobile, all on desktop
+  const displayedIndustries = isMobile ? industries.slice(0, 4) : industries;
 
   return (
     <motion.div 
@@ -111,7 +125,7 @@ export default function Payment() {
           className="flex flex-col gap-3"
           variants={container}
         >
-          {industries.map((industry, index) => (
+          {displayedIndustries.map((industry, index) => (
             <motion.p 
               key={index}
               className="text-lg md:text-xl font-light leading-snug text-white border-t-2 border-white pt-3 text-left md:text-left"
@@ -124,4 +138,6 @@ export default function Payment() {
       </motion.div>
     </motion.div>
   );
-}
+};
+
+export default Payment;

@@ -91,7 +91,7 @@ const Services = ({className}) => {
                     {CardContent.map((content, index) => (
                         <motion.div
                             key={index}
-                            className="bg-primary text-black w-full rounded-2xl glow-green shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                            className="bg-primary/65 text-white w-full rounded-2xl glow-green shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                             style={{
                                 minHeight: 'clamp(280px, 35vh, 400px)', /* Proportional height scaling */
                                 padding: 'clamp(1.5rem, 4vw, 2.5rem)' /* Proportional padding */
@@ -119,7 +119,7 @@ const Services = ({className}) => {
                                 />
                             </div>
                             <h2
-                                className="font-['Bebas_Neue'] text-center mb-3 md:mb-4 font-bold"
+                                className="font-['Bebas_Neue'] text-center mb-3 md:mb-4 "
                                 style={{ fontSize: 'clamp(1.25rem, 4vw, 2rem)' }} /* Proportional title */
                             >
                                 {content.title}

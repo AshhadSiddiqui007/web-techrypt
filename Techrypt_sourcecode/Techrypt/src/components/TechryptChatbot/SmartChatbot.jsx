@@ -7,6 +7,7 @@ const SmartChatbot = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState(() => loadMessages());
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showThankYou, setShowThankYou] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [userContext, setUserContext] = useState({

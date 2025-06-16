@@ -30,7 +30,7 @@ const MessageSidebar = () => {
     <>
       {/* Enhanced Chatbot Trigger Button with Mobile Responsiveness */}
       <BsRobot
-        title="Techrypt AI Assistant - ChatGPT-like Intelligence"
+        title="Techrypt AI Assistant"
         className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[999] text-white text-4xl md:text-5xl rounded-full p-2 md:p-3 hover:scale-110 duration-300 transition-all cursor-pointer shadow-lg hover:shadow-xl touch-target"
         style={{
           background: 'linear-gradient(135deg, #AEBB1E 0%, #D3DC5A 100%)',

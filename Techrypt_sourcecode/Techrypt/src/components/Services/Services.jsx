@@ -1,8 +1,20 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  return isMobile;
+}
+
 export default function Services() {
+  const isMobile = useIsMobile();
+
   const container = {
     hidden: { opacity: 0 },
     visible: {
@@ -51,6 +63,9 @@ export default function Services() {
     return "rounded-[50px]"; // first and third boxes
   };
 
+  // Show only top 3 services on mobile, all on desktop
+  const displayedServices = isMobile ? rows.slice(0, 1) : rows;
+
   return (
     <div className="bg-black py-8 md:py-16 px-4 sm:px-8 md:px-36 flex flex-col gap-3">
       <motion.h1
@@ -70,7 +85,7 @@ export default function Services() {
         viewport={{ margin: "-100px" }}
         variants={container}
       >
-        {rows.map((row, rowIndex) => (
+        {displayedServices.map((row, rowIndex) => (
           <motion.div
             key={rowIndex}
             className="flex flex-col w-full md:flex-row gap-3 md:gap-5 glowing-green"

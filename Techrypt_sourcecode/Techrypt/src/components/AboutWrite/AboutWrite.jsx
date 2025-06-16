@@ -3,6 +3,20 @@ import "./AboutWrite.css";
 import { Link } from "react-router-dom";
 
 export default function AboutWrite() {
+  const headings = [
+    "Automation for Growth",
+    "AI Sales funnel",
+    "Smart Client Booking",
+    "Hands off Marketing",
+    "Clinic Booking Automation",
+    "Real Estate Bots",
+    "Smart Service Delivery",
+    "Tech Driven Scaling",
+    "AI that Listens",
+    "Ecommerce Sales Boost",
+    "Smart Customer Intake"
+  ];
+
   return (
     <>
       <div className="aboutwrite">
@@ -11,19 +25,19 @@ export default function AboutWrite() {
         </div>
         <div className="aboutwrite-content">
           <div className="content-rows">
-            <h2>Automation for Growth</h2>
-            <h2>AI Sales funnel</h2>
-            <h2>Smart Cleint Booking</h2>
-            <h2>Hands off Marketing</h2>
-            <h2>Clinic Booking Automation</h2>
-
-            <h2>Real Estate Bots</h2>
-            <h2>Smart Service Delivery</h2>
-            <h2>Tech Driven Scaling</h2>
-
-            <h2>AI that Listens</h2>
-            <h2>Ecommerce Sales Boost</h2>
-            <h2>Smart Customer Intake</h2>
+            {/* Desktop: Show all headings */}
+            <div className="hidden md:block">
+              {headings.map((heading, index) => (
+                <h2 key={index}>{heading}</h2>
+              ))}
+            </div>
+            
+            {/* Mobile: Show only first 5 headings */}
+            <div className="block md:hidden">
+              {headings.slice(0, 5).map((heading, index) => (
+                <h2 key={index}>{heading}</h2>
+              ))}
+            </div>
           </div>
         </div>
         <div className="aboutwrite-button bg-primary">

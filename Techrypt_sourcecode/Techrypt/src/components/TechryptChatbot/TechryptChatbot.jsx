@@ -86,6 +86,9 @@ const TechryptChatbot = ({ isOpen, onClose }) => {
   const [contactErrors, setContactErrors] = useState({});
   const [appointmentErrors, setAppointmentErrors] = useState({});
 
+  // Add new state variable for the thank you modal
+  const [showThankYouModal, setShowThankYouModal] = useState(false);
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -751,6 +754,15 @@ Would you like to schedule a consultation or learn more about any specific servi
       return;
     }
 
+    // Close the appointment form first
+    setShowAppointmentForm(false);
+
+    // Show the thank you modal
+    setShowThankYouModal(true);
+    console.log("Thank you modal triggered:", showThankYouModal);
+  
+    
+
     const confirmationMessage = {
       id: Date.now() + 1,
       text: `🎉 Appointment Request Submitted!
@@ -774,7 +786,6 @@ Thank you for choosing Techrypt.io! 🚀`,
     };
 
     setMessages(prev => [...prev, confirmationMessage]);
-    setShowAppointmentForm(false);
     setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
     setAppointmentErrors({});
     setError(null);
@@ -1190,6 +1201,56 @@ Thank you for choosing Techrypt.io! 🚀`,
                     disabled={!formData.name || !formData.email || !formData.services.length || !formData.date || !formData.time}
                   >
                     Book Appointment
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Thank You Modal */}
+        {showThankYouModal && (
+          <div className="techrypt-form-overlay" style={{zIndex: 1000}}>
+            <div className="techrypt-form-modal" style={{ maxWidth: '400px' }}>
+              <div className="techrypt-form-header">
+                <h3 style={{ color: 'black' }}>🎉 Appointment Booked!</h3>
+                <button onClick={() => setShowThankYouModal(false)}>×</button>
+              </div>
+              <div className="techrypt-form-content">
+                <div className="flex flex-col items-center text-center mb-4">
+                  <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4">
+                    <div className="w-10 h-10 text-primary text-3xl">✓</div>
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-2">Thank You!</h4>
+                  <p className="text-gray-300 mb-4">
+                    Your appointment request has been successfully submitted.
+                  </p>
+                </div>
+                
+                <div className="bg-black/30 p-4 rounded-lg mb-4">
+                  <h5 className="text-primary font-bold mb-2">Next Steps:</h5>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li className="flex items-start">
+                      <span className="text-primary mr-2">•</span>
+                      Our team will contact you within 24 hours
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-primary mr-2">•</span>
+                      You'll receive a confirmation email shortly
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-primary mr-2">•</span>
+                      We'll send calendar details once confirmed
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="techrypt-form-actions">
+                  <button
+                    className="techrypt-form-submit w-full"
+                    onClick={() => setShowThankYouModal(false)}
+                  >
+                    Close
                   </button>
                 </div>
               </div>
