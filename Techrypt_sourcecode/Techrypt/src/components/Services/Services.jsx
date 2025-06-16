@@ -52,9 +52,9 @@ export default function Services() {
   };
 
   return (
-    <div className="bg-black py-16 px-4 sm:px-8 md:px-36 flex flex-col gap-3">
+    <div className="bg-black py-8 md:py-16 px-4 sm:px-8 md:px-36 flex flex-col gap-3">
       <motion.h1
-        className="text-4xl md:text-6xl font-bold text-center text-white leading-tight md:leading-[89px]"
+        className="text-responsive-3xl md:text-responsive-5xl font-bold text-center text-white leading-tight px-4"
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -64,7 +64,7 @@ export default function Services() {
       </motion.h1>
 
       <motion.div
-        className="mt-8 flex flex-col items-center gap-5"
+        className="mt-6 md:mt-8 flex flex-col items-center gap-3 md:gap-5"
         initial="hidden"
         whileInView="visible"
         viewport={{ margin: "-100px" }}
@@ -73,24 +73,22 @@ export default function Services() {
         {rows.map((row, rowIndex) => (
           <motion.div
             key={rowIndex}
-            className="flex flex-col w-full md:flex-row gap-5 glowing-green"
+            className="flex flex-col w-full md:flex-row gap-3 md:gap-5 glowing-green"
             variants={container}
           >
             {row.map((box, boxIndex) => (
-              <Link to={"/Contact"}>
+              <Link to={"/Contact"} key={boxIndex} className="w-full md:w-auto">
                 <motion.div
-                  key={boxIndex}
-                  className={`h-[150px] flex border-[3px] p-3 cursor-default border-white ${getBorderRadius(boxIndex)} w-full md:w-[363px] items-center justify-center  text-white bg-primary ${box.width}`}
+                  className={`h-[120px] md:h-[150px] flex border-[3px] p-3 cursor-pointer border-white ${getBorderRadius(boxIndex)} w-full md:w-[363px] items-center justify-center text-white bg-primary transition-all duration-300 hover:bg-primary/90 touch-target`}
                   variants={item}
                   whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-
-                  <p className=" text-xl md:text-2xl  text-center">
+                  <p className="text-responsive-lg md:text-responsive-xl text-center font-semibold">
                     {box.text}
                   </p>
                 </motion.div>
               </Link>
-
             ))}
           </motion.div>
         ))}

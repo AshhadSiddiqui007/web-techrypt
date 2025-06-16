@@ -36,14 +36,16 @@ const videoData = [
 
 const VideoGallery = () => {
   return (
-    <>
-      <h1 className="video-h1">Meet Our Experts</h1>
-      <div className="video-gallery">
+    <div className="container-responsive py-8 md:py-16">
+      <h1 className="text-responsive-3xl md:text-responsive-5xl font-bold text-white text-center mb-8 md:mb-12">
+        Meet Our Experts
+      </h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
         {videoData.map((video) => (
           <VideoItem key={video.id} video={video} />
         ))}
       </div>
-    </>
+    </div>
   );
 };
 
@@ -61,36 +63,43 @@ const VideoItem = ({ video }) => {
   };
 
   return (
-    <div className="video-item">
-      <div className="video-container">
+    <div className="bg-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+      <div className="relative aspect-video bg-black">
         <video
-          className="video"
+          className="w-full h-full object-cover"
           ref={videoRef}
           autoPlay
-          muted // Muted to allow autoplay in most browsers
-          loop // Optional: makes the video loop
+          muted
+          loop
+          playsInline
         >
           <source src={video.url} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         {/* Play button */}
         <button
-          className="play-button"
+          className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 text-white text-3xl md:text-4xl hover:bg-opacity-50 transition-all duration-300 touch-target"
           onClick={handlePlayPause}
-          style={{ display: isPlaying ? "none" : "block" }}
+          style={{ display: isPlaying ? "none" : "flex" }}
+          aria-label="Play video"
         >
-          <i className="fas fa-play"></i> {/* Font Awesome play icon */}
+          <i className="fas fa-play"></i>
         </button>
         {/* Pause button */}
         <button
-          className="pause-button"
+          className="absolute top-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all duration-300 touch-target"
           onClick={handlePlayPause}
           style={{ display: isPlaying ? "block" : "none" }}
+          aria-label="Pause video"
         >
-          <i className="fas fa-pause"></i> {/* Font Awesome pause icon */}
+          <i className="fas fa-pause"></i>
         </button>
       </div>
-      <h2 className="video-h2">{video.title}</h2>
+      <div className="p-4">
+        <h2 className="text-responsive-base md:text-responsive-lg font-semibold text-white text-center">
+          {video.title}
+        </h2>
+      </div>
     </div>
   );
 };

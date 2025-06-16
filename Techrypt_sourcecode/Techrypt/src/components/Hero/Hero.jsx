@@ -41,7 +41,7 @@ const Hero = ({ text, still = false, title = ["Development", "Branding", "Market
   };
 
   return (
-    <div className="hero-section max-md:h-[70vh]">
+    <div className="hero-section h-screen md:h-screen mobile:h-[70vh] relative overflow-hidden">
       <video
         autoPlay
         muted
@@ -50,15 +50,17 @@ const Hero = ({ text, still = false, title = ["Development", "Branding", "Market
       >
         <source src={"https://jam3-media.imgix.net/uploads/2021/11/Jam3com-Reel-Nov102021-no-audio.mp4"} type="video/mp4" />
       </video>
-      <div className="outer-headings ">
-        <div className={` ${still ? "capitalize  mb-4 text-white font-semibold  text-2xl lg:text-5xl w-full md:w-[70%] overflow-visible" : "inner-headings"} ${isFading ? "fade-out" : "fade-in"}`}>
+      <div className="outer-headings relative z-10">
+        <div className={`${still ?
+          "capitalize mb-4 text-white font-semibold text-responsive-2xl lg:text-responsive-5xl w-full md:w-[70%] overflow-visible px-4 md:px-0" :
+          "inner-headings text-responsive-4xl md:text-[145px]"
+        } ${isFading ? "fade-out" : "fade-in"}`}>
           <span>{currentText}</span>
         </div>
       </div>
-      <div className="hero-para md:max-w-[800px] mx-auto text-center max-lg:pt-7 ">
-        <p>{text}</p>
+      <div className="hero-para max-w-[90%] md:max-w-[800px] mx-auto text-center px-4 md:px-0 pt-4 md:pt-7">
+        <p className="text-responsive-base md:text-[25px]">{text}</p>
       </div>
-      {/* <div className="smile"></div> */}
     </div>
   );
 };

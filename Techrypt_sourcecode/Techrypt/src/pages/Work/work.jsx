@@ -16,41 +16,11 @@ const work = () => {
   };
 
   return (
-    <div style={{ backgroundColor: "#0f0f0f" }}>
-      <div
-        style={{
-          padding: "60px 20px",
-          textAlign: "center",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "64px",
-            fontWeight: "900",
-            color: "#ffffff",
-            marginBottom: "60px",
-            textTransform: "uppercase",
-            letterSpacing: "3px",
-            position: "relative",
-            animation: "fadeIn 1.5s ease-in-out",
-          }}
-        >
-
+    <div style={{ backgroundColor: "#0f0f0f" }} className="min-h-screen">
+      <div className="container-responsive spacing-responsive-lg text-center">
+        <h1 className="text-responsive-4xl md:text-6xl lg:text-7xl font-black text-white mb-8 md:mb-16 uppercase tracking-wider relative animate-fade-in">
           Our Work
-          <span
-            style={{
-              color: "#a3d900",
-              position: "absolute",
-              bottom: "-15px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: "250px",
-              height: "6px",
-              background: "#a3d900",
-              display: "block",
-              animation: "underlineGrow 1.5s ease-in-out",
-            }}
-          ></span>
+          <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-32 md:w-48 lg:w-64 h-1.5 bg-primary block animate-underline-grow"></span>
         </h1>
         <style>
           {`
@@ -60,74 +30,33 @@ const work = () => {
             }
             @keyframes underlineGrow {
               0% { width: 0; }
-              100% { width: 250px; }
+              100% { width: 100%; }
+            }
+            .animate-fade-in {
+              animation: fadeIn 1.5s ease-in-out;
+            }
+            .animate-underline-grow {
+              animation: underlineGrow 1.5s ease-in-out;
             }
           `}
         </style>
       </div>
 
-      {/* NEW SECTION: Interested in being a client? */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center', // Keep content centered within the page
-          gap: '30px', /* Space between text, line, and button */
-          padding: '40px 20px',
-          backgroundColor: '#0f0f0f', /* Match page background */
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)', /* Subtle separator */
-          marginBottom: '40px', /* Space before Filter component */
-          flexWrap: 'wrap', /* Allow wrapping on small screens */
-        }}
-      >
-        <h2
-          style={{
-            fontSize: '2.5rem', /* Large text size */
-            fontWeight: '600',
-            color: '#ffffff',
-            textAlign: 'left', /* CHANGED: Text alignment to left */
-            flexBasis: 'auto', /* Allow text to size naturally */
-            maxWidth: '350px', /* Prevent text from being too wide */
-            lineHeight: '1.2',
-            textShadow: '0 0 10px rgba(255, 255, 255, 0.1)'
-          }}
-        >
+      {/* Enhanced Mobile-Responsive Client Section */}
+      <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 lg:gap-12 py-8 md:py-12 px-4 md:px-8 bg-[#0f0f0f] border-b border-white/10 mb-8 md:mb-12">
+        <h2 className="text-responsive-2xl md:text-responsive-3xl lg:text-4xl font-semibold text-white text-center md:text-left max-w-sm md:max-w-md lg:max-w-lg leading-tight">
           Interested in being a potential client?
         </h2>
-        <div
-          style={{
-            width: '2px',
-            height: '150px', /* Height of the vertical line */
-            backgroundColor: '#ffffff',
-            borderRadius: '1px',
-            boxShadow: '0 0 5px rgba(255, 255, 255, 0.5)', /* Subtle glow */
-            flexShrink: 0, /* Prevent shrinking on smaller screens */
-          }}
-        ></div>
+
+        {/* Vertical line - hidden on mobile, visible on desktop */}
+        <div className="hidden md:block w-0.5 h-24 lg:h-32 bg-white rounded-full shadow-lg"></div>
+
+        {/* Horizontal line - visible on mobile, hidden on desktop */}
+        <div className="block md:hidden w-24 h-0.5 bg-white rounded-full shadow-lg"></div>
+
         <button
           onClick={handleOpenChatbot}
-          style={{
-            backgroundColor: '#C4D322', /* CHANGED: Button background color */
-            color: '#0f0f0f', /* Black text for contrast */
-            padding: '20px 40px',
-            borderRadius: '50px', /* Rounded button */
-            fontSize: '1.2rem',
-            fontWeight: 'bold',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease',
-            boxShadow: '0 5px 15px rgba(196, 211, 34, 0.3)', /* UPDATED: Initial subtle shadow */
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(196, 211, 34, 0.8)'; /* UPDATED: Darker color on hover */
-            e.currentTarget.style.transform = 'scale(1.05)';
-            e.currentTarget.style.boxShadow = '0 8px 20px rgba(196, 211, 34, 0.5)'; /* UPDATED: Hover shadow */
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#C4D322'; /* UPDATED: Back to original color on leave */
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow = '0 5px 15px rgba(196, 211, 34, 0.3)'; /* UPDATED: Back to original shadow on leave */
-          }}
+          className="bg-primary hover:bg-primary/80 text-black font-bold py-3 md:py-4 px-6 md:px-8 lg:px-10 rounded-full text-responsive-base md:text-responsive-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl touch-target"
         >
           Talk To Our Expert
         </button>

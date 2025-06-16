@@ -65,8 +65,8 @@ const AppContent = () => {
   }, [location.pathname]);
 
   return loader ? (
-    <div className="flex justify-center items-center fixed inset-0 bg-[#000] z-[9999]">
-      <img src={AnimatedLoader} alt="Loading..." className="w-44 h-44" />
+    <div className="flex justify-center items-center fixed inset-0 bg-[#000] z-[9999] p-4">
+      <img src={AnimatedLoader} alt="Loading..." className="w-32 h-32 md:w-44 md:h-44 object-contain" />
     </div>
   ) : (
     <>

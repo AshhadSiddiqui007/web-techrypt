@@ -64,56 +64,56 @@ const Footer = () => {
   };
 
   return (
-    <div className="text-center bg-[#000] mt-10 overflow-x-hidden pt-24 px-3">
-      <div className="inline-flex flex-col items-center justify-center mb-12">
-        <img className="mx-auto object-contain w-72 mb-2 pb-8" src={techryptLogo} alt="Techrypt Logo" />
-        <h3 className="text-lg font-bold text-white mt-2 px-5 py-2 border-2 border-white rounded-full inline-block">
+    <div className="text-center bg-[#000] mt-10 overflow-x-hidden pt-12 md:pt-24 px-4 md:px-6">
+      <div className="inline-flex flex-col items-center justify-center mb-8 md:mb-12">
+        <img className="mx-auto object-contain w-48 md:w-72 mb-2 pb-4 md:pb-8" src={techryptLogo} alt="Techrypt Logo" />
+        <h3 className="text-sm md:text-lg font-bold text-white mt-2 px-3 md:px-5 py-2 border-2 border-white rounded-full inline-block text-center">
           Empowering Digital Skills & AI-Driven Business Solutions
         </h3>
-        <div className="w-full h-24 pt-8 flex justify-center">
+        <div className="w-full h-16 md:h-24 pt-4 md:pt-8 flex justify-center">
           <motion.div
             className="bg-white w-0.5"
             initial={{ height: 0 }}
-            whileInView={{ height: '100px' }}
+            whileInView={{ height: '60px' }}
             viewport={{ once: false }}
             transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
           />
         </div>
       </div>
 
-      {/*Place form here*/}
-      <div className="max-w-3xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      {/*Enhanced Mobile-Responsive Contact Form*/}
+      <div className="max-w-3xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
           <div>
-            <input 
-              type="text" 
+            <input
+              type="text"
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              placeholder="Your Name" 
-              className="w-full bg-transparent border-b border-gray-600 py-2 px-3 text-white focus:outline-none focus:border-primary"
+              placeholder="Your Name"
+              className="w-full bg-transparent border-b border-gray-600 py-3 px-3 text-white focus:outline-none focus:border-primary text-base md:text-lg transition-colors duration-300"
             />
           </div>
           <div>
-            <input 
-              type="text" 
-              placeholder="Your Company name" 
-              className="w-full bg-transparent border-b border-gray-600 py-2 px-3 text-white focus:outline-none focus:border-primary"
+            <input
+              type="text"
+              placeholder="Your Company name"
+              className="w-full bg-transparent border-b border-gray-600 py-3 px-3 text-white focus:outline-none focus:border-primary text-base md:text-lg transition-colors duration-300"
             />
           </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
           <div>
-            <input 
-              type="email" 
-              placeholder="Your Email" 
-              className="w-full bg-transparent border-b border-gray-600 py-2 px-3 text-white focus:outline-none focus:border-primary"
+            <input
+              type="email"
+              placeholder="Your Email"
+              className="w-full bg-transparent border-b border-gray-600 py-3 px-3 text-white focus:outline-none focus:border-primary text-base md:text-lg transition-colors duration-300"
             />
           </div>
           <div>
-            <select 
-              className="w-full bg-transparent border-b border-gray-600 py-2 px-3 text-gray-400 focus:outline-none focus:border-primary"
+            <select
+              className="w-full bg-transparent border-b border-gray-600 py-3 px-3 text-gray-400 focus:outline-none focus:border-primary text-base md:text-lg transition-colors duration-300"
             >
               <option value="">How Did You Hear About Us</option>
               <option value="google">Google</option>
@@ -123,19 +123,19 @@ const Footer = () => {
             </select>
           </div>
         </div>
-        
-        <div className="mb-8">
-          <textarea 
-            placeholder="What is the biggest challenge with your business right now?" 
-            rows="3" 
-            className="w-full bg-transparent border-b border-gray-600 py-2 px-3 text-white focus:outline-none focus:border-primary"
+
+        <div className="mb-6 md:mb-8">
+          <textarea
+            placeholder="What is the biggest challenge with your business right now?"
+            rows="3"
+            className="w-full bg-transparent border-b border-gray-600 py-3 px-3 text-white focus:outline-none focus:border-primary text-base md:text-lg transition-colors duration-300 resize-none"
           ></textarea>
         </div>
-        
+
         <div className="text-center">
-          <button 
+          <button
             onClick={handleSubmit}
-            className="bg-primary hover:bg-primary/90 text-black font-bold py-3 px-8 rounded-full"
+            className="bg-primary hover:bg-primary/90 text-black font-bold py-3 md:py-4 px-6 md:px-8 rounded-full text-base md:text-lg transition-all duration-300 transform hover:scale-105 touch-target"
           >
             Submit
           </button>
@@ -157,62 +157,53 @@ const Footer = () => {
         </span>
       </div>
 
-      <div className="flex gap-4 md:gap-10 lg:gap-20 justify-center items-center">
-        <a href="https://www.linkedin.com/company/techrypt-io/posts/?feedView=all" target="_blank" rel="noopener noreferrer">
-          <FaLinkedin className="text-4xl text-white glowing-green transition-all duration-150" />
+      <div className="flex gap-6 md:gap-10 lg:gap-20 justify-center items-center my-8 md:my-12">
+        <a href="https://www.linkedin.com/company/techrypt-io/posts/?feedView=all" target="_blank" rel="noopener noreferrer" className="touch-target">
+          <FaLinkedin className="text-3xl md:text-4xl text-white glowing-green transition-all duration-300 hover:scale-110" />
         </a>
 
-        <a href="/">
-          <FaYoutube className="text-4xl text-white glowing-green transition-all duration-150" />
+        <a href="/" className="touch-target">
+          <FaYoutube className="text-3xl md:text-4xl text-white glowing-green transition-all duration-300 hover:scale-110" />
         </a>
-        <a href="https://www.instagram.com/tech.rypt/">
-          <RiInstagramFill className="text-4xl text-white glowing-green transition-all duration-150" />
+        <a href="https://www.instagram.com/tech.rypt/" className="touch-target">
+          <RiInstagramFill className="text-3xl md:text-4xl text-white glowing-green transition-all duration-300 hover:scale-110" />
         </a>
-        <a href="https://www.facebook.com/people/Techrypt/61575440404641/#">
-          <FaFacebookSquare className="text-4xl text-white glowing-green transition-all duration-150" />
+        <a href="https://www.facebook.com/people/Techrypt/61575440404641/#" className="touch-target">
+          <FaFacebookSquare className="text-3xl md:text-4xl text-white glowing-green transition-all duration-300 hover:scale-110" />
         </a>
-        <a href="/">
-          <FaTwitter className="text-4xl text-white glowing-green transition-all duration-150" />
+        <a href="/" className="touch-target">
+          <FaTwitter className="text-3xl md:text-4xl text-white glowing-green transition-all duration-300 hover:scale-110" />
         </a>
       </div>
 
 
 
-      <div className="flex md:px-20 py-3 px-2 max-md:flex-col items-center md:items-end justify-between gap-3 w-full mb-2">
+      <div className="flex flex-col md:flex-row md:px-20 py-6 px-4 items-center justify-between gap-6 w-full mb-2">
 
-      <div className="flex flex-col items-center justify-start gap-5 max-md:order-3 max-md:mt-7">
+      <div className="flex flex-col items-center justify-start gap-3 md:gap-5 order-3 md:order-1">
         <div
-          className="h-10 md:w-16 w-10 md:h-16 flex justify-center items-center text-5xl text-primary cursor-pointer rounded-full border border-primary hover:bg-primary hover:text-white glowing-yellow transition-all duration-300"
+          className="h-12 w-12 md:w-16 md:h-16 flex justify-center items-center text-2xl md:text-3xl text-primary cursor-pointer rounded-full border border-primary hover:bg-primary hover:text-white glowing-yellow transition-all duration-300 touch-target"
           title='Scroll to top'
           onClick={scrollToTop}
         >
           <RiArrowUpDoubleLine />
         </div>
-        <a href="mailto:INFO@TECHRYPT.IO" className="text-gray-400 text-xs glowing-green">
+        <a href="mailto:INFO@TECHRYPT.IO" className="text-gray-400 text-xs md:text-sm glowing-green hover:text-primary transition-colors duration-300">
           INFO@TECHRYPT.IO
         </a>
       </div>
 
-      <div className="flex flex-col items-center justify-center w-full text-center">
-        <p
-          className="text-white glowing-green"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',  // Horizontally center
-            textAlign: 'center',       // Center text inside the element
-            width: '100%',             // Take full width of its container
-            marginLeft: '100px'
-          }}
-        >
+      <div className="flex flex-col items-center justify-center text-center order-1 md:order-2">
+        <p className="text-white glowing-green text-sm md:text-base">
           Powered by Techrypt.io
         </p>
       </div>
 
-      <div className="flex gap-10 justify-center text-gray-400">
-        <Link to={"/PrivacyPolicy"} onClick={() => setPrivacy(true)} className="">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center text-gray-400 text-sm md:text-base order-2 md:order-3">
+        <Link to={"/PrivacyPolicy"} onClick={() => setPrivacy(true)} className="hover:text-primary transition-colors duration-300 text-center">
           Privacy Policy
         </Link>
-        <Link to={"/Terms&Conditions"} className="ml-1">
+        <Link to={"/Terms&Conditions"} className="hover:text-primary transition-colors duration-300 text-center">
           Terms & Conditions
         </Link>
       </div>

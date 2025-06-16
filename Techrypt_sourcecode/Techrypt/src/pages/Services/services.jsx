@@ -10,40 +10,11 @@ import AboutSlider from "../../components/AboutSlider/AboutSlider";
 
 const Services = () => {
   return (
-    <div style={{ background: "#0f0f0f" }}>
-      <div
-        style={{
-          padding: "60px 20px",
-          textAlign: "center",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "64px",
-            fontWeight: "900",
-            color: "#ffffff",
-            marginBottom: "60px",
-            textTransform: "uppercase",
-            letterSpacing: "3px",
-            position: "relative",
-            animation: "fadeIn 1.5s ease-in-out",
-          }}
-        >
+    <div style={{ background: "#0f0f0f" }} className="min-h-screen">
+      <div className="container-responsive spacing-responsive-lg text-center">
+        <h1 className="text-responsive-4xl md:text-6xl lg:text-7xl font-black text-white mb-8 md:mb-16 uppercase tracking-wider relative animate-fade-in">
           Services
-          <span
-            style={{
-              color: "#a3d900",
-              position: "absolute",
-              bottom: "-15px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: "200px",
-              height: "6px",
-              background: "#a3d900",
-              display: "block",
-              animation: "underlineGrow 1.5s ease-in-out",
-            }}
-          ></span>
+          <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-32 md:w-48 lg:w-56 h-1.5 bg-primary block animate-underline-grow"></span>
         </h1>
         <style>
           {`
@@ -53,7 +24,13 @@ const Services = () => {
             }
             @keyframes underlineGrow {
               0% { width: 0; }
-              100% { width: 200px; }
+              100% { width: 100%; }
+            }
+            .animate-fade-in {
+              animation: fadeIn 1.5s ease-in-out;
+            }
+            .animate-underline-grow {
+              animation: underlineGrow 1.5s ease-in-out;
             }
           `}
         </style>

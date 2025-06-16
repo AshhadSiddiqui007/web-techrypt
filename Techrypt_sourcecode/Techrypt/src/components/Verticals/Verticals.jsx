@@ -101,13 +101,26 @@ export default function Verticals() {
   const getCardClasses = (type) => {
     switch(type) {
       case 'large':
-        return 'col-span-1 md:col-span-2 row-span-2 min-h-[400px]';
+        return 'col-span-1 md:col-span-2 row-span-1 md:row-span-2';
       case 'wide':
-        return 'col-span-1 md:col-span-2 min-h-[200px]';
+        return 'col-span-1 md:col-span-2';
       case 'small':
-        return 'col-span-1 md:col-span-1 min-h-[100px] h-[100px]';
+        return 'col-span-1';
       default: // This will catch 'medium' and apply default sizing
-        return 'col-span-1 min-h-[200px]';
+        return 'col-span-1';
+    }
+  };
+
+  const getCardStyles = (type) => {
+    switch(type) {
+      case 'large':
+        return { minHeight: 'clamp(300px, 40vh, 500px)' }; /* Proportional large card */
+      case 'wide':
+        return { minHeight: 'clamp(200px, 25vh, 300px)' }; /* Proportional wide card */
+      case 'small':
+        return { minHeight: 'clamp(150px, 20vh, 250px)' }; /* Proportional small card */
+      default:
+        return { minHeight: 'clamp(200px, 25vh, 300px)' }; /* Proportional medium card */
     }
   };
 
@@ -320,13 +333,15 @@ export default function Verticals() {
   );
 
   return (
-    <div className="bg-black flex flex-col items-center justify-center min-h-screen pt-10 overflow-hidden">
-      <div className="w-11/12 max-w-7xl mx-auto grid gap-6 grid-cols-1 md:grid-cols-3 auto-rows-min px-5 py-4">
+    <div className="bg-black flex flex-col items-center justify-center min-h-screen py-8 md:py-16 overflow-hidden">
+      <div className="container-responsive">
+        <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-3 auto-rows-min">
         {/* Render all cards */}
         {remainingVerticals.map((itemData, i) => (
           <motion.div
             key={i}
             className={`relative ${getCardClasses(itemData.type)}`}
+            style={getCardStyles(itemData.type)} /* Apply proportional sizing */
             custom={i}
             initial="hidden"
             whileInView="visible"
@@ -365,7 +380,7 @@ export default function Verticals() {
                       <div className="mt-auto flex flex-col items-start w-full">
                         <button
                           onClick={handleGetStarted}
-                          className="mt-2 bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition-colors align:left"
+                          className="mt-2 bg-black text-white px-4 md:px-6 py-2 md:py-3 rounded-md hover:bg-black/80 transition-all duration-300 transform hover:scale-105 touch-target text-sm md:text-base font-medium"
                         >
                           Approach Now
                         </button>
@@ -485,6 +500,7 @@ export default function Verticals() {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }

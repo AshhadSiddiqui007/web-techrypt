@@ -29,13 +29,17 @@ function Filter() {
   }, [service, geo, vertical]);
 
   return (
-    <section className='filter-section'>
-      <div className="filter-section-heading">
-        {/*<h1 className='filter-h1 glowing-green'>Other Works</h1>*/}
+    <section className="container-responsive py-8 md:py-16">
+      <div className="mb-8 md:mb-12">
+        {/*<h1 className='text-responsive-3xl md:text-responsive-5xl font-bold text-white text-center mb-8 md:mb-12'>Other Works</h1>*/}
       </div>
-      <div className="filter-section-filter-container">
-        <div className='filter-select'>
-          <select className='' value={service} onChange={(e) => setService(e.target.value)}>
+      <div className="space-y-6 md:space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <select
+            className="w-full bg-[#2a2a2a] border border-gray-700 rounded-lg px-4 py-3 md:py-4 text-white text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+            value={service}
+            onChange={(e) => setService(e.target.value)}
+          >
             <option value="">All Services</option>
             <option value="Social Media Automation">Social Media Automation</option>
             <option value="Performance Marketing">Performance Marketing</option>
@@ -44,7 +48,11 @@ function Filter() {
             <option value="Ecommerce Store">Ecommerce Store</option>
           </select>
 
-          <select value={geo} onChange={(e) => setGeo(e.target.value)}>
+          <select
+            className="w-full bg-[#2a2a2a] border border-gray-700 rounded-lg px-4 py-3 md:py-4 text-white text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+            value={geo}
+            onChange={(e) => setGeo(e.target.value)}
+          >
             <option value="">All Regions</option>
             <option value="North America">North America</option>
             <option value="Europe">Europe</option>
@@ -53,7 +61,11 @@ function Filter() {
             <option value="WorldWide">WorldWide</option>
           </select>
 
-          <select value={vertical} onChange={(e) => setVertical(e.target.value)}>
+          <select
+            className="w-full bg-[#2a2a2a] border border-gray-700 rounded-lg px-4 py-3 md:py-4 text-white text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+            value={vertical}
+            onChange={(e) => setVertical(e.target.value)}
+          >
             <option value="">All Industries</option>
             <option value="Delivery">Delivery</option>
             <option value="E-commerce">E-commerce</option>
@@ -69,9 +81,9 @@ function Filter() {
           </select>
         </div>
 
-        <div className="filter-rows">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {filteredData.slice(0, visibleCount).map((item, index) => (
-            <div className="filter-row" key={index}>
+            <div key={index} className="w-full">
               <FilterRow data={item} />
             </div>
           ))}
@@ -79,8 +91,11 @@ function Filter() {
 
         {/* Show the "Show More" button only if there are more items to display */}
         {visibleCount < filteredData.length && (
-          <div className="show-more-container">
-            <button className="show-more-button" onClick={showMoreItems}>
+          <div className="flex justify-center mt-8 md:mt-12">
+            <button
+              className="btn-responsive bg-primary hover:bg-primary/90 text-black font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 touch-target shadow-lg hover:shadow-xl"
+              onClick={showMoreItems}
+            >
               Show More
             </button>
           </div>

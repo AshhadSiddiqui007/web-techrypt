@@ -86,21 +86,75 @@
   background-position-y: -2.4rem;
 }
 
-@media only screen and (max-width: 600px) {
+/* Responsive Scaling - Maintaining Visual Parity */
+@media only screen and (max-width: 767px) {
   .hero-section {
-    height: 90vh;
+    height: 100vh; /* Maintain full height on mobile */
+    min-height: 600px;
+    padding: 0 clamp(1rem, 4vw, 2rem);
   }
+
+  .outer-headings {
+    margin-top: clamp(60px, 12vh, 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+  }
+
   .inner-headings {
-    height: 50px;
-    line-height: 50px;
-    font-size: 45px;
-    margin-top: 120px;
+    height: auto;
+    line-height: 1.1;
+    font-size: clamp(2.5rem, 12vw, 8rem); /* Proportional scaling */
+    margin-top: 0;
+    padding: 0;
+    text-align: center;
+    width: 100%;
   }
+
   .hero-para {
-    width: 75%;
+    width: 100%;
+    padding: 0 clamp(1rem, 4vw, 2rem);
+    margin-top: clamp(1rem, 4vh, 2rem);
   }
+
   .hero-para p {
-    font-size: 15px;
-    margin-bottom: 4rem;
+    font-size: clamp(1rem, 4vw, 1.5rem); /* Proportional text scaling */
+    margin-bottom: clamp(2rem, 6vh, 4rem);
+    line-height: 1.5;
+    max-width: 100%;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .hero-section {
+    height: 100vh; /* Maintain full viewport height */
+    min-height: 550px;
+  }
+
+  .inner-headings {
+    font-size: clamp(2rem, 10vw, 6rem); /* Scaled but proportional */
+  }
+
+  .hero-para p {
+    font-size: clamp(0.9rem, 3.5vw, 1.25rem);
+    line-height: 1.4;
+  }
+}
+
+/* Tablet responsiveness - Maintain desktop-like proportions */
+@media only screen and (min-width: 768px) and (max-width: 1023px) {
+  .hero-section {
+    height: 100vh;
+  }
+
+  .inner-headings {
+    font-size: clamp(6rem, 15vw, 12rem); /* Proportional to desktop */
+    height: auto;
+    line-height: 1.1;
+  }
+
+  .hero-para p {
+    font-size: clamp(1.25rem, 3vw, 2rem); /* Proportional scaling */
   }
 }

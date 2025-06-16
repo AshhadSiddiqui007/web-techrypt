@@ -23,12 +23,23 @@ const InteractiveButton = ({ onClick }) => {
   };
 
   return (
-    <div className="absolute inset-x-0 flex justify-center z-50" style={{top: 'calc(80vh - 100px)'}}>
+    <div
+      className="absolute inset-x-0 flex justify-center z-50"
+      style={{
+        top: 'calc(80vh - 100px)',
+        padding: 'clamp(1rem, 4vw, 2rem)' /* Proportional padding */
+      }}
+    >
       <motion.button
-        className="relative overflow-hidden text-black px-8 py-3 rounded-lg font-semibold transition-all duration-300 group"
-        style={{ 
+        className="relative overflow-hidden text-black rounded-lg font-semibold transition-all duration-300 group touch-target"
+        style={{
           background: `linear-gradient(135deg, #2a2a2a 0%, #404040 20%, #5a5a5a 40%, #A8B91A 70%, #C4D322 100%), radial-gradient(circle at ${mousePos.x}% ${mousePos.y}%, #E5F72E 0%, #C4D322 25%, #A8B91A 50%, #C4D322 100%)`,
-          backgroundBlendMode: 'overlay'
+          backgroundBlendMode: 'overlay',
+          padding: 'clamp(0.75rem, 3vw, 1.5rem) clamp(1.5rem, 6vw, 3rem)', /* Proportional padding */
+          fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)', /* Proportional font size */
+          minHeight: 'clamp(48px, 8vh, 64px)', /* Proportional height */
+          width: 'clamp(280px, 60vw, 400px)', /* Proportional width */
+          maxWidth: '90vw' /* Prevent overflow on small screens */
         }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -37,15 +48,15 @@ const InteractiveButton = ({ onClick }) => {
         weight={700}
       >
         {/* Animated gradient overlay */}
-        <div 
+        <div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           style={{
             background: `radial-gradient(circle 150px at ${mousePos.x}% ${mousePos.y}%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 30%, transparent 70%)`
           }}
         />
-        
+
         {/* Button text */}
-        <span className="relative z-10">
+        <span className="relative z-10 font-bold">
           GET YOUR AUTOMATION TODAY
         </span>
       </motion.button>

@@ -4,6 +4,7 @@ import techryptLogo from "../../assets/Images/techryptLogo.jpeg";
 import { Link, useLocation } from "react-router-dom";
 import { HeaderLogo } from "../../assets/mainImages";
 import ContactForm from "../ContactForm/ContactForm";
+import { HiMenu, HiX } from "react-icons/hi";
 
 export default function Header() {
   const location = useLocation();
@@ -15,6 +16,7 @@ export default function Header() {
     { id: "Creative", label: "Creative", path: "/Creative" },
   ];
   const [activeTab, setActiveTab] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const currentTab = tabs.find((tab) => location.pathname === tab.path);
@@ -28,22 +30,31 @@ export default function Header() {
 
   const handleLinkClick = () => {
     setActiveTab(""); // Reset active tab when link is clicked
+    setIsMobileMenuOpen(false); // Close mobile menu when link is clicked
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   return (
     <>
-      {/* Desktop Navbar */}
+      {/* Enhanced Desktop Navbar */}
       <nav className="navbar">
         <div className="leftNav overflow-hidden">
-          <img src={techryptLogo} alt="" className="md:hidden" />
-          <Link to="/" className="max-md:hidden">
+          <Link to="/" className="flex items-center">
+            <img
+              src={techryptLogo}
+              alt="Techrypt Logo"
+              className="md:hidden w-16 h-16 object-contain"
+            />
             <video
               autoPlay
               loop
               muted
               src={HeaderLogo}
-              alt=""
-              className="icon object-cover w-[500px] lg:w-[300px]"
+              alt="Techrypt Logo"
+              className="hidden md:block icon object-cover w-[300px] lg:w-[250px] xl:w-[300px]"
             />
           </Link>
           <hr className="hr1" />
@@ -87,20 +98,45 @@ export default function Header() {
 
         <div className="rightNav">
           <hr className="hr2" />
-          {/* Removed the hamburger menu button */}
+          {/* Mobile Hamburger Menu Button */}
+          <button
+            className="md:hidden mobile-menu-button touch-target"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle mobile menu"
+          >
+            {isMobileMenuOpen ? (
+              <HiX className="text-white text-2xl" />
+            ) : (
+              <HiMenu className="text-white text-2xl" />
+            )}
+          </button>
         </div>
       </nav>
 
-      {/* Mobile Navbar - Optional if you still want to keep a simpler mobile nav */}
+      {/* Enhanced Mobile Navbar */}
       <div className="small-nav">
         <div className="leftNav">
-          <a href="/">
-            <img src={techryptLogo} alt="" width={100} className="icon" />
-          </a>
+          <Link to="/" onClick={handleLinkClick}>
+            <img
+              src={techryptLogo}
+              alt="Techrypt Logo"
+              className="w-12 h-12 md:w-16 md:h-16 object-contain"
+            />
+          </Link>
         </div>
         <div className="linehor"></div>
         <div className="rightNav">
-          {/* You can keep your mobile navigation here if you need it */}
+          <button
+            className="mobile-menu-button touch-target"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle mobile menu"
+          >
+            {isMobileMenuOpen ? (
+              <HiX className="text-white text-xl" />
+            ) : (
+              <HiMenu className="text-white text-xl" />
+            )}
+          </button>
         </div>
       </div>
 
@@ -124,6 +160,50 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="mobile-menu-overlay">
+          <div className="mobile-menu-content">
+            <div className="mobile-menu-header">
+              <Link to="/" onClick={handleLinkClick}>
+                <img
+                  src={techryptLogo}
+                  alt="Techrypt Logo"
+                  className="w-16 h-16 object-contain"
+                />
+              </Link>
+              <button
+                className="mobile-menu-close touch-target"
+                onClick={toggleMobileMenu}
+                aria-label="Close mobile menu"
+              >
+                <HiX className="text-white text-2xl" />
+              </button>
+            </div>
+
+            <nav className="mobile-menu-nav">
+              {tabs.map((tab) => (
+                <Link
+                  key={tab.id}
+                  to={tab.path}
+                  className="mobile-menu-link touch-target"
+                  onClick={handleLinkClick}
+                >
+                  {tab.label}
+                </Link>
+              ))}
+              <Link
+                to="/Contact"
+                className="mobile-menu-link mobile-menu-cta touch-target"
+                onClick={handleLinkClick}
+              >
+                Contact Us
+              </Link>
+            </nav>
+          </div>
+        </div>
+      )}
     </>
   );
 }

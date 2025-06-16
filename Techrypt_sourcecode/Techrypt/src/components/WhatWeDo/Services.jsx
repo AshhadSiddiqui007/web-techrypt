@@ -61,53 +61,78 @@ const Services = ({className}) => {
     };
 
     return (
-        <section 
+        <section
             ref={containerRef}
-            className={`w-full h-auto relative overflow-hidden pt-28 pb-16  ${className}`}
+            className={`w-full h-auto relative overflow-hidden py-12 md:py-20 ${className}`}
         >
             {/* Background with zoom effect */}
-            <motion.div 
-                className="absolute inset-0 bg-cover bg-center z-10 "
+            <motion.div
+                className="absolute inset-0 bg-cover bg-center z-10"
                 style={{
                     backgroundImage: `url(${bgPattern})`,
-                    scale:1.3,
-                    x:bgX,
-                    y:bgY,
+                    scale: 1.3,
+                    x: bgX,
+                    y: bgY,
                 }}
             />
-            <motion.h1
-                className="text-white text-5xl md:text-6xl font-bold text-center mb-12"
-                initial={{ opacity: 0, y: -20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-            >
+
+            <div className="container-responsive relative z-20">
+                <motion.h1
+                    className="text-white text-responsive-3xl md:text-responsive-5xl font-bold text-center mb-8 md:mb-12"
+                    initial={{ opacity: 0, y: -20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                >
                     Our Services
-            </motion.h1>
+                </motion.h1>
 
-
-            <div className="w-11/12 mx-auto grid gap-12 md:gap-16 grid-cols-1 md:grid-cols-3">
-                {CardContent.map((content, index) => (
-                    <motion.div 
-                        key={index}
-                        className="bg-[#AEBB1E] text-white w-full h-45 lg:h-55 rounded-2xl p-8 glow-green" 
-                        custom={index}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once:false, margin: "-50px" }}
-                        variants={cardVariants}
-                    >
-                        <div className="w-full h-20 flex justify-center items-center">
-                            <img src={content.img} alt="" className="max-h-full" />
-                        </div>
-                        <h2 className="font-['Bebas_Neue'] text-xl md:text-2xl lg:text-3xl text-center mt-2 mb-2">
-                            {content.title}
-                        </h2>
-                        <p className="font-['Inter'] text-center text-sm md:text-base">
-                            {content.content}
-                        </p>
-                    </motion.div>
-                ))}
+                <div className="grid gap-6 md:gap-8 lg:gap-12 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {CardContent.map((content, index) => (
+                        <motion.div
+                            key={index}
+                            className="bg-primary text-black w-full rounded-2xl glow-green shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                            style={{
+                                minHeight: 'clamp(280px, 35vh, 400px)', /* Proportional height scaling */
+                                padding: 'clamp(1.5rem, 4vw, 2.5rem)' /* Proportional padding */
+                            }}
+                            custom={index}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: false, margin: "-50px" }}
+                            variants={cardVariants}
+                            whileHover={{ y: -5 }}
+                        >
+                            <div
+                                className="w-full flex justify-center items-center mb-4"
+                                style={{ height: 'clamp(60px, 8vh, 100px)' }} /* Proportional icon area */
+                            >
+                                <img
+                                    src={content.img}
+                                    alt={content.title}
+                                    className="object-contain"
+                                    style={{
+                                        maxHeight: '100%',
+                                        width: 'auto',
+                                        maxWidth: 'clamp(50px, 8vw, 80px)' /* Proportional icon size */
+                                    }}
+                                />
+                            </div>
+                            <h2
+                                className="font-['Bebas_Neue'] text-center mb-3 md:mb-4 font-bold"
+                                style={{ fontSize: 'clamp(1.25rem, 4vw, 2rem)' }} /* Proportional title */
+                            >
+                                {content.title}
+                            </h2>
+                            <p
+                                className="font-['Inter'] text-center leading-relaxed"
+                                style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)' }} /* Proportional text */
+                            >
+                                {content.content}
+                            </p>
+                        </motion.div>
+                    ))}
+                </div>
             </div>
         </section>
     );

@@ -38,29 +38,44 @@ function AutoSlider() {
     infinite: true,
     slidesToShow: 5,
     slidesToScroll: 1,
-    autoplay: !isHovered, // Dynamically control autoplay based on hover state
+    autoplay: !isHovered,
     speed: 2000,
     autoplaySpeed: 0,
     cssEase: "linear",
     arrows: false,
-    pauseOnHover: true, // Built-in slick carousel feature
+    pauseOnHover: true,
+    swipeToSlide: true,
+    touchMove: true,
     responsive: [
       {
-        breakpoint: 1024,
+        breakpoint: 1200,
         settings: {
           slidesToShow: 4,
+          slidesToScroll: 1,
         }
       },
       {
         breakpoint: 768,
         settings: {
           slidesToShow: 3,
+          slidesToScroll: 1,
+          speed: 1500,
         }
       },
       {
         breakpoint: 480,
         settings: {
           slidesToShow: 2,
+          slidesToScroll: 1,
+          speed: 1200,
+        }
+      },
+      {
+        breakpoint: 320,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          speed: 1000,
         }
       }
     ]
@@ -81,33 +96,35 @@ function AutoSlider() {
   };
 
   return (
-    <div
-      className="slider-main-container"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <motion.h1
-        className="text-white text-5xl md:text-6xl font-bold text-center mb-12"
-        initial={{ opacity: 0, y: -20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8 }}
+    <div className="container-responsive py-8 md:py-16">
+      <div
+        className="slider-main-container"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        Our Clients
-      </motion.h1>
-      <Slider ref={sliderRef} {...baseSettings}>
-        {sliderdata.map((item, i) => (
-          <div key={i} className="slider-container">
-            <div className="slider-image-container">
-              <img
-                src={item.logo}
-                alt="logo"
-                className="slider-image glowing-green"
-              />
+        <motion.h1
+          className="text-white text-responsive-3xl md:text-responsive-5xl font-bold text-center mb-8 md:mb-12"
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          Our Clients
+        </motion.h1>
+        <Slider ref={sliderRef} {...baseSettings}>
+          {sliderdata.map((item, i) => (
+            <div key={i} className="slider-container px-2">
+              <div className="slider-image-container">
+                <img
+                  src={item.logo}
+                  alt={`Client logo ${i + 1}`}
+                  className="slider-image glowing-green w-full h-auto object-contain"
+                />
+              </div>
             </div>
-          </div>
-        ))}
-      </Slider>
+          ))}
+        </Slider>
+      </div>
     </div>
   );
 }
