@@ -19,18 +19,15 @@ const VerticalsPage = () => {
     <div style={{ backgroundColor: "#0f0f0f" }}>
       <div
         style={{
-          padding: "60px 20px",
+          padding: "40px",
           textAlign: "center",
         }}
       >
         <h1
+          className="text-3xl sm:text-4xl md:text-6xl font-extrabold uppercase tracking-wider relative"
           style={{
-            fontSize: "64px",
-            fontWeight: "900",
             color: "#ffffff",
             marginBottom: "60px",
-            textTransform: "uppercase",
-            letterSpacing: "3px",
             position: "relative",
             animation: "fadeIn 1.5s ease-in-out",
           }}

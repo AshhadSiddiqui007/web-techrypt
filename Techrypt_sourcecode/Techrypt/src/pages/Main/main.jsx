@@ -14,20 +14,46 @@ import { useState } from 'react';
 // Interactive Button component defined outside the main component
 const InteractiveButton = ({ onClick }) => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const isMobile = window.innerWidth <= 768;
 
   const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+
+    // Calculate mouse position as a percentage of the window size
+    const x = ((clientX / innerWidth) * 100);
+    const y = ((clientY / innerHeight) * 100);
+
     setMousePos({ x, y });
+  };
+
+  // Define separate variants for mobile and desktop
+  const buttonVariants = {
+    desktop: {
+      y: [0, 10, 0],
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }
+    },
+    mobile: {
+      y: 0, // No movement on mobile
+      transition: {
+        duration: 0
+      }
+    }
   };
 
   return (
     <div
-      className="absolute inset-x-0 flex justify-center z-50"
+      className="absolute md:inset-x-0 flex md:justify-center justify-end z-50"
       style={{
-        top: 'calc(80vh - 100px)',
-        padding: 'clamp(1rem, 4vw, 2rem)' /* Proportional padding */
+        top: isMobile ? 'calc(70vh - 100px)' : 'calc(80vh - 100px)',
+        padding: 'clamp(1rem, 4vw, 2rem)',
+        right: isMobile ? '35px' : 'auto',
+        left: isMobile ? 'auto' : '50%',
+        transform: isMobile ? 'none' : 'translateX(-50%)'
       }}
     >
       <motion.button
@@ -39,10 +65,13 @@ const InteractiveButton = ({ onClick }) => {
           fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)', /* Proportional font size */
           minHeight: 'clamp(48px, 8vh, 64px)', /* Proportional height */
           width: 'clamp(280px, 60vw, 400px)', /* Proportional width */
-          maxWidth: '90vw' /* Prevent overflow on small screens */
+          maxWidth: '90vw' /* Prevent overflow on small screens */,
+          margin: isMobile ? '0' : 'auto'  // Reset any default margins on mobile
         }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        animate={{ y: 0 }}
+        initial={{ y: 0 }}
+        whileHover={!isMobile ? { scale: 1.05 } : {}}
+        whileTap={!isMobile ? { scale: 0.95 } : {}}
         onClick={onClick}
         onMouseMove={handleMouseMove}
         weight={700}
@@ -79,7 +108,7 @@ const main = () => {
 
   return (
     <div className="relative">
-      <Hero title={["Development", "Branding", "Marketing"]} text={" Unlock new opportunities with expert-led training & cutting-edge digital services.Techrypt.io is a forward-thinking team on a mission to revolutionize how individuals learn and how businesses grow."} />
+      <Hero title={["Development", "Branding", "Marketing"]} text={" Unlock new opportunities with expert-led training & cutting-edge digital services."} />
       
       {/* Interactive button with gradient cursor effect */}
       <InteractiveButton onClick={handleGetStarted} />

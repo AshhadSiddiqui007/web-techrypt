@@ -32,10 +32,10 @@ export default function AboutWrite() {
               ))}
             </div>
             
-            {/* Mobile: Show only first 5 headings */}
-            <div className="block md:hidden">
+            {/* Mobile: Show only first 5 headings, center aligned, with padding */}
+            <div className="block md:hidden space-y-4">
               {headings.slice(0, 5).map((heading, index) => (
-                <h2 key={index}>{heading}</h2>
+                <h2 key={index} className="text-center">{heading}</h2>
               ))}
             </div>
           </div>
