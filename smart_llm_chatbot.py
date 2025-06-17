@@ -58,6 +58,45 @@ except ImportError as e:
     ENHANCED_INTELLIGENCE_AVAILABLE = False
     print(f"⚠️ Enhanced Intelligence not available: {e}")
 
+# Import MongoDB backend for data persistence
+try:
+    import sys
+    import os
+    from dotenv import load_dotenv
+
+    # Load environment variables first
+    load_dotenv()
+
+    # Add path and import MongoDB backend
+    sys.path.append('Techrypt_sourcecode/Techrypt/src')
+    from mongodb_backend import TechryptMongoDBBackend
+
+    print("✅ MongoDB Backend imported successfully")
+
+    # Initialize MongoDB backend
+    mongodb_backend = TechryptMongoDBBackend()
+
+    # Test connection
+    if mongodb_backend.is_connected():
+        MONGODB_BACKEND_AVAILABLE = True
+        print(f"✅ MongoDB Backend connected to: {mongodb_backend.database_name}")
+    else:
+        MONGODB_BACKEND_AVAILABLE = False
+        print("❌ MongoDB Backend connection failed")
+
+except ImportError as e:
+    MONGODB_BACKEND_AVAILABLE = False
+    mongodb_backend = None
+    print(f"⚠️ MongoDB Backend import failed: {e}")
+except Exception as e:
+    MONGODB_BACKEND_AVAILABLE = False
+    mongodb_backend = None
+    print(f"⚠️ MongoDB Backend initialization failed: {e}")
+    import traceback
+    traceback.print_exc()
+
+
+
 # Environment controls for TinyLLaMA - TEMPORARILY DISABLED for faster startup
 USE_TINYLLAMA = os.getenv('USE_TINYLLAMA', 'False').lower() == 'true'
 TINYLLAMA_TIMEOUT = int(os.getenv('TINYLLAMA_TIMEOUT', '8'))  # Increased timeout for better responses
@@ -1697,6 +1736,7 @@ class IntelligentLLMChatbot:
             # Check for appointment-related responses that should bypass CSV matching
             appointment_bypass_patterns = [
                 'book appointment', 'schedule appointment', 'book consultation', 'schedule consultation',
+                'book a demo', 'book demo', 'schedule demo', 'schedule a demo', 'demo booking',
                 'set up meeting', 'arrange meeting', 'book time', 'schedule time', 'make appointment',
                 'yes please', 'sure thing', 'sounds good', 'let\'s do it', 'i\'m interested',
                 'that works', 'perfect', 'excellent', 'great idea', 'good idea'
@@ -2942,6 +2982,7 @@ We serve Karachi locally and offer remote consultations worldwide. What's your p
         direct_appointment_triggers = [
             'book appointment', 'schedule appointment', 'set up meeting', 'book consultation',
             'schedule consultation', 'book a meeting', 'schedule a meeting', 'arrange meeting',
+            'book a demo', 'book demo', 'schedule demo', 'schedule a demo', 'demo booking',
             'set appointment', 'make appointment', 'reserve time', 'book time'
         ]
 
@@ -3147,45 +3188,86 @@ def smart_chat():
 
 @app.route('/appointment', methods=['POST'])
 def book_appointment():
-    """Handle appointment booking requests"""
+    """Handle appointment booking requests with MongoDB persistence"""
     try:
         data = request.get_json()
         if not data:
             return jsonify({'error': 'No data provided'}), 400
 
-        # Extract appointment data
+        # Extract appointment data with support for both old and new field names
         appointment_data = {
             'name': data.get('name', '').strip(),
             'email': data.get('email', '').strip(),
             'phone': data.get('phone', '').strip(),
             'business_type': data.get('business_type', '').strip(),
-            'services_interested': data.get('services_interested', []),
+            'services': data.get('services', data.get('services_interested', [])),  # Support both field names
             'preferred_date': data.get('preferred_date', '').strip(),
             'preferred_time': data.get('preferred_time', '').strip(),
-            'message': data.get('message', '').strip(),
-            'timestamp': datetime.now().isoformat(),
-            'status': 'pending'
+            'notes': data.get('notes', data.get('message', '')).strip(),
+            'status': data.get('status', 'Pending'),
+            'source': data.get('source', 'api'),
+            'created_at': data.get('created_at', datetime.now().isoformat())
         }
 
         # Validate required fields
         if not appointment_data['name'] or not appointment_data['email']:
             return jsonify({'error': 'Name and email are required'}), 400
 
-        # Store appointment (in-memory for now, can be extended to database)
-        if not hasattr(book_appointment, 'appointments'):
-            book_appointment.appointments = []
+        appointment_id = None
 
-        appointment_data['id'] = len(book_appointment.appointments) + 1
-        book_appointment.appointments.append(appointment_data)
+        # Try to save to MongoDB first with conflict prevention
+        if MONGODB_BACKEND_AVAILABLE and mongodb_backend and mongodb_backend.is_connected():
+            try:
+                result = mongodb_backend.create_appointment(appointment_data)
+
+                # Handle conflict scenarios
+                if not result.get("success"):
+                    if result.get("conflict"):
+                        # Time conflict detected
+                        return jsonify({
+                            'success': False,
+                            'conflict': True,
+                            'message': result.get('message'),
+                            'suggested_slot': result.get('suggested_slot'),
+                            'suggestion_message': result.get('suggestion_message'),
+                            'business_hours': result.get('business_hours')
+                        }), 409  # Conflict status code
+                    else:
+                        # Other validation error
+                        return jsonify({
+                            'success': False,
+                            'error': result.get('error'),
+                            'business_hours': result.get('business_hours')
+                        }), 400
+
+                # Success case
+                appointment_id = result.get('appointment_id')
+                logger.info(f"✅ Appointment saved to MongoDB Atlas: {appointment_id}")
+
+            except Exception as mongo_error:
+                logger.error(f"❌ MongoDB save failed: {mongo_error}")
+                # Continue with fallback storage
+                appointment_id = None
+
+        # Fallback to in-memory storage if MongoDB fails
+        if not appointment_id:
+            if not hasattr(book_appointment, 'appointments'):
+                book_appointment.appointments = []
+
+            appointment_data['id'] = len(book_appointment.appointments) + 1
+            book_appointment.appointments.append(appointment_data)
+            appointment_id = str(appointment_data['id'])
+            logger.info(f"⚠️ Appointment saved to memory (MongoDB unavailable): {appointment_id}")
 
         # Generate confirmation response
+        services_text = ', '.join(appointment_data['services']) if appointment_data['services'] else 'To be discussed'
+
         confirmation_message = f"""✅ Appointment Booked Successfully!
 
 📅 **Appointment Details:**
 • **Name**: {appointment_data['name']}
 • **Email**: {appointment_data['email']}
-• **Business Type**: {appointment_data['business_type'] or 'Not specified'}
-• **Services**: {', '.join(appointment_data['services_interested']) if appointment_data['services_interested'] else 'To be discussed'}
+• **Services**: {services_text}
 • **Preferred Date**: {appointment_data['preferred_date'] or 'Flexible'}
 • **Preferred Time**: {appointment_data['preferred_time'] or 'Flexible'}
 
@@ -3199,9 +3281,10 @@ Thank you for choosing Techrypt! We're excited to help grow your business."""
         return jsonify({
             'success': True,
             'message': confirmation_message,
-            'appointment_id': appointment_data['id'],
+            'appointment_id': appointment_id,
             'status': 'confirmed',
-            'timestamp': appointment_data['timestamp']
+            'timestamp': appointment_data['created_at'],
+            'saved_to_database': MONGODB_BACKEND_AVAILABLE and mongodb_backend and mongodb_backend.is_connected()
         })
 
     except Exception as e:
@@ -3213,13 +3296,28 @@ Thank you for choosing Techrypt! We're excited to help grow your business."""
 
 @app.route('/appointments', methods=['GET'])
 def get_appointments():
-    """Get all appointments (for admin/export purposes)"""
+    """Get all appointments from MongoDB and fallback storage"""
     try:
-        appointments = getattr(book_appointment, 'appointments', [])
+        appointments = []
+
+        # Try to get from MongoDB first
+        if MONGODB_BACKEND_AVAILABLE and mongodb_backend and mongodb_backend.is_connected():
+            try:
+                appointments = mongodb_backend.get_all_appointments(limit=100)
+                logger.info(f"✅ Retrieved {len(appointments)} appointments from MongoDB")
+            except Exception as mongo_error:
+                logger.error(f"❌ MongoDB retrieval failed: {mongo_error}")
+
+        # Fallback to in-memory storage if MongoDB fails or is empty
+        if not appointments:
+            appointments = getattr(book_appointment, 'appointments', [])
+            logger.info(f"⚠️ Retrieved {len(appointments)} appointments from memory")
+
         return jsonify({
             'appointments': appointments,
             'total_count': len(appointments),
-            'status': 'success'
+            'status': 'success',
+            'source': 'mongodb' if (MONGODB_BACKEND_AVAILABLE and mongodb_backend and mongodb_backend.is_connected()) else 'memory'
         })
     except Exception as e:
         logger.error(f"Error getting appointments: {e}")

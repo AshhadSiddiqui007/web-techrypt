@@ -10,8 +10,8 @@ import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, DuplicateKeyError
-from bson import ObjectId
+from pymongo.errors import ConnectionFailure, DuplicateKeyError, ServerSelectionTimeoutError
+from bson.objectid import ObjectId
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 class TechryptMongoDBBackend:
     """MongoDB backend for Techrypt chatbot system"""
-    
-        def __init__(self, connection_string=None, database_name=None):
+
+    def __init__(self, connection_string=None, database_name=None):
         """
         Initialize MongoDB connection with Atlas support
         
@@ -41,11 +41,11 @@ class TechryptMongoDBBackend:
                 'mongodb://localhost:27017/'
             )
         
-        # Get database name
+        # Get database name - using the correct Atlas database name
         self.database_name = (
-            database_name or 
-            os.getenv('MONGODB_DATABASE') or 
-            'techrypt_chatbot'
+            database_name or
+            os.getenv('MONGODB_DATABASE') or
+            'TechryptAppoinment'
         )
         
         # Connect to MongoDB
@@ -58,72 +58,123 @@ class TechryptMongoDBBackend:
         self._ensure_indexes()
 
     def _connect(self):
-        """Establish MongoDB connection with error handling"""
-        try:
-            # Configure client options for Atlas
-            client_options = {
-                'serverSelectionTimeoutMS': 5000,  # 5 second timeout
-                'connectTimeoutMS': 10000,         # 10 second connection timeout
-                'socketTimeoutMS': 10000,          # 10 second socket timeout
-            }
-            
-            # Add SSL options for Atlas connections
-            if 'mongodb+srv://' in self.connection_string or 'ssl=true' in self.connection_string:
-                client_options.update({
+        """Establish MongoDB connection with Windows SSL handling"""
+        import ssl
+
+        # Multiple connection strategies for Windows SSL issues
+        connection_strategies = [
+            # Strategy 1: Standard Atlas connection
+            {
+                'name': 'Standard Atlas',
+                'options': {
+                    'serverSelectionTimeoutMS': 5000,
+                    'connectTimeoutMS': 10000,
+                    'socketTimeoutMS': 10000,
+                }
+            },
+            # Strategy 2: SSL with certificate verification disabled (Windows fix)
+            {
+                'name': 'SSL Disabled Verification',
+                'options': {
+                    'serverSelectionTimeoutMS': 10000,
+                    'connectTimeoutMS': 15000,
+                    'socketTimeoutMS': 15000,
                     'ssl': True,
-                    'ssl_cert_reqs': 'CERT_NONE'  # For development - use proper certs in production
-                })
-            
-            self.client = MongoClient(self.connection_string, **client_options)
-            self.db = self.client[self.database_name]
-            
-            # Test connection
-            self.client.admin.command('ping')
-            
-            # Log connection info (without exposing credentials)
-            connection_type = "Atlas" if "mongodb+srv://" in self.connection_string else "Local"
-            self.logger.info(f"✅ Connected to MongoDB ({connection_type}): {self.database_name}")
-            
-        except (ConnectionFailure, ServerSelectionTimeoutError) as e:
-            self.logger.error(f"❌ MongoDB connection failed: {e}")
-            
-            # Try fallback to local if Atlas fails
-            if 'mongodb+srv://' in self.connection_string:
-                self.logger.info("🔄 Attempting fallback to local MongoDB...")
-                try:
-                    fallback_uri = os.getenv('MONGODB_LOCAL_URI', 'mongodb://localhost:27017/')
-                    self.client = MongoClient(fallback_uri, serverSelectionTimeoutMS=3000)
-                    self.db = self.client[self.database_name]
-                    self.client.admin.command('ping')
-                    self.logger.info(f"✅ Connected to local MongoDB: {self.database_name}")
-                except Exception as fallback_error:
-                    self.logger.error(f"❌ Fallback connection also failed: {fallback_error}")
-                    raise
-            else:
-                raise
-        
-        except Exception as e:
-            self.logger.error(f"❌ Unexpected MongoDB error: {e}")
-            raise
-    def connect(self) -> bool:
-        """Establish MongoDB connection"""
+                    'ssl_cert_reqs': ssl.CERT_NONE,
+                    'ssl_check_hostname': False,
+                }
+            },
+            # Strategy 3: TLS with invalid certificates allowed
+            {
+                'name': 'TLS Invalid Certs Allowed',
+                'options': {
+                    'serverSelectionTimeoutMS': 15000,
+                    'connectTimeoutMS': 20000,
+                    'socketTimeoutMS': 20000,
+                    'tls': True,
+                    'tlsAllowInvalidCertificates': True,
+                    'tlsAllowInvalidHostnames': True,
+                }
+            },
+            # Strategy 4: Modified connection string approach
+            {
+                'name': 'Modified Connection String',
+                'options': {
+                    'serverSelectionTimeoutMS': 20000,
+                    'connectTimeoutMS': 25000,
+                    'socketTimeoutMS': 25000,
+                },
+                'modify_uri': True
+            }
+        ]
+
+        for strategy in connection_strategies:
+            try:
+                self.logger.info(f"🔗 Trying connection strategy: {strategy['name']}")
+
+                # Modify URI if needed
+                connection_string = self.connection_string
+                if strategy.get('modify_uri'):
+                    # Add SSL parameters to connection string
+                    if '?' in connection_string:
+                        connection_string += '&ssl=true&ssl_cert_reqs=CERT_NONE'
+                    else:
+                        connection_string += '?ssl=true&ssl_cert_reqs=CERT_NONE'
+
+                # Create client with strategy options
+                self.client = MongoClient(connection_string, **strategy['options'])
+                self.db = self.client[self.database_name]
+
+                # Test connection
+                self.client.admin.command('ping')
+
+                # Success!
+                connection_type = "Atlas" if "mongodb+srv://" in self.connection_string else "Local"
+                self.logger.info(f"✅ Connected to MongoDB ({connection_type}) using {strategy['name']}: {self.database_name}")
+                return  # Exit on successful connection
+
+            except (ConnectionFailure, ServerSelectionTimeoutError) as e:
+                self.logger.warning(f"⚠️ Strategy '{strategy['name']}' failed: {e}")
+                continue
+            except Exception as e:
+                self.logger.warning(f"⚠️ Strategy '{strategy['name']}' error: {e}")
+                continue
+
+        # If all strategies failed, try local fallback
+        self.logger.error("❌ All Atlas connection strategies failed")
+        if 'mongodb+srv://' in self.connection_string:
+            self.logger.info("🔄 Attempting fallback to local MongoDB...")
+            try:
+                fallback_uri = os.getenv('MONGODB_LOCAL_URI', 'mongodb://localhost:27017/')
+                self.client = MongoClient(fallback_uri, serverSelectionTimeoutMS=3000)
+                self.db = self.client[self.database_name]
+                self.client.admin.command('ping')
+                self.logger.info(f"✅ Connected to local MongoDB: {self.database_name}")
+                return
+            except Exception as fallback_error:
+                self.logger.error(f"❌ Fallback connection also failed: {fallback_error}")
+
+        # If everything failed
+        raise ConnectionFailure("All MongoDB connection strategies failed. Check network, credentials, and SSL configuration.")
+
+    def _initialize_collections(self):
+        """Initialize MongoDB collections"""
         try:
-            self.client = MongoClient(self.mongo_uri, serverSelectionTimeoutMS=5000)
-            self.db = self.client[self.db_name]
-            # Test connection
-            self.client.admin.command('ping')
+            # Create collections if they don't exist
+            collections = self.db.list_collection_names()
+
+            required_collections = ["users", "Appointment data", "conversations"]
+            for collection_name in required_collections:
+                if collection_name not in collections:
+                    self.db.create_collection(collection_name)
+                    self.logger.info(f"✅ Created collection: {collection_name}")
+
             self.connected = True
-            logger.info(f"✅ Connected to MongoDB: {self.db_name}")
-            self._ensure_indexes()
-            return True
-        except ConnectionFailure as e:
-            logger.error(f"❌ MongoDB connection failed: {e}")
-            self.connected = False
-            return False
+            self.logger.info("✅ Collections initialized")
+
         except Exception as e:
-            logger.error(f"❌ Unexpected MongoDB error: {e}")
+            self.logger.error(f"❌ Collection initialization error: {e}")
             self.connected = False
-            return False
     
     def _ensure_indexes(self):
         """Create necessary database indexes"""
@@ -131,18 +182,19 @@ class TechryptMongoDBBackend:
             # Users collection indexes
             self.db.users.create_index("email", unique=True, background=True)
             self.db.users.create_index("created_at", background=True)
-            
-            # Appointments collection indexes
-            self.db.appointments.create_index("user_id", background=True)
-            self.db.appointments.create_index("status", background=True)
-            self.db.appointments.create_index("preferred_date", background=True)
-            self.db.appointments.create_index("created_at", background=True)
-            
+
+            # Appointment data collection indexes (note the correct collection name)
+            appointment_collection = self.db["Appointment data"]
+            appointment_collection.create_index("email", background=True)
+            appointment_collection.create_index("status", background=True)
+            appointment_collection.create_index("preferred_date", background=True)
+            appointment_collection.create_index("created_at", background=True)
+
             # Conversations collection indexes
             self.db.conversations.create_index("user_name", background=True)
             self.db.conversations.create_index("timestamp", background=True)
             self.db.conversations.create_index("business_type", background=True)
-            
+
             logger.info("✅ Database indexes ensured")
         except Exception as e:
             logger.warning(f"⚠️ Index creation warning: {e}")
@@ -238,112 +290,249 @@ class TechryptMongoDBBackend:
             return []
     
     # APPOINTMENT OPERATIONS
-    def create_appointment(self, appointment_data: Dict[str, Any]) -> Optional[str]:
-        """Create a new appointment"""
-        if not self.is_connected():
+    def _is_business_hours(self, date_str: str, time_str: str) -> bool:
+        """Check if the requested time is within business hours"""
+        try:
+            from datetime import datetime, time
+
+            # Parse the date to get the day of week
+            appointment_date = datetime.strptime(date_str, "%Y-%m-%d")
+            day_of_week = appointment_date.weekday()  # 0=Monday, 6=Sunday
+
+            # Parse the time
+            appointment_time = datetime.strptime(time_str, "%H:%M").time()
+
+            # Business hours: Monday-Friday: 9:00 AM - 6:00 PM EST, Saturday: 10:00 AM - 4:00 PM EST, Sunday: Closed
+            if day_of_week == 6:  # Sunday
+                return False
+            elif day_of_week <= 4:  # Monday-Friday
+                return time(9, 0) <= appointment_time <= time(18, 0)
+            elif day_of_week == 5:  # Saturday
+                return time(10, 0) <= appointment_time <= time(16, 0)
+
+            return False
+
+        except Exception as e:
+            logger.error(f"❌ Error checking business hours: {e}")
+            return False
+
+    def _find_next_available_slot(self, date_str: str, time_str: str) -> Optional[Dict[str, str]]:
+        """Find the next available appointment slot (20 minutes after requested time)"""
+        try:
+            from datetime import datetime, timedelta
+
+            # Parse the requested datetime
+            requested_datetime = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+
+            # Start checking from 20 minutes after the requested time
+            check_datetime = requested_datetime + timedelta(minutes=20)
+
+            # Check for the next 5 hours (in 20-minute intervals)
+            for _ in range(15):  # 15 * 20 minutes = 5 hours
+                check_date = check_datetime.strftime("%Y-%m-%d")
+                check_time = check_datetime.strftime("%H:%M")
+
+                # Check if this time is within business hours
+                if self._is_business_hours(check_date, check_time):
+                    # Check if this slot is available
+                    if not self._is_time_slot_taken(check_date, check_time):
+                        return {
+                            "date": check_date,
+                            "time": check_time,
+                            "datetime": check_datetime.strftime("%Y-%m-%d %H:%M")
+                        }
+
+                # Move to next 20-minute slot
+                check_datetime += timedelta(minutes=20)
+
+                # If we've moved to the next day, reset to business hours start
+                if check_datetime.date() != requested_datetime.date():
+                    next_day = check_datetime.date()
+                    day_of_week = next_day.weekday()
+
+                    if day_of_week == 6:  # Sunday - skip to Monday
+                        next_day += timedelta(days=1)
+                        check_datetime = datetime.combine(next_day, datetime.strptime("09:00", "%H:%M").time())
+                    elif day_of_week <= 4:  # Monday-Friday
+                        check_datetime = datetime.combine(next_day, datetime.strptime("09:00", "%H:%M").time())
+                    elif day_of_week == 5:  # Saturday
+                        check_datetime = datetime.combine(next_day, datetime.strptime("10:00", "%H:%M").time())
+
+            return None  # No available slot found
+
+        except Exception as e:
+            logger.error(f"❌ Error finding next available slot: {e}")
             return None
 
+    def _is_time_slot_taken(self, date_str: str, time_str: str) -> bool:
+        """Check if a specific time slot is already taken"""
         try:
-            # Get user phone if not provided directly
-            phone = appointment_data.get("phone", "")
-            if not phone and appointment_data.get("user_id"):
-                user = self.get_user(user_id=str(appointment_data["user_id"]))
-                if user:
-                    phone = user.get("phone", "")
+            appointment_collection = self.db["Appointment data"]
+            existing = appointment_collection.find_one({
+                "preferred_date": date_str,
+                "preferred_time": time_str,
+                "status": {"$ne": "Cancelled"}  # Exclude cancelled appointments
+            })
+            return existing is not None
 
+        except Exception as e:
+            logger.error(f"❌ Error checking time slot: {e}")
+            return False
+
+    def create_appointment(self, appointment_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Create a new appointment with conflict prevention in the 'Appointment data' collection"""
+        if not self.is_connected():
+            return {"success": False, "error": "Database not connected"}
+
+        try:
+            requested_date = appointment_data.get("preferred_date", "")
+            requested_time = appointment_data.get("preferred_time", "")
+
+            # Validate business hours
+            if not self._is_business_hours(requested_date, requested_time):
+                return {
+                    "success": False,
+                    "error": "Requested time is outside business hours",
+                    "business_hours": {
+                        "monday_friday": "9:00 AM - 6:00 PM EST",
+                        "saturday": "10:00 AM - 4:00 PM EST",
+                        "sunday": "Closed"
+                    }
+                }
+
+            # Check for time conflicts
+            if self._is_time_slot_taken(requested_date, requested_time):
+                # Find next available slot
+                next_slot = self._find_next_available_slot(requested_date, requested_time)
+
+                if next_slot:
+                    return {
+                        "success": False,
+                        "conflict": True,
+                        "message": f"The requested time slot ({requested_date} at {requested_time}) is already booked.",
+                        "suggested_slot": next_slot,
+                        "suggestion_message": f"The next available slot is {next_slot['date']} at {next_slot['time']}. Would you like to book this time instead?"
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "conflict": True,
+                        "message": "The requested time slot is already booked and no alternative slots are available in the next 5 hours.",
+                        "suggestion_message": "Please choose a different date or time."
+                    }
+
+            # Prepare appointment document with all required fields
             appointment_doc = {
-                "user_id": ObjectId(appointment_data["user_id"]) if appointment_data.get("user_id") else None,
-                "phone": phone,
+                "name": appointment_data.get("name", "").strip(),
+                "email": appointment_data.get("email", "").strip(),
+                "phone": appointment_data.get("phone", "").strip(),
                 "services": appointment_data.get("services", []),
-                "preferred_date": appointment_data.get("preferred_date", ""),
-                "preferred_time": appointment_data.get("preferred_time", ""),
+                "preferred_date": requested_date,
+                "preferred_time": requested_time,
                 "status": appointment_data.get("status", "Pending"),
                 "notes": appointment_data.get("notes", ""),
-                "contact_method": appointment_data.get("contact_method", "email"),
-                "created_at": datetime.now(timezone.utc),
-                "updated_at": datetime.now(timezone.utc),
+                "source": appointment_data.get("source", "chatbot_form"),
+                "created_at": appointment_data.get("created_at", datetime.now(timezone.utc).isoformat()),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
                 "metadata": appointment_data.get("metadata", {})
             }
-            
-            result = self.db.appointments.insert_one(appointment_doc)
-            logger.info(f"✅ Created appointment: {result.inserted_id}")
-            return str(result.inserted_id)
-            
+
+            # Use the correct collection name "Appointment data"
+            appointment_collection = self.db["Appointment data"]
+            result = appointment_collection.insert_one(appointment_doc)
+
+            logger.info(f"✅ Created appointment in 'Appointment data' collection: {result.inserted_id}")
+            logger.info(f"📋 Appointment details: {appointment_doc['name']} - {appointment_doc['email']}")
+            logger.info(f"🗄️ Database: {self.database_name}, Collection: Appointment data")
+
+            return {
+                "success": True,
+                "appointment_id": str(result.inserted_id),
+                "message": "Appointment booked successfully!",
+                "appointment_details": {
+                    "name": appointment_doc["name"],
+                    "email": appointment_doc["email"],
+                    "date": appointment_doc["preferred_date"],
+                    "time": appointment_doc["preferred_time"],
+                    "services": appointment_doc["services"]
+                }
+            }
+
         except Exception as e:
             logger.error(f"❌ Appointment creation error: {e}")
-            return None
+            return {"success": False, "error": f"Failed to create appointment: {str(e)}"}
     
     def get_appointment(self, appointment_id: str) -> Optional[Dict]:
-        """Get appointment by ID"""
+        """Get appointment by ID from 'Appointment data' collection"""
         if not self.is_connected():
             return None
-        
+
         try:
-            appointment = self.db.appointments.find_one({"_id": ObjectId(appointment_id)})
+            appointment_collection = self.db["Appointment data"]
+            appointment = appointment_collection.find_one({"_id": ObjectId(appointment_id)})
             if appointment:
                 appointment["_id"] = str(appointment["_id"])
-                if appointment.get("user_id"):
-                    appointment["user_id"] = str(appointment["user_id"])
                 return appointment
             return None
-            
+
         except Exception as e:
             logger.error(f"❌ Appointment retrieval error: {e}")
             return None
     
     def update_appointment(self, appointment_id: str, update_data: Dict[str, Any]) -> bool:
-        """Update appointment information"""
+        """Update appointment information in 'Appointment data' collection"""
         if not self.is_connected():
             return False
-        
+
         try:
-            update_data["updated_at"] = datetime.now(timezone.utc)
-            result = self.db.appointments.update_one(
+            update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+            appointment_collection = self.db["Appointment data"]
+            result = appointment_collection.update_one(
                 {"_id": ObjectId(appointment_id)},
                 {"$set": update_data}
             )
-            
+
             if result.modified_count > 0:
                 logger.info(f"✅ Updated appointment: {appointment_id}")
                 return True
             return False
-            
+
         except Exception as e:
             logger.error(f"❌ Appointment update error: {e}")
             return False
     
-    def get_user_appointments(self, user_id: str) -> List[Dict]:
-        """Get all appointments for a user"""
+    def get_user_appointments(self, email: str) -> List[Dict]:
+        """Get all appointments for a user by email from 'Appointment data' collection"""
         if not self.is_connected():
             return []
-        
+
         try:
-            appointments = list(self.db.appointments.find({"user_id": ObjectId(user_id)}))
+            appointment_collection = self.db["Appointment data"]
+            appointments = list(appointment_collection.find({"email": email}))
             for appointment in appointments:
                 appointment["_id"] = str(appointment["_id"])
-                appointment["user_id"] = str(appointment["user_id"])
             return appointments
-            
+
         except Exception as e:
             logger.error(f"❌ User appointments retrieval error: {e}")
             return []
     
     def get_all_appointments(self, status: str = None, limit: int = 100) -> List[Dict]:
-        """Get all appointments with optional status filter"""
+        """Get all appointments from 'Appointment data' collection with optional status filter"""
         if not self.is_connected():
             return []
-        
+
         try:
             query = {"status": status} if status else {}
-            appointments = list(self.db.appointments.find(query).limit(limit))
-            
+            appointment_collection = self.db["Appointment data"]
+            appointments = list(appointment_collection.find(query).sort("created_at", -1).limit(limit))
+
             for appointment in appointments:
                 appointment["_id"] = str(appointment["_id"])
-                if appointment.get("user_id"):
-                    appointment["user_id"] = str(appointment["user_id"])
-            
+
+            logger.info(f"✅ Retrieved {len(appointments)} appointments from 'Appointment data' collection")
             return appointments
-            
+
         except Exception as e:
             logger.error(f"❌ Appointments retrieval error: {e}")
             return []
@@ -423,12 +612,13 @@ class TechryptMongoDBBackend:
             return {}
         
         try:
+            appointment_collection = self.db["Appointment data"]
             stats = {
                 "total_users": self.db.users.count_documents({}),
-                "total_appointments": self.db.appointments.count_documents({}),
+                "total_appointments": appointment_collection.count_documents({}),
                 "total_conversations": self.db.conversations.count_documents({}),
-                "pending_appointments": self.db.appointments.count_documents({"status": "Pending"}),
-                "completed_appointments": self.db.appointments.count_documents({"status": "Completed"}),
+                "pending_appointments": appointment_collection.count_documents({"status": "Pending"}),
+                "completed_appointments": appointment_collection.count_documents({"status": "Completed"}),
                 "last_updated": datetime.now(timezone.utc).isoformat()
             }
             

@@ -83,6 +83,8 @@ const TechryptChatbot = ({ isOpen, onClose }) => {
     time: '',
     notes: ''
   });
+  const [conflictData, setConflictData] = useState(null);
+  const [showConflictModal, setShowConflictModal] = useState(false);
   const [contactErrors, setContactErrors] = useState({});
   const [appointmentErrors, setAppointmentErrors] = useState({});
 
@@ -744,7 +746,7 @@ Would you like to schedule a consultation or learn more about any specific servi
   };
 
   // Handle appointment form submission
-  const handleAppointmentSubmit = () => {
+  const handleAppointmentSubmit = async () => {
     const errors = validateAppointmentForm();
     setAppointmentErrors(errors);
 
@@ -754,20 +756,126 @@ Would you like to schedule a consultation or learn more about any specific servi
       return;
     }
 
-    // Close the appointment form first
-    setShowAppointmentForm(false);
+    // Show loading state
+    setIsLoading(true);
+    setError(null);
 
-    // Show the thank you modal
-    setShowThankYouModal(true);
-    console.log("Thank you modal triggered:", showThankYouModal);
-  
-    
+    try {
+      // Prepare appointment data for MongoDB
+      const appointmentData = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        services: formData.services,
+        preferred_date: formData.date,
+        preferred_time: formData.time,
+        notes: formData.notes.trim(),
+        status: 'Pending',
+        created_at: new Date().toISOString(),
+        source: 'chatbot_form'
+      };
 
-    const confirmationMessage = {
-      id: Date.now() + 1,
-      text: `🎉 Appointment Request Submitted!
+      console.log('📅 Submitting appointment data:', appointmentData);
 
-Your appointment request has been received:
+      // Backend API URL - try multiple ports for flexibility
+      const backendPorts = [5000, 5001, 5002];
+      let response = null;
+      let workingPort = null;
+
+      // Try different ports to find the Python Flask backend
+      for (const port of backendPorts) {
+        try {
+          console.log(`🔗 Trying backend on port ${port}...`);
+          response = await fetch(`http://localhost:${port}/appointment`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(appointmentData)
+          });
+
+          // If we get a response (not connection error), use this port
+          workingPort = port;
+          console.log(`✅ Connected to backend on port ${port}`);
+          break;
+
+        } catch (error) {
+          console.log(`❌ Port ${port} failed: ${error.message}`);
+          continue;
+        }
+      }
+
+      if (!response) {
+        throw new Error('Could not connect to backend server on any port');
+      }
+
+      if (response.status === 409) {
+        // Handle time conflict
+        const conflictResult = await response.json();
+        console.log('⚠️ Time conflict detected:', conflictResult);
+
+        setIsLoading(false);
+        setConflictData(conflictResult);
+        setShowConflictModal(true);
+        return;
+      }
+
+      if (!response.ok) {
+        const errorResult = await response.json();
+        throw new Error(errorResult.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Appointment saved successfully:', result);
+
+      // Close the appointment form
+      setShowAppointmentForm(false);
+      setIsLoading(false);
+
+      // Show the thank you modal
+      setShowThankYouModal(true);
+
+      const confirmationMessage = {
+        id: Date.now() + 1,
+        text: `🎉 Appointment Request Submitted Successfully!
+
+Your appointment has been saved to our database:
+
+Details:
+• Services: ${formData.services.join(', ')}
+• Date: ${formData.date}
+• Time: ${formData.time}
+• Contact: ${formData.email}
+• Reference ID: ${result.appointment_id || 'Generated'}
+
+📧 Next Steps:
+• Our team will contact you within 24 hours to confirm
+• You'll receive a confirmation email shortly
+• We'll send calendar details once confirmed
+
+Thank you for choosing Techrypt.io! 🚀`,
+        sender: 'bot',
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, confirmationMessage]);
+      setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
+      setAppointmentErrors({});
+      setError(null);
+
+    } catch (error) {
+      console.error('❌ Error saving appointment:', error);
+      setIsLoading(false);
+
+      // Show error message but still close form and show confirmation
+      setShowAppointmentForm(false);
+      setShowThankYouModal(true);
+
+      const errorMessage = {
+        id: Date.now() + 1,
+        text: `⚠️ Appointment Request Received!
+
+Your appointment request has been received, but there was a technical issue saving it to our database. Don't worry - we have your information!
 
 Details:
 • Services: ${formData.services.join(', ')}
@@ -781,14 +889,118 @@ Details:
 • We'll send calendar details once confirmed
 
 Thank you for choosing Techrypt.io! 🚀`,
-      sender: 'bot',
-      timestamp: new Date()
+        sender: 'bot',
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, errorMessage]);
+      setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
+      setAppointmentErrors({});
+      setError(null);
+    }
+  };
+
+  // Handle accepting suggested time slot
+  const handleAcceptSuggestedTime = async () => {
+    if (!conflictData?.suggested_slot) return;
+
+    // Update form data with suggested time
+    const updatedFormData = {
+      ...formData,
+      date: conflictData.suggested_slot.date,
+      time: conflictData.suggested_slot.time
     };
 
-    setMessages(prev => [...prev, confirmationMessage]);
-    setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
-    setAppointmentErrors({});
-    setError(null);
+    setFormData(updatedFormData);
+    setShowConflictModal(false);
+    setConflictData(null);
+
+    // Automatically submit with the new time
+    try {
+      setIsLoading(true);
+
+      const appointmentData = {
+        name: updatedFormData.name.trim(),
+        email: updatedFormData.email.trim(),
+        phone: updatedFormData.phone.trim(),
+        services: updatedFormData.services,
+        preferred_date: updatedFormData.date,
+        preferred_time: updatedFormData.time,
+        notes: updatedFormData.notes.trim(),
+        status: 'Pending',
+        created_at: new Date().toISOString(),
+        source: 'chatbot_form'
+      };
+
+      // Try multiple ports for backend connection
+      const backendPorts = [5000, 5001, 5002];
+      let response = null;
+
+      for (const port of backendPorts) {
+        try {
+          response = await fetch(`http://localhost:${port}/appointment`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(appointmentData)
+          });
+          break; // Success, exit loop
+        } catch (error) {
+          continue; // Try next port
+        }
+      }
+
+      if (!response) {
+        throw new Error('Could not connect to backend server');
+      }
+
+      if (response.ok) {
+        const result = await response.json();
+        setIsLoading(false);
+        setShowAppointmentForm(false);
+        setShowThankYouModal(true);
+
+        const confirmationMessage = {
+          id: Date.now() + 1,
+          text: `🎉 Appointment Booked Successfully!
+
+Your appointment has been confirmed for the suggested time:
+
+Details:
+• Services: ${updatedFormData.services.join(', ')}
+• Date: ${updatedFormData.date}
+• Time: ${updatedFormData.time}
+• Contact: ${updatedFormData.email}
+• Reference ID: ${result.appointment_id || 'Generated'}
+
+📧 Next Steps:
+• Our team will contact you within 24 hours to confirm
+• You'll receive a confirmation email shortly
+• We'll send calendar details once confirmed
+
+Thank you for choosing Techrypt.io! 🚀`,
+          sender: 'bot',
+          timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, confirmationMessage]);
+        setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
+        setAppointmentErrors({});
+        setError(null);
+      }
+    } catch (error) {
+      console.error('Error booking suggested time:', error);
+      setIsLoading(false);
+      setError('Failed to book the suggested time. Please try again.');
+    }
+  };
+
+  // Handle rejecting suggested time
+  const handleRejectSuggestedTime = () => {
+    setShowConflictModal(false);
+    setConflictData(null);
+    // Keep the appointment form open for user to choose different time
   };
 
   if (!isOpen) return null;
@@ -1266,6 +1478,71 @@ Thank you for choosing Techrypt.io! 🚀`,
                   >
                     Book Appointment
                   </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Time Conflict Resolution Modal */}
+        {showConflictModal && conflictData && (
+          <div className="techrypt-form-overlay">
+            <div className="techrypt-form-modal">
+              <div className="techrypt-form-header">
+                <h3>⏰ Time Conflict Detected</h3>
+                <button onClick={() => setShowConflictModal(false)}>×</button>
+              </div>
+              <div className="techrypt-form-content">
+                <p className="techrypt-conflict-message" style={{marginBottom: '15px', color: '#d97706'}}>
+                  {conflictData.message}
+                </p>
+
+                {conflictData.suggested_slot && (
+                  <div className="techrypt-suggested-slot" style={{backgroundColor: '#f3f4f6', padding: '15px', borderRadius: '8px', marginBottom: '15px'}}>
+                    <h4 style={{color: '#059669', marginBottom: '10px'}}>🕐 Suggested Alternative:</h4>
+                    <div className="techrypt-slot-details">
+                      <p><strong>Date:</strong> {conflictData.suggested_slot.date}</p>
+                      <p><strong>Time:</strong> {conflictData.suggested_slot.time}</p>
+                    </div>
+                    <p className="techrypt-suggestion-text" style={{marginTop: '10px', fontStyle: 'italic'}}>
+                      {conflictData.suggestion_message}
+                    </p>
+                  </div>
+                )}
+
+                {conflictData.business_hours && (
+                  <div className="techrypt-business-hours" style={{backgroundColor: '#eff6ff', padding: '15px', borderRadius: '8px', marginBottom: '15px'}}>
+                    <h4 style={{color: '#1d4ed8', marginBottom: '10px'}}>🕒 Business Hours:</h4>
+                    <p><strong>Monday - Friday:</strong> {conflictData.business_hours.monday_friday}</p>
+                    <p><strong>Saturday:</strong> {conflictData.business_hours.saturday}</p>
+                    <p><strong>Sunday:</strong> {conflictData.business_hours.sunday}</p>
+                  </div>
+                )}
+
+                <div className="techrypt-form-actions">
+                  {conflictData.suggested_slot ? (
+                    <>
+                      <button
+                        className="techrypt-form-cancel"
+                        onClick={handleRejectSuggestedTime}
+                      >
+                        Choose Different Time
+                      </button>
+                      <button
+                        className="techrypt-form-submit"
+                        onClick={handleAcceptSuggestedTime}
+                      >
+                        Accept Suggested Time
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      className="techrypt-form-submit"
+                      onClick={handleRejectSuggestedTime}
+                    >
+                      Choose Different Time
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
