@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Header.css";
-import techryptLogo from "../../assets/Images/techryptLogo.jpeg";
+import techryptLogo from "../../assets/Images/techryptLogo.png";
 import { Link, useLocation } from "react-router-dom";
 import { HeaderLogo } from "../../assets/mainImages";
 import ContactForm from "../ContactForm/ContactForm";
@@ -43,18 +43,28 @@ export default function Header() {
       <nav className="navbar">
         <div className="leftNav overflow-hidden">
           <Link to="/" className="flex items-center">
-            <img
-              src={techryptLogo}
+            {/* Mobile logo - only show on mobile */}
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              src={HeaderLogo}
               alt="Techrypt Logo"
-              className="md:hidden w-16 h-16 object-contain"
+              className="md:hidden w-32 h-12 object-contain"
+              style={{
+                maxWidth: '100%',
+                height: 'auto'
+              }}
             />
+            {/* Desktop logo - properly sized and aligned */}
             <video
               autoPlay
               loop
               muted
               src={HeaderLogo}
               alt="Techrypt Logo"
-              className="hidden md:block icon object-cover w-[300px] lg:w-[250px] xl:w-[300px]"
+              className="hidden md:block desktop-header-logo icon object-cover"
             />
           </Link>
           <hr className="hr1" />
@@ -98,6 +108,19 @@ export default function Header() {
 
         <div className="rightNav">
           <hr className="hr2" />
+          {/* Original Desktop Navigation Tabs */}
+          <div className="hidden md:flex main-tabs">
+            {tabs.map((tab) => (
+              <Link
+                key={tab.id}
+                to={tab.path}
+                className={`main-tab ${activeTab === tab.id ? "active" : ""}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.label}
+              </Link>
+            ))}
+          </div>
           {/* Mobile Hamburger Menu Button */}
           <button
             className="md:hidden mobile-menu-button touch-target"
@@ -117,10 +140,18 @@ export default function Header() {
       <div className="small-nav">
         <div className="leftNav">
           <Link to="/" onClick={handleLinkClick}>
-            <img
-              src={techryptLogo}
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              src={HeaderLogo}
               alt="Techrypt Logo"
-              className="w-12 h-12 md:w-16 md:h-16 object-contain"
+              className="w-24 h-8 md:w-32 md:h-12 object-contain"
+              style={{
+                maxWidth: '100%',
+                height: 'auto'
+              }}
             />
           </Link>
         </div>
@@ -167,10 +198,18 @@ export default function Header() {
           <div className="mobile-menu-content">
             <div className="mobile-menu-header">
               <Link to="/" onClick={handleLinkClick}>
-                <img
-                  src={techryptLogo}
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  src={HeaderLogo}
                   alt="Techrypt Logo"
-                  className="w-16 h-16 object-contain"
+                  className="w-32 h-12 object-contain"
+                  style={{
+                    maxWidth: '100%',
+                    height: 'auto'
+                  }}
                 />
               </Link>
               <button
