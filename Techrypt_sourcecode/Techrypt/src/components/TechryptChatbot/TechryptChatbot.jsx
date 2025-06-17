@@ -796,9 +796,9 @@ Thank you for choosing Techrypt.io! 🚀`,
   return (
     <div className={`techrypt-chatbot-overlay ${isMinimized ? 'minimized' : ''}`}>
       <div className={`techrypt-chatbot-container ${isMinimized ? 'minimized' : ''}`}>
-        {/* Header */}
+        {/* Mobile Header - Only visible on screens ≤768px */}
         <div
-          className="techrypt-chatbot-header"
+          className="techrypt-chatbot-header techrypt-chatbot-header-mobile md:hidden"
           onClick={isMinimized ? () => setIsMinimized(false) : undefined}
           style={isMinimized ? { cursor: 'pointer' } : {}}
         >
@@ -846,15 +846,79 @@ Thank you for choosing Techrypt.io! 🚀`,
               title={isMinimized ? "Expand" : "Minimize"}
             >
               <img
-                src={isMinimized ? calenderIcon : minimizeIcon} // Switch between calendar and minimize icons
+                src={isMinimized ? calenderIcon : minimizeIcon}
                 alt={isMinimized ? "Expand" : "Minimize"}
                 className="header-icon"
               />
             </button>
-            {/* Add the close button with the imported closeIcon */}
             <button
               className="techrypt-chatbot-close"
-              onClick={onClose} // onClose will be passed as a prop and handle closing
+              onClick={onClose}
+              title="Close Chatbot"
+            >
+              <img src={closeIcon} alt="Close Chatbot" className="header-icon" />
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop Header - Only visible on screens >768px */}
+        <div
+          className="techrypt-chatbot-header techrypt-chatbot-header-desktop hidden md:flex"
+          onClick={isMinimized ? () => setIsMinimized(false) : undefined}
+          style={isMinimized ? { cursor: 'pointer' } : {}}
+        >
+          <div className="techrypt-chatbot-header-content">
+            <div className="techrypt-chatbot-avatar">
+              <BsRobot />
+            </div>
+            <div className="techrypt-chatbot-title">
+              <h3>Techrypt AI</h3>
+            </div>
+          </div>
+          <div className="techrypt-chatbot-header-actions">
+            {!isMinimized && (
+              <>
+                <button
+                  className="techrypt-chatbot-appointment"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      name: contactData.name || '',
+                      email: contactData.email || '',
+                      phone: contactData.phone || ''
+                    }));
+                    setShowAppointmentForm(true);
+                  }}
+                  title="Book an Appointment"
+                >
+                  <img src={calenderIcon} alt="Appointment" className="header-icon" />
+                </button>
+                <button
+                  className="techrypt-chatbot-clear"
+                  onClick={clearChatHistory}
+                  title="Clear Chat History"
+                >
+                  <img src={binIcon} alt="Clear Chat" className="header-icon" />
+                </button>
+              </>
+            )}
+            <button
+              className="techrypt-chatbot-minimize"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMinimized(!isMinimized);
+              }}
+              title={isMinimized ? "Expand" : "Minimize"}
+            >
+              <img
+                src={isMinimized ? calenderIcon : minimizeIcon}
+                alt={isMinimized ? "Expand" : "Minimize"}
+                className="header-icon"
+              />
+            </button>
+            <button
+              className="techrypt-chatbot-close"
+              onClick={onClose}
               title="Close Chatbot"
             >
               <img src={closeIcon} alt="Close Chatbot" className="header-icon" />

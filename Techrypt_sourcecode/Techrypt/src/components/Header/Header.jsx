@@ -39,24 +39,10 @@ export default function Header() {
 
   return (
     <>
-      {/* Enhanced Desktop Navbar */}
-      <nav className="navbar">
+      {/* Enhanced Desktop Navbar - Only visible on screens >768px */}
+      <nav className="navbar hidden md:flex">
         <div className="leftNav overflow-hidden">
           <Link to="/" className="flex items-center">
-            {/* Mobile logo - only show on mobile */}
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              src={HeaderLogo}
-              alt="Techrypt Logo"
-              className="md:hidden w-32 h-12 object-contain"
-              style={{
-                maxWidth: '100%',
-                height: 'auto'
-              }}
-            />
             {/* Desktop logo - properly sized and aligned */}
             <video
               autoPlay
@@ -64,7 +50,7 @@ export default function Header() {
               muted
               src={HeaderLogo}
               alt="Techrypt Logo"
-              className="hidden md:block desktop-header-logo icon object-cover"
+              className="desktop-header-logo icon object-cover"
             />
           </Link>
           <hr className="hr1" />
@@ -136,8 +122,8 @@ export default function Header() {
         </div>
       </nav>
 
-      {/* Enhanced Mobile Navbar */}
-      <div className="small-nav">
+      {/* Enhanced Mobile Navbar - Only visible on screens ≤768px */}
+      <div className="small-nav md:hidden">
         <div className="leftNav">
           <Link to="/" onClick={handleLinkClick}>
             <video
@@ -147,7 +133,7 @@ export default function Header() {
               playsInline
               src={HeaderLogo}
               alt="Techrypt Logo"
-              className="w-24 h-8 md:w-32 md:h-12 object-contain"
+              className="w-24 h-8 object-contain"
               style={{
                 maxWidth: '100%',
                 height: 'auto'

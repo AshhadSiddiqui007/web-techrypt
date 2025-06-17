@@ -2,12 +2,13 @@
   margin: 0;
   padding: 0;
 }
+/* Desktop Navbar - Compact Design */
 .navbar {
-  padding: 0px 10px;
-  border-radius: 0px 0px 20px 20px;
+  padding: 0px 8px; /* Reduced padding */
+  border-radius: 0px 0px 16px 16px; /* Slightly smaller border radius */
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 15px; /* Reduced gap */
   position: fixed;
   top: 0;
   left: 0;
@@ -17,16 +18,17 @@
   margin: 0 auto;
   width: 100%;
   background-color: #000000 !important;
+  height: 65px; /* Reduced overall height */
 }
 
 .leftNav,
 .rightNav {
   display: flex;
-  gap: 55px;
+  gap: 40px; /* Reduced gap */
   align-items: center;
 }
 .leftNav{
-  height: 80px; /* Restore original fixed height for proper alignment */
+  height: 65px; /* Reduced height to match navbar */
   display: flex;
   align-items: center; /* Center logo vertically */
   flex-shrink: 0; /* Prevent shrinking */
@@ -39,16 +41,17 @@
   width: 100px;
 }
 
+/* Compact Desktop Navigation */
 .midNav {
   display: flex;
   /*background-color: #AEBB1E !important;*/
   background-color: #C4D322;
-  border-radius: 30px;
-  height: 50px;
+  border-radius: 25px; /* Slightly smaller border radius */
+  height: 42px; /* Reduced height */
   align-items: center;
   justify-content: center;
   width: fit-content;
-  padding: 5px 15px;
+  padding: 4px 12px; /* Reduced padding */
 }
 @media only screen and (max-width: 768px) {
   .midNav {
@@ -76,17 +79,18 @@
   border-radius: 10px;
 }
 
+/* Compact Navigation Items */
 .listItems {
-  font-size: 22px;
+  font-size: 18px; /* Reduced font size */
   font-weight: bold;
-  line-height: 22px;
+  line-height: 18px; /* Reduced line height */
   list-style-type: none;
-  margin-right: 10px;
-  margin-left: 10px;
+  margin-right: 8px; /* Reduced margin */
+  margin-left: 8px; /* Reduced margin */
 
   &:hover {
     cursor: pointer;
-    border-radius: 15px;
+    border-radius: 12px; /* Slightly smaller border radius */
   }
 }
 
@@ -105,9 +109,9 @@
   object-fit: cover;
 }
 
-/* Custom Desktop Header Logo - Properly sized and aligned */
+/* Compact Desktop Header Logo - Reduced size for compact header */
 .desktop-header-logo {
-  width: 280px !important;
+  width: 240px !important; /* Reduced from 280px */
   height: auto !important;
   object-fit: cover !important;
   display: block !important;
@@ -115,29 +119,29 @@
   max-width: none !important;
 }
 
-/* Responsive breakpoints for desktop logo - proportional sizing */
+/* Responsive breakpoints for desktop logo - proportionally reduced sizing */
 @media (min-width: 768px) and (max-width: 1023px) {
   .desktop-header-logo {
-    width: 280px !important;
+    width: 240px !important; /* Reduced from 280px */
   }
 }
 
 @media (min-width: 1024px) and (max-width: 1279px) {
   .desktop-header-logo {
-    width: 320px !important;
+    width: 275px !important; /* Reduced from 320px */
   }
 }
 
 @media (min-width: 1280px) {
   .desktop-header-logo {
-    width: 350px !important;
+    width: 300px !important; /* Reduced from 350px */
   }
 }
-/* Dropdown initially hidden */
+/* Dropdown initially hidden - Adjusted for compact header */
 .dropdown {
   position: absolute;
   max-width: 1200px;
-  top: 4.7rem;
+  top: 4.1rem; /* Reduced from 4.7rem to match compact header */
   background-color: var(--color-black);
   border-radius: 5px;
   z-index: 100;
@@ -278,12 +282,13 @@
 .footer-div{
   padding: 0px 25px;
 }
+/* Compact Navigation Button */
 .navButton {
   border: none;
-  font-size: 18px;
+  font-size: 16px; /* Reduced font size */
   margin: 2px;
-  padding: 8px 16px;
-  border-radius: 25px;
+  padding: 6px 14px; /* Reduced padding */
+  border-radius: 20px; /* Smaller border radius */
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
@@ -296,7 +301,7 @@
 .navButton:hover {
   background-color: rgba(255, 255, 255, 0.3);
   color: #000000;
-  border-radius: 25px;
+  border-radius: 20px; /* Updated to match new border radius */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transform: translateY(-0.5px);
 }
@@ -312,17 +317,18 @@
   background-color: #ffffff;
   /*color: #AEBB1E;*/
   color: #9cad25;
-  border-radius: 25px;
+  border-radius: 20px; /* Updated to match new border radius */
   box-shadow: 0 2px 8px rgba(174, 187, 30, 0.2);
   transform: translateY(-1px);
 }
 
 
 
-/* Restore original desktop navigation visibility */
+/* RESPONSIVE HEADER VISIBILITY CONTROLS */
+/* Desktop navigation - Only visible on screens >768px */
 @media only screen and (min-width: 769px) {
   .navbar {
-    display: flex !important; /* Restore original desktop navbar */
+    display: flex !important; /* Show compact desktop navbar */
   }
 
   .main-tabs {
@@ -334,9 +340,10 @@
   }
 }
 
+/* Mobile navigation - Only visible on screens ≤768px */
 @media only screen and (max-width: 768px) {
   .navbar {
-    display: none !important;
+    display: none !important; /* Hide desktop navbar on mobile */
   }
 
   /* Hide desktop navigation elements on mobile only */
@@ -422,15 +429,16 @@
   }
 }
 
+/* Hide mobile navigation on desktop screens >768px */
 @media only screen and (min-width: 769px) {
   .small-nav {
-    display: none;
+    display: none !important; /* Hide mobile navbar on desktop */
   }
   .small-main {
-    display: none;
+    display: none !important;
   }
   .mobile-nav-tabs {
-    display: none;
+    display: none !important;
   }
 }
 

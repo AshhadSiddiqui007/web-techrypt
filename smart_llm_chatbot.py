@@ -1702,25 +1702,29 @@ class IntelligentLLMChatbot:
                 'that works', 'perfect', 'excellent', 'great idea', 'good idea'
             ]
 
-            # Check if this is an appointment-related response in context
-            if (any(pattern in message.lower() for pattern in appointment_bypass_patterns) and
-                context.conversation_stage in ['recommendation', 'closing']):
+            # ENHANCED: Check for fuzzy appointment matches (handles typos) OR exact matches
+            fuzzy_appointment_detected = self.fuzzy_match_appointment_terms(message)
+            exact_appointment_detected = any(pattern in message.lower() for pattern in appointment_bypass_patterns)
+
+            # Check if this is an appointment-related response in context OR direct appointment request
+            if ((exact_appointment_detected and context.conversation_stage in ['recommendation', 'closing']) or
+                fuzzy_appointment_detected):
                 # Bypass CSV matching and use contextual appointment response
                 context.conversation_stage = 'closing'
                 user_name = user_context.get('name', '')
                 name_part = f", {user_name}" if user_name else ""
 
-                response_text = f"""Perfect{name_part}! Let's schedule your consultation.
-
-• 15-20 minute personalized consultation
-• Discuss your specific business needs
-• Custom solution recommendations
-• Transparent pricing discussion
+                response_text = f"""Perfect{name_part}! I'll open the appointment booking form for you right now. Please fill in your details and preferred time, and we'll get back to you within 24 hours to confirm your consultation.
 
 We serve Karachi locally and offer remote consultations globally. What's your preferred time and method - in-person (Karachi), phone call, or video meeting?"""
 
-                llm_method = "appointment_bypass"
+                llm_method = "appointment_bypass_enhanced"
                 self.response_stats['rule_based'] += 1
+
+                if fuzzy_appointment_detected:
+                    logger.info(f"🎯 Fuzzy appointment booking triggered for: '{message}'")
+                else:
+                    logger.info(f"🎯 Exact appointment booking triggered for: '{message}'")
 
             # 0. CSV RESPONSES FOR ALL QUERIES (HIGHEST PRIORITY - Use our detailed explanations)
             if not response_text and self.csv_handler.data_loaded:
@@ -2885,9 +2889,54 @@ We serve Karachi locally and offer remote consultations worldwide. What's your p
 
         return stats
 
+    def fuzzy_match_appointment_terms(self, message: str) -> bool:
+        """Enhanced fuzzy matching for appointment-related terms with typo tolerance"""
+        import difflib
+
+        message_lower = message.lower().strip()
+
+        # Core appointment terms to match against
+        appointment_terms = [
+            'appointment', 'appointmen', 'appointmet', 'appoiment', 'appoime', 'apointment',
+            'schedule', 'scedule', 'shedule', 'scdeule', 'schedul', 'shcedule',
+            'book', 'bok', 'boook', 'buk', 'booking', 'bokking',
+            'demo', 'drmo', 'dmo', 'demoo', 'dem',
+            'meeting', 'meting', 'meating', 'meetng', 'meetting',
+            'consultation', 'consultaton', 'consulation', 'consulttion', 'consult'
+        ]
+
+        # Split message into words
+        words = message_lower.split()
+
+        # Check each word against appointment terms with fuzzy matching
+        for word in words:
+            for term in appointment_terms:
+                # Direct match
+                if word == term:
+                    return True
+
+                # Fuzzy match with high similarity threshold
+                similarity = difflib.SequenceMatcher(None, word, term).ratio()
+                if similarity >= 0.7:  # 70% similarity threshold
+                    logger.info(f"🎯 Fuzzy appointment match: '{word}' -> '{term}' (similarity: {similarity:.3f})")
+                    return True
+
+                # Check if word contains the term (for partial matches)
+                if len(term) >= 4 and (term in word or word in term):
+                    if abs(len(word) - len(term)) <= 2:  # Allow 2 character difference
+                        logger.info(f"🎯 Partial appointment match: '{word}' contains '{term}'")
+                        return True
+
+        return False
+
     def should_show_appointment_form(self, message: str, context: ConversationContext) -> bool:
         """Determine if appointment form should be shown with intelligent context-aware detection"""
         message_lower = message.lower().strip()
+
+        # ENHANCED: Check for fuzzy appointment matches first
+        if self.fuzzy_match_appointment_terms(message):
+            logger.info(f"🎯 Fuzzy appointment detection triggered for: '{message}'")
+            return True
 
         # Direct appointment booking phrases
         direct_appointment_triggers = [
