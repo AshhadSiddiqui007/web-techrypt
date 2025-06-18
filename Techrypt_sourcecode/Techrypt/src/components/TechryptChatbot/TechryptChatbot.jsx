@@ -5,6 +5,14 @@ import calenderIcon from "/Images/chatbot/calender.svg";
 import minimizeIcon from "/Images/chatbot/minimize.svg";
 import binIcon from "/Images/chatbot/bin.svg";
 import closeIcon from "/Images/chatbot/close.svg";
+// Alternative import method - using standard imports for SVG files
+import automationIcon from "/Images/appointmentform/automation.svg";
+import brandingIcon from "/Images/appointmentform/branding.svg";
+import chatbotIcon from "/Images/appointmentform/chatbot.svg";
+import paymentintegrationIcon from "/Images/appointmentform/paymentintegration.svg";
+import socialmediamarketingIcon from "/Images/appointmentform/socialmediamarketing.svg";
+import webdevelopmentIcon from "/Images/appointmentform/webdevelopment.svg";
+
 
 const TechryptChatbot = ({ isOpen, onClose }) => {
   // Load messages from localStorage or use default
@@ -684,6 +692,168 @@ Would you like to schedule a consultation or learn more about any specific servi
     return errors;
   };
 
+  // Generate available time slots based on business hours and selected date (timezone-aware)
+  const getAvailableTimeSlots = () => {
+    if (!formData.date) return [];
+
+    const selectedDate = new Date(formData.date);
+    const dayOfWeek = selectedDate.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+
+    let timeSlots = [];
+
+    if (dayOfWeek === 0) {
+      // Sunday - Closed
+      return [];
+    } else {
+      // Get business hours in user's timezone
+      const localBusinessHours = getLocalBusinessHours();
+
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        // Monday-Friday: Use converted weekday hours
+        timeSlots = generateTimeSlots(localBusinessHours.weekdays.start, localBusinessHours.weekdays.end);
+      } else if (dayOfWeek === 6) {
+        // Saturday: Use converted Saturday hours
+        timeSlots = generateTimeSlots(localBusinessHours.saturday.start, localBusinessHours.saturday.end);
+      }
+    }
+
+    return timeSlots;
+  };
+
+  // Generate time slots in 20-minute intervals
+  const generateTimeSlots = (startTime, endTime) => {
+    const slots = [];
+    const start = new Date(`2000-01-01T${startTime}:00`);
+    const end = new Date(`2000-01-01T${endTime}:00`);
+
+    let current = new Date(start);
+
+    while (current < end) {
+      const timeString = current.toTimeString().slice(0, 5); // HH:MM format
+      slots.push(timeString);
+      current.setMinutes(current.getMinutes() + 20); // 20-minute intervals
+    }
+
+    return slots;
+  };
+
+  // Format time for display (convert 24-hour to 12-hour format)
+  const formatTimeDisplay = (time24) => {
+    const [hours, minutes] = time24.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
+
+  // Check if selected date is Sunday
+  const isSelectedDateSunday = () => {
+    if (!formData.date) return false;
+    const selectedDate = new Date(formData.date);
+    return selectedDate.getDay() === 0; // 0 = Sunday
+  };
+
+  // Timezone utilities
+  const PAKISTAN_TIMEZONE = 'Asia/Karachi';
+  const getUserTimezone = () => {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  };
+
+  // Simplified timezone conversion using Intl API
+  const convertPakistanTimeToLocal = (pakistanTime) => {
+    const [hours, minutes] = pakistanTime.split(':').map(Number);
+
+    // Create a date object representing the time in Pakistan
+    const today = new Date();
+    const pakistanDateTime = new Date();
+    pakistanDateTime.setHours(hours, minutes, 0, 0);
+
+    // Format the time in Pakistan timezone
+    const pakistanTimeFormatted = pakistanDateTime.toLocaleString('en-US', {
+      timeZone: PAKISTAN_TIMEZONE,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+
+    // Create a new date with Pakistan time and convert to user's timezone
+    const [pakHours, pakMinutes] = pakistanTimeFormatted.split(':').map(Number);
+    const baseDate = new Date();
+    baseDate.setHours(pakHours, pakMinutes, 0, 0);
+
+    // Get the time in user's timezone
+    const userTime = baseDate.toLocaleString('en-US', {
+      timeZone: getUserTimezone(),
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+
+    return userTime;
+  };
+
+  // Convert local time back to Pakistan time for backend
+  const convertLocalTimeToPakistan = (localTime) => {
+    const [hours, minutes] = localTime.split(':').map(Number);
+
+    // Create date in user's timezone
+    const localDate = new Date();
+    localDate.setHours(hours, minutes, 0, 0);
+
+    // Convert to Pakistan timezone
+    const pakistanTime = localDate.toLocaleString('en-US', {
+      timeZone: PAKISTAN_TIMEZONE,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+
+    return pakistanTime;
+  };
+
+  // Get business hours in user's timezone
+  const getLocalBusinessHours = () => {
+    const userTimezone = getUserTimezone();
+
+    try {
+      const weekdayStart = convertPakistanTimeToLocal('09:00');
+      const weekdayEnd = convertPakistanTimeToLocal('18:00');
+      const saturdayStart = convertPakistanTimeToLocal('10:00');
+      const saturdayEnd = convertPakistanTimeToLocal('16:00');
+
+      return {
+        weekdays: {
+          start: weekdayStart,
+          end: weekdayEnd,
+          display: `${formatTimeDisplay(weekdayStart)} - ${formatTimeDisplay(weekdayEnd)}`
+        },
+        saturday: {
+          start: saturdayStart,
+          end: saturdayEnd,
+          display: `${formatTimeDisplay(saturdayStart)} - ${formatTimeDisplay(saturdayEnd)}`
+        },
+        timezone: userTimezone,
+        pakistanTimezone: PAKISTAN_TIMEZONE
+      };
+    } catch (error) {
+      // Fallback to Pakistan time if conversion fails
+      return {
+        weekdays: {
+          start: '09:00',
+          end: '18:00',
+          display: '6:00 PM - 12:00 AM'
+        },
+        saturday: {
+          start: '10:00',
+          end: '16:00',
+          display: '6:00 AM - 10:00 PM'
+        },
+        timezone: PAKISTAN_TIMEZONE,
+        pakistanTimezone: PAKISTAN_TIMEZONE
+      };
+    }
+  };
+
   const validateAppointmentForm = () => {
     const errors = {};
 
@@ -761,14 +931,18 @@ Would you like to schedule a consultation or learn more about any specific servi
     setError(null);
 
     try {
-      // Prepare appointment data for MongoDB
+      // Prepare appointment data for MongoDB - convert time to Pakistan timezone
+      const pakistanTime = convertLocalTimeToPakistan(formData.time);
+
       const appointmentData = {
         name: formData.name.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
         services: formData.services,
         preferred_date: formData.date,
-        preferred_time: formData.time,
+        preferred_time: pakistanTime, // Send Pakistan time to backend
+        preferred_time_local: formData.time, // Keep local time for reference
+        user_timezone: getUserTimezone(),
         notes: formData.notes.trim(),
         status: 'Pending',
         created_at: new Date().toISOString(),
@@ -820,13 +994,18 @@ Would you like to schedule a consultation or learn more about any specific servi
         return;
       }
 
-      if (!response.ok) {
-        const errorResult = await response.json();
-        throw new Error(errorResult.error || `HTTP error! status: ${response.status}`);
+      // Parse response
+      const result = await response.json();
+      console.log('📊 Backend response:', result);
+
+      // Check if the appointment was successful based on backend response
+      if (!response.ok || !result.success) {
+        console.error('❌ Backend returned error:', result);
+        throw new Error(result.error || result.message || `HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
       console.log('✅ Appointment saved successfully:', result);
+      console.log('💾 Saved to database:', result.saved_to_database);
 
       // Close the appointment form
       setShowAppointmentForm(false);
@@ -835,18 +1014,18 @@ Would you like to schedule a consultation or learn more about any specific servi
       // Show the thank you modal
       setShowThankYouModal(true);
 
+      // Create clean success message without technical details
       const confirmationMessage = {
         id: Date.now() + 1,
         text: `🎉 Appointment Request Submitted Successfully!
 
-Your appointment has been saved to our database:
+Your appointment has been confirmed and our team will be in touch soon.
 
-Details:
+Appointment Details:
 • Services: ${formData.services.join(', ')}
 • Date: ${formData.date}
-• Time: ${formData.time}
+• Time: ${formatTimeDisplay(formData.time)}
 • Contact: ${formData.email}
-• Reference ID: ${result.appointment_id || 'Generated'}
 
 📧 Next Steps:
 • Our team will contact you within 24 hours to confirm
@@ -865,26 +1044,79 @@ Thank you for choosing Techrypt.io! 🚀`,
 
     } catch (error) {
       console.error('❌ Error saving appointment:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        formData: formData
+      });
+
       setIsLoading(false);
 
       // Show error message but still close form and show confirmation
       setShowAppointmentForm(false);
       setShowThankYouModal(true);
 
+      // Determine error type and create user-friendly message
+      const isConnectionError = error.message.includes('Could not connect') ||
+                               error.message.includes('fetch') ||
+                               error.message.includes('network');
+
+      const isBusinessHoursError = error.message.includes('business hours');
+      const isValidationError = error.message.includes('required') ||
+                               error.message.includes('invalid') ||
+                               error.message.includes('valid');
+
+      let userFriendlyMessage = '';
+
+      if (isBusinessHoursError) {
+        const localHours = getLocalBusinessHours();
+        const userTz = getUserTimezone();
+        const isLocalTime = userTz !== PAKISTAN_TIMEZONE;
+
+        userFriendlyMessage = `⏰ Appointment Time Not Available
+
+The selected time is outside our business hours. Please choose a time during:
+
+🕒 **Business Hours:**
+• **Monday - Friday:** ${localHours.weekdays.display}${isLocalTime ? ' (your time)' : ''}
+• **Saturday:** ${localHours.saturday.display}${isLocalTime ? ' (your time)' : ''}
+• **Sunday:** Closed
+
+${isLocalTime ? 'Original hours: Mon-Fri 9:00 AM - 6:00 PM, Sat 10:00 AM - 4:00 PM (Pakistan Time)\n\n' : ''}Please select a different time and try again.`;
+      } else if (isValidationError) {
+        userFriendlyMessage = `📝 Appointment Information Issue
+
+Please check your appointment details and ensure all required fields are filled correctly.
+
+You can try submitting your appointment again with the corrected information.`;
+      } else if (isConnectionError) {
+        userFriendlyMessage = `🔄 Connection Issue
+
+We're experiencing a temporary connection issue. Your appointment information has been noted and our team will contact you directly.
+
+**Your Details:**
+• Services: ${formData.services.join(', ')}
+• Preferred Date: ${formData.date}
+• Preferred Time: ${formData.time}
+• Contact: ${formData.email}`;
+      } else {
+        userFriendlyMessage = `⚠️ Appointment Request Received
+
+Your appointment request has been received. Our team will review it and contact you directly to confirm the details.
+
+**Your Details:**
+• Services: ${formData.services.join(', ')}
+• Preferred Date: ${formData.date}
+• Preferred Time: ${formData.time}
+• Contact: ${formData.email}`;
+      }
+
       const errorMessage = {
         id: Date.now() + 1,
-        text: `⚠️ Appointment Request Received!
+        text: `${userFriendlyMessage}
 
-Your appointment request has been received, but there was a technical issue saving it to our database. Don't worry - we have your information!
-
-Details:
-• Services: ${formData.services.join(', ')}
-• Date: ${formData.date}
-• Time: ${formData.time}
-• Contact: ${formData.email}
-
-📧 Next Steps:
-• Our team will contact you within 24 hours to confirm
+📧 **Next Steps:**
+• Our team will contact you within 24 hours
 • You'll receive a confirmation email shortly
 • We'll send calendar details once confirmed
 
@@ -965,16 +1197,15 @@ Thank you for choosing Techrypt.io! 🚀`,
           id: Date.now() + 1,
           text: `🎉 Appointment Booked Successfully!
 
-Your appointment has been confirmed for the suggested time:
+Your appointment has been confirmed for the suggested time.
 
-Details:
-• Services: ${updatedFormData.services.join(', ')}
-• Date: ${updatedFormData.date}
-• Time: ${updatedFormData.time}
-• Contact: ${updatedFormData.email}
-• Reference ID: ${result.appointment_id || 'Generated'}
+**Appointment Details:**
+• **Services:** ${updatedFormData.services.join(', ')}
+• **Date:** ${updatedFormData.date}
+• **Time:** ${formatTimeDisplay(updatedFormData.time)}
+• **Contact:** ${updatedFormData.email}
 
-📧 Next Steps:
+📧 **Next Steps:**
 • Our team will contact you within 24 hours to confirm
 • You'll receive a confirmation email shortly
 • We'll send calendar details once confirmed
@@ -1007,6 +1238,22 @@ Thank you for choosing Techrypt.io! 🚀`,
 
   return (
     <div className={`techrypt-chatbot-overlay ${isMinimized ? 'minimized' : ''}`}>
+      {/* SVG Icon Styling - Updated for img tags */}
+      <style jsx>{`
+        .techrypt-service-icon img {
+          width: 24px;
+          height: 24px;
+          display: block;
+          transition: filter 0.2s ease;
+        }
+        .techrypt-service-checkbox:hover .techrypt-service-icon img {
+          filter: brightness(0) saturate(100%) invert(84%) sepia(21%) saturate(1352%) hue-rotate(42deg) brightness(95%) contrast(89%);
+        }
+        .techrypt-service-checkbox input:checked + .techrypt-service-content .techrypt-service-icon img {
+          filter: brightness(0) saturate(100%) invert(84%) sepia(21%) saturate(1352%) hue-rotate(42deg) brightness(95%) contrast(89%);
+        }
+      `}</style>
+
       <div className={`techrypt-chatbot-container ${isMinimized ? 'minimized' : ''}`}>
         {/* Mobile Header - Only visible on screens ≤768px */}
         <div
@@ -1315,9 +1562,24 @@ Thank you for choosing Techrypt.io! 🚀`,
         {showAppointmentForm && (
           <div className="techrypt-form-overlay">
             <div className="techrypt-form-modal techrypt-appointment-modal">
-              <div className="techrypt-form-header">
-                <h3>📅 Schedule Your Appointment</h3>
-                <button onClick={() => setShowAppointmentForm(false)}>×</button>
+              <div className="techrypt-form-header text-black">
+                <h3 style={{ display: 'flex', alignItems: 'center' }}>
+                  <img
+                    src={calenderIcon}
+                    alt="Calendar Icon"
+                    style={{
+                      width: '30px',
+                      height: '30px',
+                      marginRight: '8px'
+                    }}
+                  />
+                  Schedule Your Appointment
+                </h3>
+
+                <button onClick={() => setShowAppointmentForm(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                  <img src = {closeIcon} style={{ width: '20px', height: '20px' }} />
+                </button>
+
               </div>
               <div className="techrypt-form-content">
                 <p>Complete your appointment details below. Your contact information has been pre-filled.</p>
@@ -1373,16 +1635,17 @@ Thank you for choosing Techrypt.io! 🚀`,
                     />
                     {appointmentErrors.phone && <span className="techrypt-field-error">{appointmentErrors.phone}</span>}
                   </div>
+
                   <div className="techrypt-form-field">
                     <label>Services * (Select all that apply)</label>
                     <div className="techrypt-services-grid">
                       {[
-                        { id: 'website', name: 'Website Development', icon: '🌐', desc: 'Custom websites with SEO optimization' },
-                        { id: 'social', name: 'Social Media Marketing', icon: '📱', desc: 'Instagram, Facebook, LinkedIn growth' },
-                        { id: 'branding', name: 'Branding Services', icon: '🎨', desc: 'Logo design, brand identity, marketing materials' },
-                        { id: 'chatbot', name: 'Chatbot Development', icon: '🤖', desc: 'AI-powered customer service automation' },
-                        { id: 'automation', name: 'Automation Packages', icon: '⚡', desc: 'Business process automation solutions' },
-                        { id: 'payment', name: 'Payment Gateway Integration', icon: '💳', desc: 'Stripe, PayPal, and custom solutions' }
+                        { id: 'website', name: 'Website Development', icon: <img src={webdevelopmentIcon} alt="Website Development" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'Custom websites with SEO optimization' },
+                        { id: 'social', name: 'Social Media Marketing', icon: <img src={socialmediamarketingIcon} alt="Social Media Marketing" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'Instagram, Facebook, LinkedIn growth' },
+                        { id: 'branding', name: 'Branding Services', icon: <img src={brandingIcon} alt="Branding Services" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'Logo design, brand identity, marketing materials' },
+                        { id: 'chatbot', name: 'Chatbot Development', icon: <img src={chatbotIcon} alt="Chatbot Development" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'AI-powered customer service automation' },
+                        { id: 'automation', name: 'Automation Packages', icon: <img src={automationIcon} alt="Automation Packages" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'Business process automation solutions' },
+                        { id: 'payment', name: 'Payment Gateway Integration', icon: <img src={paymentintegrationIcon} alt="Payment Gateway Integration" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'Stripe, PayPal, and custom solutions' }
                       ].map(service => (
                         <div key={service.id} className="techrypt-service-checkbox">
                           <label>
@@ -1413,6 +1676,60 @@ Thank you for choosing Techrypt.io! 🚀`,
                     </div>
                     {appointmentErrors.services && <span className="techrypt-field-error">{appointmentErrors.services}</span>}
                   </div>
+
+                  <div
+                    className="techrypt-business-hours"
+                    style={{
+                      backgroundColor: '#c4d322',
+                      border: '1px solid #0000',
+                      borderRadius: '8px',
+                      padding: '15px',
+                      marginBottom: '15px',
+                      fontSize: '13px',
+                      lineHeight: '1.4',
+                      color: '#000'
+                    }}
+                  >
+                    <h4 style={{ color: '#000', marginBottom: '10px', fontSize: '14px' }}>
+                      🕒 Business Hours & Available Times
+                    </h4>
+
+                    {(() => {
+                      const localHours = getLocalBusinessHours();
+                      const userTz = getUserTimezone();
+                      const isLocalTime = userTz !== PAKISTAN_TIMEZONE;
+
+                      return (
+                        <div>
+                          <div>
+                            <strong>Monday - Friday:</strong> {localHours.weekdays.display}
+                            {isLocalTime && (
+                              <span style={{ fontSize: '11px', color: '#64748b' }}> (your time)</span>
+                            )}
+                          </div>
+                          <div>
+                            <strong>Saturday:</strong> {localHours.saturday.display}
+                            {isLocalTime && (
+                              <span style={{ fontSize: '11px', color: '#64748b' }}> (your time)</span>
+                            )}
+                          </div>
+                          <div><strong>Sunday:</strong> Closed</div>
+
+                          {isLocalTime && (
+                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '8px', fontStyle: 'italic' }}>
+                              Original: Mon–Fri 6:00 PM – 3:00 AM, Sat 6:00 PM – 10:00 PM (Pakistan Time)
+                            </div>
+                          )}
+
+                          <p style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', marginBottom: '0' }}>
+                            Time slots are available in 20-minute intervals during business hours.
+                          </p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+
                   <div className="techrypt-form-row">
                     <div className="techrypt-form-field">
                       <label>Preferred Date *</label>
@@ -1420,7 +1737,11 @@ Thank you for choosing Techrypt.io! 🚀`,
                         type="date"
                         value={formData.date}
                         onChange={(e) => {
-                          setFormData(prev => ({ ...prev, date: e.target.value }));
+                          setFormData(prev => ({
+                            ...prev,
+                            date: e.target.value,
+                            time: '' // Clear time when date changes
+                          }));
                           if (appointmentErrors.date) {
                             setAppointmentErrors(prev => ({ ...prev, date: '' }));
                           }
@@ -1433,8 +1754,7 @@ Thank you for choosing Techrypt.io! 🚀`,
                     </div>
                     <div className="techrypt-form-field">
                       <label>Preferred Time *</label>
-                      <input
-                        type="time"
+                      <select
                         value={formData.time}
                         onChange={(e) => {
                           setFormData(prev => ({ ...prev, time: e.target.value }));
@@ -1444,8 +1764,28 @@ Thank you for choosing Techrypt.io! 🚀`,
                         }}
                         className={appointmentErrors.time ? 'error' : ''}
                         required
-                      />
+                      >
+                        <option value="">Select a time</option>
+                        {getAvailableTimeSlots().map(time => (
+                          <option key={time} value={time}>{formatTimeDisplay(time)}</option>
+                        ))}
+                      </select>
                       {appointmentErrors.time && <span className="techrypt-field-error">{appointmentErrors.time}</span>}
+
+                      {/* Sunday message */}
+                      {formData.date && isSelectedDateSunday() && (
+                        <div className="techrypt-sunday-message" style={{
+                          marginTop: '8px',
+                          padding: '10px',
+                          backgroundColor: '#fef3c7',
+                          border: '1px solid #f59e0b',
+                          borderRadius: '6px',
+                          color: '#92400e',
+                          fontSize: '14px'
+                        }}>
+                          ⚠️ We are closed on Sundays. Please select another day for your appointment.
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="techrypt-form-field">
@@ -1457,12 +1797,6 @@ Thank you for choosing Techrypt.io! 🚀`,
                       rows="3"
                     />
                   </div>
-                </div>
-                <div className="techrypt-business-hours">
-                  <strong>Business Hours:</strong><br />
-                  Monday - Friday: 9:00 AM - 6:00 PM EST<br />
-                  Saturday: 10:00 AM - 4:00 PM EST<br />
-                  Sunday: Closed
                 </div>
                 <div className="techrypt-form-actions">
                   <button

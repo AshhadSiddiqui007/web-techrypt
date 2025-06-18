@@ -290,8 +290,18 @@ class TechryptMongoDBBackend:
             return []
     
     # APPOINTMENT OPERATIONS
-    def _is_business_hours(self, date_str: str, time_str: str) -> bool:
-        """Check if the requested time is within business hours"""
+    def _is_business_hours(self, date_str: str, time_str: str, user_timezone: str = None) -> bool:
+        """
+        Check if the requested time is within business hours (Pakistan time)
+
+        Args:
+            date_str: Date in YYYY-MM-DD format
+            time_str: Time in HH:MM format (should be in Pakistan time)
+            user_timezone: User's timezone (for logging purposes only)
+
+        Returns:
+            bool: True if within business hours, False otherwise
+        """
         try:
             from datetime import datetime, time
 
@@ -299,16 +309,30 @@ class TechryptMongoDBBackend:
             appointment_date = datetime.strptime(date_str, "%Y-%m-%d")
             day_of_week = appointment_date.weekday()  # 0=Monday, 6=Sunday
 
-            # Parse the time
+            # Parse the time (expecting Pakistan time)
             appointment_time = datetime.strptime(time_str, "%H:%M").time()
 
-            # Business hours: Monday-Friday: 9:00 AM - 6:00 PM EST, Saturday: 10:00 AM - 4:00 PM EST, Sunday: Closed
+            # Log timezone information for debugging
+            if user_timezone:
+                logger.info(f"🌍 Timezone validation - User: {user_timezone}, Pakistan time: {time_str}")
+
+            # Business hours in Pakistan time:
+            # Monday-Friday: 9:00 AM - 6:00 PM PKT
+            # Saturday: 10:00 AM - 4:00 PM PKT
+            # Sunday: Closed
             if day_of_week == 6:  # Sunday
+                logger.info(f"❌ Sunday appointment rejected: {date_str} {time_str}")
                 return False
             elif day_of_week <= 4:  # Monday-Friday
-                return time(9, 0) <= appointment_time <= time(18, 0)
+                is_valid = time(9, 0) <= appointment_time <= time(18, 0)
+                if not is_valid:
+                    logger.info(f"❌ Weekday hours violation: {date_str} {time_str} (valid: 9:00-18:00)")
+                return is_valid
             elif day_of_week == 5:  # Saturday
-                return time(10, 0) <= appointment_time <= time(16, 0)
+                is_valid = time(10, 0) <= appointment_time <= time(16, 0)
+                if not is_valid:
+                    logger.info(f"❌ Saturday hours violation: {date_str} {time_str} (valid: 10:00-16:00)")
+                return is_valid
 
             return False
 
@@ -353,9 +377,9 @@ class TechryptMongoDBBackend:
                     if day_of_week == 6:  # Sunday - skip to Monday
                         next_day += timedelta(days=1)
                         check_datetime = datetime.combine(next_day, datetime.strptime("09:00", "%H:%M").time())
-                    elif day_of_week <= 4:  # Monday-Friday
+                    elif day_of_week <= 4:  # Monday-Friday (9:00 AM start)
                         check_datetime = datetime.combine(next_day, datetime.strptime("09:00", "%H:%M").time())
-                    elif day_of_week == 5:  # Saturday
+                    elif day_of_week == 5:  # Saturday (10:00 AM start)
                         check_datetime = datetime.combine(next_day, datetime.strptime("10:00", "%H:%M").time())
 
             return None  # No available slot found
@@ -380,24 +404,46 @@ class TechryptMongoDBBackend:
             return False
 
     def create_appointment(self, appointment_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Create a new appointment with conflict prevention in the 'Appointment data' collection"""
+        """
+        Create a new appointment with timezone-aware conflict prevention
+
+        Supports both legacy and new timezone-aware appointment data:
+        - preferred_time: Time in Pakistan timezone (for validation)
+        - preferred_time_local: Time in user's local timezone (for reference)
+        - user_timezone: User's detected timezone (for analytics)
+        """
         if not self.is_connected():
             return {"success": False, "error": "Database not connected"}
 
         try:
+            # Extract appointment data with backward compatibility
             requested_date = appointment_data.get("preferred_date", "")
-            requested_time = appointment_data.get("preferred_time", "")
+            requested_time = appointment_data.get("preferred_time", "")  # Pakistan time
 
-            # Validate business hours
-            if not self._is_business_hours(requested_date, requested_time):
+            # New timezone-aware fields (optional for backward compatibility)
+            user_timezone = appointment_data.get("user_timezone", None)
+            local_time = appointment_data.get("preferred_time_local", None)
+
+            # Log timezone information for analytics
+            if user_timezone and local_time:
+                logger.info(f"🌍 Timezone-aware appointment request:")
+                logger.info(f"   User timezone: {user_timezone}")
+                logger.info(f"   Local time: {local_time}")
+                logger.info(f"   Pakistan time: {requested_time}")
+            else:
+                logger.info(f"📅 Legacy appointment request: {requested_date} {requested_time}")
+
+            # Validate business hours using Pakistan time
+            if not self._is_business_hours(requested_date, requested_time, user_timezone):
                 return {
                     "success": False,
                     "error": "Requested time is outside business hours",
                     "business_hours": {
-                        "monday_friday": "9:00 AM - 6:00 PM EST",
-                        "saturday": "10:00 AM - 4:00 PM EST",
+                        "monday_friday": "9:00 AM - 6:00 PM PKT",
+                        "saturday": "10:00 AM - 4:00 PM PKT",
                         "sunday": "Closed"
-                    }
+                    },
+                    "user_timezone": user_timezone  # Include for frontend timezone conversion
                 }
 
             # Check for time conflicts
@@ -421,14 +467,14 @@ class TechryptMongoDBBackend:
                         "suggestion_message": "Please choose a different date or time."
                     }
 
-            # Prepare appointment document with all required fields
+            # Prepare appointment document with timezone-aware fields
             appointment_doc = {
                 "name": appointment_data.get("name", "").strip(),
                 "email": appointment_data.get("email", "").strip(),
                 "phone": appointment_data.get("phone", "").strip(),
                 "services": appointment_data.get("services", []),
                 "preferred_date": requested_date,
-                "preferred_time": requested_time,
+                "preferred_time": requested_time,  # Pakistan time (for validation/backend)
                 "status": appointment_data.get("status", "Pending"),
                 "notes": appointment_data.get("notes", ""),
                 "source": appointment_data.get("source", "chatbot_form"),
@@ -436,6 +482,22 @@ class TechryptMongoDBBackend:
                 "updated_at": datetime.now(timezone.utc).isoformat(),
                 "metadata": appointment_data.get("metadata", {})
             }
+
+            # Add timezone-aware fields if available (for analytics and future features)
+            if user_timezone:
+                appointment_doc["timezone_info"] = {
+                    "user_timezone": user_timezone,
+                    "preferred_time_local": local_time,  # User's local time
+                    "preferred_time_pakistan": requested_time,  # Pakistan time
+                    "timezone_conversion_applied": True
+                }
+                logger.info(f"🌍 Stored timezone info: {appointment_doc['timezone_info']}")
+            else:
+                # Legacy appointment without timezone info
+                appointment_doc["timezone_info"] = {
+                    "timezone_conversion_applied": False,
+                    "assumed_timezone": "Asia/Karachi"  # Assume Pakistan time
+                }
 
             # Use the correct collection name "Appointment data"
             appointment_collection = self.db["Appointment data"]
@@ -445,7 +507,8 @@ class TechryptMongoDBBackend:
             logger.info(f"📋 Appointment details: {appointment_doc['name']} - {appointment_doc['email']}")
             logger.info(f"🗄️ Database: {self.database_name}, Collection: Appointment data")
 
-            return {
+            # Prepare success response with timezone information
+            response = {
                 "success": True,
                 "appointment_id": str(result.inserted_id),
                 "message": "Appointment booked successfully!",
@@ -453,10 +516,27 @@ class TechryptMongoDBBackend:
                     "name": appointment_doc["name"],
                     "email": appointment_doc["email"],
                     "date": appointment_doc["preferred_date"],
-                    "time": appointment_doc["preferred_time"],
+                    "time": appointment_doc["preferred_time"],  # Pakistan time
                     "services": appointment_doc["services"]
                 }
             }
+
+            # Include timezone information in response if available
+            if user_timezone and local_time:
+                response["timezone_info"] = {
+                    "user_timezone": user_timezone,
+                    "local_time": local_time,
+                    "pakistan_time": requested_time,
+                    "timezone_aware": True
+                }
+                logger.info(f"🌍 Timezone-aware appointment created successfully")
+            else:
+                response["timezone_info"] = {
+                    "timezone_aware": False,
+                    "assumed_timezone": "Asia/Karachi"
+                }
+
+            return response
 
         except Exception as e:
             logger.error(f"❌ Appointment creation error: {e}")

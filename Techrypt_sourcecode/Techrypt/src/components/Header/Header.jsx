@@ -40,7 +40,7 @@ export default function Header() {
   return (
     <>
       {/* Enhanced Desktop Navbar - Only visible on screens >768px */}
-      <nav className="navbar hidden md:flex">
+      <nav className="navbar hidden md:flex" style={{ paddingTop: '10px' }}>
         <div className="leftNav overflow-hidden">
           <Link to="/" className="flex items-center">
             {/* Desktop logo - properly sized and aligned */}

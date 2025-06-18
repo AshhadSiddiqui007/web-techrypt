@@ -23,7 +23,9 @@ app.get('/', (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.NODE_PORT || 3000;  // Changed to port 3000 to avoid conflict with Python Flask (port 5000)
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Node.js Server running on port ${PORT}`);
+  console.log(`📡 Access at: http://localhost:${PORT}`);
+  console.log(`ℹ️  Python Flask backend should be running on port 5000 for appointments`);
 });
