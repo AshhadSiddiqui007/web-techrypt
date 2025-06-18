@@ -97,7 +97,7 @@ const appointmentData = {
   <div><strong>Sunday:</strong> Closed</div>
   {isLocalTime && (
     <div>
-      <em>Original: Mon-Fri 9:00 AM - 6:00 PM, Sat 10:00 AM - 4:00 PM (Pakistan Time)</em>
+      <em>Original: Mon-Fri 6:00 PM - 3:00 AM, Sat 6:00 PM - 10:00 PM (Pakistan Time)</em>
     </div>
   )}
 </div>
