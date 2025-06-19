@@ -9,6 +9,12 @@
 5. Automation Packages
 6. Payment Gateway Integration
 
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog
+
 Would you like to schedule a consultation or learn more about any specific service?"
 "I have an egg selling business","food_agriculture","business_growth","Great! Food businesses need local presence and fresh product marketing. I'd recommend: 1) Simple website with product photos and contact info, 2) Social media marketing to showcase freshness and quality, 3) Local SEO optimization for 'fresh eggs near me' searches, 4) Customer communication system for orders. What's your main challenge - reaching new customers or managing orders?"
 "I run a dental practice","healthcare","business_growth","Excellent! Healthcare practices need trust and compliance. For your dental practice, I'd recommend: 1) HIPAA-compliant website with patient portal, 2) Online appointment booking system, 3) Patient review management, 4) Educational content marketing, 5) Local SEO for dental searches. What's your priority - attracting new patients or improving patient experience?"
@@ -60,11 +66,43 @@ Would you like to schedule a consultation or learn more about any specific servi
 "site redesign","website_development","subservice_request","Perfect! Website redesign can transform your business presence: • Modern, responsive design that converts visitors • Improved user experience and navigation • SEO optimization for better search rankings • Mobile-first approach for all devices • Performance optimization for faster loading Ready to discuss your redesign goals? Let's schedule a consultation to explore possibilities."
 "logo redesign","branding_services","subservice_request","Excellent! A fresh logo can revitalize your brand identity: • Modern, memorable logo design • Brand guidelines and color palette • Multiple format delivery (vector, PNG, etc.) • Social media and print variations • Brand consistency across all platforms Want to explore logo concepts? Let's schedule a consultation to discuss your brand vision."
 "workflow automation","automation_packages","subservice_request","Perfect! Workflow automation can streamline your operations: • Automated task management and scheduling • CRM integration and lead nurturing • Email marketing automation • Inventory and order processing • Report generation and analytics Shall we analyze your current workflows? Let's schedule a consultation to identify automation opportunities."
-"Is a chatbot included in your packages","chatbot_development","service_inquiry","Yes! Chatbot development is one of our 6 core services: • Custom chatbot development for your business • WhatsApp automation and customer service bots • 24/7 automated customer support • Appointment booking and FAQ automation • Integration with your existing systems Chatbots are perfect for automating customer service and lead generation. Would you like to discuss how a chatbot could help your specific business?"
-"Do you offer chatbots in your service packages","chatbot_development","service_inquiry","Absolutely! Chatbot development is a key service we offer: • Business-specific chatbot solutions • WhatsApp and Facebook Messenger automation • Customer service and support automation • Lead qualification and appointment booking • 24/7 availability for your customers We customize chatbots based on your business needs and industry. What type of business do you have?"
-"What chatbot services do you provide","chatbot_development","service_inquiry","Great question! Our chatbot development services include: • Custom conversation flows for your business • WhatsApp Business automation • Customer service and support bots • Appointment booking automation • FAQ and product information bots • Lead generation and qualification • Integration with CRM and business systems Each chatbot is tailored to your specific business needs. What would you like your chatbot to handle?"
+"Is a chatbot included in your packages","chatbot_development","service_inquiry","Yes! Chatbot development is one of our 6 core services: • Custom chatbot development for your business • WhatsApp automation and customer service bots • 24/7 automated customer support • Appointment booking and FAQ automation • Integration with your existing systems
+
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog
+
+Chatbots are perfect for automating customer service and lead generation. Would you like to discuss how a chatbot could help your specific business?"
+"Do you offer chatbots in your service packages","chatbot_development","service_inquiry","Absolutely! Chatbot development is a key service we offer: • Business-specific chatbot solutions • WhatsApp and Facebook Messenger automation • Customer service and support automation • Lead qualification and appointment booking • 24/7 availability for your customers
+
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog
+
+We customize chatbots based on your business needs and industry. What type of business do you have?"
+"What chatbot services do you provide","chatbot_development","service_inquiry","Great question! Our chatbot development services include: • Custom conversation flows for your business • WhatsApp Business automation • Customer service and support bots • Appointment booking automation • FAQ and product information bots • Lead generation and qualification • Integration with CRM and business systems
+
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog
+
+Each chatbot is tailored to your specific business needs. What would you like your chatbot to handle?"
 "How long does it take to launch a website?","ask_process","general_inquiry","It typically takes 2-4 weeks to launch depending on the scope. We move fast while ensuring quality."
-"What services do you offer?","general","service_inquiry","Great question! Here are our 6 core services: • Website Development - Professional websites that convert visitors into customers • Social Media Marketing - Strategic campaigns that build your brand and drive sales • Branding Services - Complete brand identity that makes you memorable • Chatbot Development - 24/7 automated customer service and lead generation • Automation Packages - Streamline operations and save time with smart workflows • Payment Gateway Integration - Secure, seamless payment processing for your business Which service would help your business grow most?"
+"What services do you offer?","general","service_inquiry","Great question! Here are our 6 core services: • Website Development - Professional websites that convert visitors into customers • Social Media Marketing - Strategic campaigns that build your brand and drive sales • Branding Services - Complete brand identity that makes you memorable • Chatbot Development - 24/7 automated customer service and lead generation • Automation Packages - Streamline operations and save time with smart workflows • Payment Gateway Integration - Secure, seamless payment processing for your business
+
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog
+
+Which service would help your business grow most?"
 "How much do your services cost?","general","pricing_inquiry","Our pricing varies based on your specific needs. Let's schedule a free consultation to discuss your requirements and provide a customized quote. Would you like to book an appointment?"
 "How long does website development take?","website_development","timeline_inquiry","Website development typically takes 2-4 weeks depending on complexity. We work efficiently while ensuring quality. What type of website do you need?"
 "I run a dental clinic","healthcare","business_growth","Perfect! For dental practices, we recommend: 1. HIPAA-compliant website with patient portal 2. Online appointment booking system 3. Patient review management 4. Local SEO optimization 5. Educational content marketing What's your priority - attracting new patients or improving patient experience?"
@@ -84,14 +122,52 @@ Would you like to schedule a consultation or learn more about any specific servi
 "I need SEO optimization","social_media_marketing","subservice_request","Perfect! SEO optimization includes: • Keyword research and optimization • Local SEO for your market • Technical SEO improvements • Content strategy for rankings • Google My Business optimization What's your target market location?"
 "asdfghjkl","general","gibberish","I didn't quite understand that. Could you please tell me about your business or what services you're interested in? I'm here to help with website development, social media marketing, branding, chatbots, automation, and payment solutions."
 "12345","general","gibberish","I'm not sure what you mean by that. Could you please describe your business or let me know how I can help you grow your business with our digital solutions?"
-"What is Techrypt?","ask_company_info","general_inquiry","Techrypt is a leading technology company specializing in digital business solutions. We help businesses grow through Website Development, Social Media Marketing, Branding Services, Chatbot Development, Automation Packages, and Payment Gateway Integration."
+"What is Techrypt?","ask_company_info","general_inquiry","Techrypt is a leading technology company specializing in digital business solutions. We help businesses grow through Website Development, Social Media Marketing, Branding Services, Chatbot Development, Automation Packages, and Payment Gateway Integration.
+
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog"
 "Where are you located?","ask_company_info","general_inquiry","We provide digital solutions to businesses with both local and remote consultation options available. We work with clients to provide comprehensive digital solutions."
 "What are your support hours?","ask_company_info","general_inquiry","Our support is available Monday through Friday, 9 AM to 6 PM PKT. For urgent matters, you can always reach out and we'll respond as soon as possible."
-"What are your branding services?","branding_services","service_inquiry","Our Branding Services create memorable business identities: • Custom logo design that reflects your business personality • Complete brand identity (colors, fonts, style guidelines) • Marketing materials (business cards, flyers, packaging design) • Social media templates for consistent branding • Brand strategy and positioning consultation • Digital and print-ready file formats We ensure your business stands out with professional, memorable branding that attracts customers."
+"What are your branding services?","branding_services","service_inquiry","Our Branding Services create memorable business identities: • Custom logo design that reflects your business personality • Complete brand identity (colors, fonts, style guidelines) • Marketing materials (business cards, flyers, packaging design) • Social media templates for consistent branding • Brand strategy and positioning consultation • Digital and print-ready file formats
+
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog
+
+We ensure your business stands out with professional, memorable branding that attracts customers."
 "What are your brading services?","branding_services","service_inquiry","Our Branding Services create memorable business identities: • Custom logo design that reflects your business personality • Complete brand identity (colors, fonts, style guidelines) • Marketing materials (business cards, flyers, packaging design) • Social media templates for consistent branding • Brand strategy and positioning consultation • Digital and print-ready file formats We ensure your business stands out with professional, memorable branding that attracts customers."
-"How will website development help my business?","website_development","service_explanation","Website development will transform your business by: • Building credibility and professional appearance that customers trust • Showcasing your products/services 24/7 to potential customers • Improving search engine visibility for local and online discovery • Enabling online sales, bookings, and customer interactions • Providing analytics to understand customer behavior and preferences • Creating a central hub for all your marketing efforts A professional website is your most powerful business tool for growth and customer acquisition."
-"How does social media marketing work?","social_media_marketing","service_explanation","Social media marketing grows your business through: • Strategic content creation that engages your target audience • Consistent brand presence across Instagram, Facebook, LinkedIn platforms • Targeted advertising to reach potential customers in your area • Community building and customer relationship management • Visual storytelling that showcases your products and services • Analytics tracking to measure engagement and ROI We create campaigns that turn social media followers into paying customers."
-"What automation services do you provide?","automation_packages","service_inquiry","Our Automation Packages streamline your business operations: • Workflow automation for repetitive tasks and processes • CRM integration and automated lead nurturing • Email marketing automation and customer follow-up • Inventory management and order processing automation • Social media scheduling and content automation • Report generation and business analytics automation • Integration between different business systems Automation saves time, reduces errors, and helps you focus on growing your business."
+"How will website development help my business?","website_development","service_explanation","Website development will transform your business by: • Building credibility and professional appearance that customers trust • Showcasing your products/services 24/7 to potential customers • Improving search engine visibility for local and online discovery • Enabling online sales, bookings, and customer interactions • Providing analytics to understand customer behavior and preferences • Creating a central hub for all your marketing efforts
+
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog
+
+A professional website is your most powerful business tool for growth and customer acquisition."
+"How does social media marketing work?","social_media_marketing","service_explanation","Social media marketing grows your business through: • Strategic content creation that engages your target audience • Consistent brand presence across Instagram, Facebook, LinkedIn platforms • Targeted advertising to reach potential customers in your area • Community building and customer relationship management • Visual storytelling that showcases your products and services • Analytics tracking to measure engagement and ROI
+
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog
+
+We create campaigns that turn social media followers into paying customers."
+"What automation services do you provide?","automation_packages","service_inquiry","Our Automation Packages streamline your business operations: • Workflow automation for repetitive tasks and processes • CRM integration and automated lead nurturing • Email marketing automation and customer follow-up • Inventory management and order processing automation • Social media scheduling and content automation • Report generation and business analytics automation • Integration between different business systems
+
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog
+
+Automation saves time, reduces errors, and helps you focus on growing your business."
 "What are your timings?","ask_company_info","general_inquiry","Our business hours are Monday through Friday, 9 AM to 6 PM. We provide both local and remote consultation services. For urgent matters or project discussions, you can reach out anytime and we'll respond within 24 hours."
 "How will website development help my bakery?","website_development","business_specific","A professional website will help your bakery by: • Showcasing daily specials with mouth-watering photos that attract customers • Enabling online ordering for pickup and delivery, increasing sales • Building customer trust with professional appearance and testimonials • Improving local search visibility for 'bakery near me' searches • Integrating with social media for seamless marketing campaigns • Providing customer information like hours, location, and contact details • Creating a platform for customer reviews and community building Your bakery website becomes a 24/7 sales tool that brings in more customers."
 "How will social media marketing help my restaurant?","social_media_marketing","business_specific","Social media marketing will boost your restaurant by: • Showcasing delicious food photos that make customers hungry and visit • Building a loyal community of food lovers and repeat customers • Promoting daily specials, events, and seasonal menu items • Encouraging customer reviews and user-generated content • Targeting local food enthusiasts with strategic advertising • Creating buzz around new dishes and restaurant events • Driving foot traffic through engaging posts and stories Restaurant social media turns followers into diners and builds lasting customer relationships."
@@ -288,8 +364,24 @@ Would you like to schedule a consultation or learn more about any specific servi
 "How will a website help my interior design business?","professional","service_explanation","Interior design websites showcase project portfolios, display design process, and enable consultation booking with style questionnaires. This attracts homeowners seeking professional design services. Would you like to schedule a consultation to discuss your specific needs?"
 "How will website help me?","general","service_explanation","A professional website will help your business by: • Building credibility and trust with potential customers • Providing 24/7 online presence for customer inquiries • Showcasing your services and expertise professionally • Improving local search visibility for 'near me' searches • Enabling online bookings and customer contact • Displaying customer reviews and testimonials For your specific business type, we focus on industry-relevant features and local SEO optimization. Would you like to schedule a consultation to discuss your specific needs?"
 "How will a website help me?","general","service_explanation","A professional website will help your business by: • Building credibility and trust with potential customers • Providing 24/7 online presence for customer inquiries • Showcasing your services and expertise professionally • Improving local search visibility for 'near me' searches • Enabling online bookings and customer contact • Displaying customer reviews and testimonials For your specific business type, we focus on industry-relevant features and local SEO optimization. Would you like to schedule a consultation to discuss your specific needs?"
-"How will chatbot help me?","general","service_explanation","A professional chatbot will help your business by: • Providing 24/7 automated customer support • Handling common questions and inquiries instantly • Qualifying leads and collecting customer information • Booking appointments and scheduling consultations • Reducing response time from hours to seconds • Freeing up your time for core business activities For your specific business type, we customize conversation flows for industry-specific needs. Would you like to schedule a consultation to discuss your specific needs?"
-"How will a chatbot help me?","general","service_explanation","A professional chatbot will help your business by: • Providing 24/7 automated customer support • Handling common questions and inquiries instantly • Qualifying leads and collecting customer information • Booking appointments and scheduling consultations • Reducing response time from hours to seconds • Freeing up your time for core business activities For your specific business type, we customize conversation flows for industry-specific needs. Would you like to schedule a consultation to discuss your specific needs?"
+"How will chatbot help me?","general","service_explanation","A professional chatbot will help your business by: • Providing 24/7 automated customer support • Handling common questions and inquiries instantly • Qualifying leads and collecting customer information • Booking appointments and scheduling consultations • Reducing response time from hours to seconds • Freeing up your time for core business activities
+
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog
+
+For your specific business type, we customize conversation flows for industry-specific needs. Would you like to schedule a consultation to discuss your specific needs?"
+"How will a chatbot help me?","general","service_explanation","A professional chatbot will help your business by: • Providing 24/7 automated customer support • Handling common questions and inquiries instantly • Qualifying leads and collecting customer information • Booking appointments and scheduling consultations • Reducing response time from hours to seconds • Freeing up your time for core business activities
+
+The bots we make specialize on:
+• Showcase a product or service
+• Sell items online
+• Build a personal brand or portfolio
+• Share knowledge or blog
+
+For your specific business type, we customize conversation flows for industry-specific needs. Would you like to schedule a consultation to discuss your specific needs?"
 "I have tire shop","automotive","business_introduction","Perfect! Tire shops need strong local visibility and customer trust. Here are our 6 core services for your automotive business: • Website Development - Professional site with service listings and online booking • Social Media Marketing - Local SEO for 'tire shop near me' searches • Branding Services - Professional identity that builds automotive credibility • Chatbot Development - Automated appointment booking and service inquiries • Automation Packages - Inventory management and customer follow-up • Payment Gateway Integration - Secure payment processing for services What's your main challenge - attracting local customers or managing operations? Would you like to schedule a consultation to discuss your specific needs?"
 "I have a tire shop","automotive","business_introduction","Perfect! Tire shops need strong local visibility and customer trust. Here are our 6 core services for your automotive business: • Website Development - Professional site with service listings and online booking • Social Media Marketing - Local SEO for 'tire shop near me' searches • Branding Services - Professional identity that builds automotive credibility • Chatbot Development - Automated appointment booking and service inquiries • Automation Packages - Inventory management and customer follow-up • Payment Gateway Integration - Secure payment processing for services What's your main challenge - attracting local customers or managing operations? Would you like to schedule a consultation to discuss your specific needs?"
 

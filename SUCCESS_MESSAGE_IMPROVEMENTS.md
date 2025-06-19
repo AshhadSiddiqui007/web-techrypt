@@ -54,8 +54,8 @@ Thank you for choosing Techrypt.io! 🚀
 ```jsx
 <div className="techrypt-business-hours">
   <strong>Business Hours:</strong><br />
-  Monday - Friday: 9:00 AM - 6:00 PM EST<br />
-  Saturday: 10:00 AM - 4:00 PM EST<br />
+  Monday - Friday: 6:00 PM - 3:00 AM EST<br />
+  Saturday: 6:00 PM - 10:00 PM EST<br />
   Sunday: Closed
 </div>
 ```

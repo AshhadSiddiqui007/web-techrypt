@@ -7,11 +7,23 @@ Handles all database operations for users, appointments, and conversations
 import os
 import json
 import logging
+import smtplib
+import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, DuplicateKeyError, ServerSelectionTimeoutError
 from bson.objectid import ObjectId
+
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # dotenv not available, will use system environment variables
+    pass
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -50,12 +62,18 @@ class TechryptMongoDBBackend:
         
         # Connect to MongoDB
         self._connect()
-        
+
         # Initialize collections
         self._initialize_collections()
-        
+
         # Ensure indexes
         self._ensure_indexes()
+
+        # Initialize email configuration
+        self._setup_email_config()
+
+        # Initialize email configuration
+        self._setup_email_config()
 
     def _connect(self):
         """Establish MongoDB connection with Windows SSL handling"""
@@ -198,11 +216,195 @@ class TechryptMongoDBBackend:
             logger.info("✅ Database indexes ensured")
         except Exception as e:
             logger.warning(f"⚠️ Index creation warning: {e}")
-    
+
+    def _setup_email_config(self):
+        """Setup email configuration for appointment confirmations"""
+        try:
+            # Email configuration using existing Techrypt credentials
+            self.email_config = {
+                'smtp_server': os.getenv('SMTP_SERVER', 'smtp.hostinger.com'),
+                'smtp_port': int(os.getenv('SMTP_PORT', '587')),
+                'sender_email': os.getenv('SENDER_EMAIL', 'projects@techrypt.io'),
+                'sender_password': os.getenv('SMTP_PASSWORD', 'Monday@!23456'),
+                'admin_email': os.getenv('ADMIN_EMAIL', 'info@techrypt.io'),
+                'enabled': True
+            }
+
+            # Validate email configuration
+            if (self.email_config['sender_email'] == 'projects@techrypt.io' and
+                self.email_config['sender_password'] == 'Monday@!23456'):
+                logger.info("✅ Email configuration loaded with Techrypt credentials")
+            else:
+                logger.info("✅ Email configuration loaded with custom credentials")
+
+        except Exception as e:
+            logger.warning(f"⚠️ Email configuration warning: {e}")
+            self.email_config = {'enabled': False}
+
     def is_connected(self) -> bool:
         """Check if database is connected"""
         return self.connected and self.client is not None
-    
+
+    def _send_appointment_email(self, appointment_data: Dict[str, Any], appointment_id: str) -> bool:
+        """
+        Send appointment confirmation email to customer and admin
+
+        Args:
+            appointment_data: Appointment details
+            appointment_id: MongoDB appointment ID
+
+        Returns:
+            bool: True if email sent successfully, False otherwise
+        """
+        if not self.email_config.get('enabled', False):
+            logger.info("📧 Email sending disabled - skipping email notification")
+            return False
+
+        try:
+            # Extract appointment details
+            customer_name = appointment_data.get('name', 'Customer')
+            customer_email = appointment_data.get('email', '')
+            customer_phone = appointment_data.get('phone', '')
+            services = appointment_data.get('services', [])
+            preferred_date = appointment_data.get('preferred_date', '')
+            preferred_time = appointment_data.get('preferred_time', '')
+
+            # Get timezone information if available
+            timezone_info = appointment_data.get('timezone_info', {})
+            user_timezone = timezone_info.get('user_timezone', 'Not specified')
+            local_time = timezone_info.get('preferred_time_local', preferred_time)
+
+            # Format services list
+            services_text = ', '.join(services) if services else 'General consultation'
+
+            # Create email content
+            email_subject = f"Appointment Confirmation - {customer_name} - {preferred_date}"
+
+            # Customer email content
+            customer_email_body = f"""
+Dear {customer_name},
+
+Thank you for booking an appointment with Techrypt! Your appointment has been confirmed.
+
+📅 APPOINTMENT DETAILS:
+• Name: {customer_name}
+• Email: {customer_email}
+• Phone: {customer_phone}
+• Services: {services_text}
+• Date: {preferred_date}
+• Time: {preferred_time} (Pakistan Time)
+• Local Time: {local_time} ({user_timezone})
+• Reference ID: {appointment_id}
+
+🏢 BUSINESS INFORMATION:
+• Company: Techrypt
+• Email: info@techrypt.io
+• Business Hours: Mon-Fri 9AM-6PM, Sat 10AM-4PM PKT
+• Sunday: Closed
+
+We look forward to meeting with you! If you need to reschedule or have any questions, please contact us at info@techrypt.io.
+
+Best regards,
+Techrypt Team
+
+---
+This is an automated confirmation email.
+"""
+
+            # Admin email content
+            admin_email_body = f"""
+New Appointment Booking - {customer_name}
+
+📅 APPOINTMENT DETAILS:
+• Customer: {customer_name}
+• Email: {customer_email}
+• Phone: {customer_phone}
+• Services: {services_text}
+• Date: {preferred_date}
+• Time: {preferred_time} (Pakistan Time)
+• Customer Local Time: {local_time} ({user_timezone})
+• Reference ID: {appointment_id}
+• Booked: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} UTC
+
+Please prepare for this appointment and contact the customer if needed.
+
+---
+Techrypt Appointment System
+"""
+
+            # Send emails
+            emails_sent = 0
+
+            # Send to customer
+            if customer_email and '@' in customer_email:
+                if self._send_email(customer_email, email_subject, customer_email_body):
+                    emails_sent += 1
+                    logger.info(f"✅ Confirmation email sent to customer: {customer_email}")
+                else:
+                    logger.warning(f"⚠️ Failed to send email to customer: {customer_email}")
+
+            # Send to admin (info@techrypt.io)
+            admin_email = self.email_config.get('admin_email', 'info@techrypt.io')
+            admin_subject = f"New Appointment: {customer_name} - {preferred_date}"
+            if self._send_email(admin_email, admin_subject, admin_email_body):
+                emails_sent += 1
+                logger.info(f"✅ Notification email sent to admin: {admin_email}")
+            else:
+                logger.warning(f"⚠️ Failed to send email to admin: {admin_email}")
+
+            # Send to projects team (projects@techrypt.io)
+            projects_email = "projects@techrypt.io"
+            projects_subject = f"New Appointment Notification: {customer_name} - {preferred_date}"
+            if self._send_email(projects_email, projects_subject, admin_email_body):
+                emails_sent += 1
+                logger.info(f"✅ Notification email sent to projects team: {projects_email}")
+            else:
+                logger.warning(f"⚠️ Failed to send email to projects team: {projects_email}")
+
+            return emails_sent > 0
+
+        except Exception as e:
+            logger.error(f"❌ Email sending error: {e}")
+            return False
+
+    def _send_email(self, recipient: str, subject: str, body: str) -> bool:
+        """
+        Send email using SMTP
+
+        Args:
+            recipient: Email recipient
+            subject: Email subject
+            body: Email body content
+
+        Returns:
+            bool: True if sent successfully, False otherwise
+        """
+        try:
+            # Create message
+            msg = MIMEMultipart()
+            msg['From'] = f"Techrypt Appointments <{self.email_config['sender_email']}>"
+            msg['To'] = recipient
+            msg['Subject'] = subject
+
+            # Add body
+            msg.attach(MIMEText(body, 'plain'))
+
+            # Connect to SMTP server
+            server = smtplib.SMTP(self.email_config['smtp_server'], self.email_config['smtp_port'])
+            server.starttls()  # Enable TLS encryption
+            server.login(self.email_config['sender_email'], self.email_config['sender_password'])
+
+            # Send email
+            text = msg.as_string()
+            server.sendmail(self.email_config['sender_email'], recipient, text)
+            server.quit()
+
+            return True
+
+        except Exception as e:
+            logger.error(f"❌ SMTP error sending to {recipient}: {e}")
+            return False
+
     # USER OPERATIONS
     def create_user(self, user_data: Dict[str, Any]) -> Optional[str]:
         """Create a new user"""
@@ -506,6 +708,18 @@ class TechryptMongoDBBackend:
             logger.info(f"✅ Created appointment in 'Appointment data' collection: {result.inserted_id}")
             logger.info(f"📋 Appointment details: {appointment_doc['name']} - {appointment_doc['email']}")
             logger.info(f"🗄️ Database: {self.database_name}, Collection: Appointment data")
+
+            # Send appointment confirmation emails (non-blocking)
+            appointment_id = str(result.inserted_id)
+            try:
+                email_sent = self._send_appointment_email(appointment_doc, appointment_id)
+                if email_sent:
+                    logger.info("📧 Appointment confirmation emails sent successfully")
+                else:
+                    logger.info("📧 Email sending skipped or failed (appointment still saved)")
+            except Exception as email_error:
+                # Email failure should not break appointment creation
+                logger.warning(f"⚠️ Email sending failed but appointment saved: {email_error}")
 
             # Prepare success response with timezone information
             response = {

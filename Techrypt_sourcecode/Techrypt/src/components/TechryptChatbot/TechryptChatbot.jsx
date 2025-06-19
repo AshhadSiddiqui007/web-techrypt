@@ -1082,7 +1082,7 @@ The selected time is outside our business hours. Please choose a time during:
 • **Saturday:** ${localHours.saturday.display}${isLocalTime ? ' (your time)' : ''}
 • **Sunday:** Closed
 
-${isLocalTime ? 'Original hours: Mon-Fri 9:00 AM - 6:00 PM, Sat 10:00 AM - 4:00 PM (Pakistan Time)\n\n' : ''}Please select a different time and try again.`;
+${isLocalTime ? 'Original hours: Mon-Fri 6:00 PM - 3:00 AM, Sat 6:00 PM - 10:00 PM (Pakistan Time)\n\n' : ''}Please select a different time and try again.`;
       } else if (isValidationError) {
         userFriendlyMessage = `📝 Appointment Information Issue
 
@@ -1823,7 +1823,7 @@ Thank you for choosing Techrypt.io! 🚀`,
           <div className="techrypt-form-overlay">
             <div className="techrypt-form-modal">
               <div className="techrypt-form-header">
-                <h3>⏰ Time Conflict Detected</h3>
+                <h3 style={{color:"black"}}>⏰ Time Conflict Detected</h3>
                 <button onClick={() => setShowConflictModal(false)}>×</button>
               </div>
               <div className="techrypt-form-content">
@@ -1832,13 +1832,13 @@ Thank you for choosing Techrypt.io! 🚀`,
                 </p>
 
                 {conflictData.suggested_slot && (
-                  <div className="techrypt-suggested-slot" style={{backgroundColor: '#f3f4f6', padding: '15px', borderRadius: '8px', marginBottom: '15px'}}>
-                    <h4 style={{color: '#059669', marginBottom: '10px'}}>🕐 Suggested Alternative:</h4>
-                    <div className="techrypt-slot-details">
-                      <p><strong>Date:</strong> {conflictData.suggested_slot.date}</p>
-                      <p><strong>Time:</strong> {conflictData.suggested_slot.time}</p>
+                  <div className="techrypt-suggested-slot" style={{backgroundColor: '#c4d322', padding: '15px', borderRadius: '8px', marginBottom: '15px'}}>
+                    <h4 style={{color: "black", marginBottom: '10px', fontWeight: 'bold'}}>🕐 Suggested Alternative:</h4>
+                    <div className="techrypt-slot-details" >
+                      <p style={{color:"black"}}><strong>Date:</strong> {conflictData.suggested_slot.date}</p>
+                      <p style={{color:"black"}}><strong>Time:</strong> {conflictData.suggested_slot.time}</p>
                     </div>
-                    <p className="techrypt-suggestion-text" style={{marginTop: '10px', fontStyle: 'italic'}}>
+                    <p className="techrypt-suggestion-text" style={{marginTop: '10px', fontStyle: 'italic', color:"black"}}>
                       {conflictData.suggestion_message}
                     </p>
                   </div>

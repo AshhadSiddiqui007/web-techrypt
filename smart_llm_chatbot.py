@@ -64,8 +64,10 @@ try:
     import os
     from dotenv import load_dotenv
 
-    # Load environment variables first
-    load_dotenv()
+    # Load environment variables first - check multiple locations
+    load_dotenv()  # Load from current directory
+    load_dotenv('Techrypt_sourcecode/Techrypt/src/.env')  # Load from src directory
+    load_dotenv('.env')  # Load from current directory again as fallback
 
     # Add path and import MongoDB backend
     sys.path.append('Techrypt_sourcecode/Techrypt/src')
@@ -3243,6 +3245,28 @@ def book_appointment():
                 # Success case
                 appointment_id = result.get('appointment_id')
                 logger.info(f"✅ Appointment saved to MongoDB Atlas: {appointment_id}")
+
+                # Debug: Check if email functionality was triggered
+                logger.info(f"🔍 DEBUG: Checking email functionality for appointment {appointment_id}")
+                if hasattr(mongodb_backend, 'email_config'):
+                    email_config = mongodb_backend.email_config
+                    logger.info(f"📧 DEBUG: Email enabled: {email_config.get('enabled', False)}")
+                    logger.info(f"📤 DEBUG: SMTP server: {email_config.get('smtp_server', 'Not set')}")
+                    logger.info(f"👤 DEBUG: Sender email: {email_config.get('sender_email', 'Not set')}")
+                else:
+                    logger.warning("⚠️ DEBUG: Email configuration not found in Flask MongoDB backend")
+
+                # Check if email methods exist
+                has_send_email = hasattr(mongodb_backend, '_send_email')
+                has_send_appointment_email = hasattr(mongodb_backend, '_send_appointment_email')
+                logger.info(f"🔧 DEBUG: _send_email method available: {has_send_email}")
+                logger.info(f"🔧 DEBUG: _send_appointment_email method available: {has_send_appointment_email}")
+
+                # Log appointment data for email debugging
+                logger.info(f"📋 DEBUG: Appointment data for email: {appointment_data.get('name')} - {appointment_data.get('email')}")
+                logger.info(f"📧 DEBUG: Email should be sent to customer: {appointment_data.get('email')}")
+                logger.info(f"📧 DEBUG: Email should be sent to admin: info@techrypt.io")
+                logger.info(f"📧 DEBUG: Email should be sent to projects: projects@techrypt.io")
 
             except Exception as mongo_error:
                 logger.error(f"❌ MongoDB save failed: {mongo_error}")

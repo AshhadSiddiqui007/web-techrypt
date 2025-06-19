@@ -17,10 +17,10 @@ def _is_business_hours(self, date_str: str, time_str: str, user_timezone: str = 
 
 **Business Hours Validation**:
 ```python
-# Monday-Friday: 9:00 AM - 6:00 PM PKT
+# Monday-Friday:6:00 PM - 3:00 AM EST  PKT
 time(9, 0) <= appointment_time <= time(18, 0)
 
-# Saturday: 10:00 AM - 4:00 PM PKT  
+# Saturday: 6:00 PM - 3:00 AM PKT  
 time(10, 0) <= appointment_time <= time(16, 0)
 
 # Sunday: Closed

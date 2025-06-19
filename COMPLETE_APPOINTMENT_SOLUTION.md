@@ -49,8 +49,8 @@ Connection: mongodb+srv://admin:admin!23456@websitedatabase.dhcngef.mongodb.net/
 ## ⏰ Conflict Prevention Logic
 
 ### Business Hours:
-- **Monday-Friday:** 9:00 AM - 6:00 PM EST
-- **Saturday:** 10:00 AM - 4:00 PM EST  
+- **Monday-Friday:** 6:00 PM - 3:00 AM EST
+- **Saturday:** :00 PM - 10:00 PM EST  
 - **Sunday:** Closed
 
 ### Conflict Resolution Process:

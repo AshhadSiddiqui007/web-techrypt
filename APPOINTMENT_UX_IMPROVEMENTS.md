@@ -18,8 +18,8 @@
   - Auto-clears time selection when date changes
 
 **Business Hours Logic**:
-- **Monday-Friday**: 9:00 AM - 6:00 PM EST (20-minute intervals)
-- **Saturday**: 10:00 AM - 4:00 PM EST (20-minute intervals)
+- **Monday-Friday**: 6:00 PM - 3:00 AM EST (20-minute intervals)
+- **Saturday**: 6:00 AM - 10:00 PM EST (20-minute intervals)
 - **Sunday**: No time slots available (Closed)
 
 **User Experience**:
@@ -74,8 +74,8 @@
 The selected time is outside our business hours. Please choose a time during:
 
 🕒 Business Hours:
-• Monday - Friday: 9:00 AM - 6:00 PM EST
-• Saturday: 10:00 AM - 4:00 PM EST  
+• Monday - Friday: 6:00 PM - 3:00 AM EST
+• Saturday: 6:00 PM - 10:00 PM EST  
 • Sunday: Closed
 
 Please select a different time and try again.

@@ -97,7 +97,7 @@ const appointmentData = {
   <div><strong>Sunday:</strong> Closed</div>
   {isLocalTime && (
     <div>
-      <em>Original: Mon-Fri 9:00 AM - 6:00 PM, Sat 10:00 AM - 4:00 PM (Pakistan Time)</em>
+      <em>Original: Mon-Fri 6:00 PM - 3:00 AM, Sat 6:00 PM - 10:00 PM (Pakistan Time)</em>
     </div>
   )}
 </div>
@@ -117,32 +117,76 @@ The selected time is outside our business hours. Please choose a time during:
 • Saturday: 11:00 PM - 5:00 AM (your time)
 • Sunday: Closed
 
-Original hours: Mon-Fri 9:00 AM - 6:00 PM, Sat 10:00 AM - 4:00 PM (Pakistan Time)
+Original hours: Mon-Fri 6:00 PM - 3:00 AM, Sat 6:00 PM - 10:00 PM (Pakistan Time)
 
 Please select a different time and try again.
 ```
 
 ---
 
-## 🌍 **Timezone Examples**
+akistan User (PKT - UTC+5)
+Display:
 
-### **Pakistan User (PKT - UTC+5)**
-- **Display**: Monday-Friday: 9:00 AM - 6:00 PM
-- **Backend**: 09:00 - 18:00 (no conversion needed)
+Monday–Friday: 6:00 PM – 3:00 AM
 
-### **US East Coast User (EST - UTC-5)**
-- **Display**: Monday-Friday: 11:00 PM - 8:00 AM (your time)
-- **Backend**: 09:00 - 18:00 (converted from local time)
+Saturday: 6:00 PM – 10:00 PM
 
-### **UK User (GMT - UTC+0)**
-- **Display**: Monday-Friday: 4:00 AM - 1:00 PM (your time)
-- **Backend**: 09:00 - 18:00 (converted from local time)
+Sunday: Closed
 
-### **Australia User (AEST - UTC+10)**
-- **Display**: Monday-Friday: 2:00 PM - 11:00 PM (your time)
-- **Backend**: 09:00 - 18:00 (converted from local time)
+Backend:
 
----
+Weekdays: 18:00 – 03:00
+
+Saturday: 18:00 – 22:00
+
+Sunday: Closed
+
+US East Coast User (EST - UTC-5 / EDT - UTC-4)
+Display:
+
+Monday–Friday: 9:00 AM – 6:00 PM (your time)
+
+Saturday: 9:00 AM – 1:00 PM (your time)
+
+Sunday: Closed
+
+Backend:
+
+Weekdays: 13:00 – 22:00 (converted from PKT)
+
+Saturday: 13:00 – 17:00 (converted from PKT)
+
+UK User (BST - UTC+1)
+Display:
+
+Monday–Friday: 2:00 PM – 11:00 PM (your time)
+
+Saturday: 2:00 PM – 6:00 PM (your time)
+
+Sunday: Closed
+
+Backend:
+
+Weekdays: 13:00 – 22:00
+
+Saturday: 13:00 – 17:00
+
+Australia User (AEST - UTC+10)
+Display:
+
+Monday–Friday: 11:00 PM – 8:00 AM (your time)
+
+Saturday: 11:00 PM – 3:00 AM (Sunday)
+
+Sunday: Closed
+
+Backend:
+
+Weekdays: 13:00 – 22:00
+
+Saturday: 13:00 – 17:00
+
+
 
 ## 🧪 **Testing Instructions**
 
