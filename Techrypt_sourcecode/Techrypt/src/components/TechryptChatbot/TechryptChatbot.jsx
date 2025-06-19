@@ -735,50 +735,57 @@ Would you like to schedule a consultation or learn more about any specific servi
     return timeSlots;
   };
 
-  // Generate time slots in 20-minute intervals
-  const generateTimeSlots = (startTime, endTime) => {
-    console.log('🕒 Generating time slots from', startTime, 'to', endTime);
+    const generateTimeSlots = (startTime, endTime) => {
+      console.log('🕒 Generating 3-hour range slots from', startTime, 'to', endTime);
 
-    if (!startTime || !endTime) {
-      console.warn('🕒 Invalid start or end time:', { startTime, endTime });
-      return [];
-    }
-
-    const slots = [];
-
-    try {
-      // Parse start and end times
-      const [startHours, startMinutes] = startTime.split(':').map(Number);
-      const [endHours, endMinutes] = endTime.split(':').map(Number);
-
-      // Create date objects for comparison
-      const start = new Date(2000, 0, 1, startHours, startMinutes);
-      const end = new Date(2000, 0, 1, endHours, endMinutes);
-
-      // Handle overnight schedule (e.g., 6 PM to 3 AM next day)
-      // If end time is earlier than start time, it means it goes to next day
-      if (end <= start) {
-        end.setDate(end.getDate() + 1);
-        console.log('🕒 Overnight schedule detected - end time moved to next day');
+      if (!startTime || !endTime) {
+        console.warn('🕒 Invalid start or end time:', { startTime, endTime });
+        return [];
       }
 
-      let current = new Date(start);
+      const slots = [];
 
-      while (current < end) {
-        const hours = current.getHours().toString().padStart(2, '0');
-        const minutes = current.getMinutes().toString().padStart(2, '0');
-        const timeString = `${hours}:${minutes}`;
-        slots.push(timeString);
-        current.setMinutes(current.getMinutes() + 20); // 20-minute intervals
+      try {
+        const [startH, startM] = startTime.split(':').map(Number);
+        const [endH, endM] = endTime.split(':').map(Number);
+
+        let start = new Date(2000, 0, 1, startH, startM);
+        let end = new Date(2000, 0, 1, endH, endM);
+
+        // Handle overnight ranges (e.g. 6 PM to 3 AM)
+        if (end <= start) {
+          end.setDate(end.getDate() + 1);
+        }
+
+        // Generate up to 3 slots, each 3 hours long
+        for (let i = 0; i < 3; i++) {
+          const slotStart = new Date(start.getTime() + i * 3 * 60 * 60 * 1000); // +3h steps
+          const slotEnd = new Date(slotStart.getTime() + 3 * 60 * 60 * 1000); // 3h duration
+
+          if (slotStart >= end || slotEnd > end) break;
+
+          const formatTime = (date) => {
+            return date.toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true,
+            });
+          };
+
+          const slotRange = `${formatTime(slotStart)} - ${formatTime(slotEnd)}`;
+          slots.push(slotRange);
+        }
+
+        console.log('🕒 Final readable time slots:', slots);
+        return slots;
+      } catch (error) {
+        console.error('🕒 Error generating time slots:', error);
+        return [];
       }
+    };
 
-      console.log('🕒 Generated', slots.length, 'time slots:', slots);
-      return slots;
-    } catch (error) {
-      console.error('🕒 Error generating time slots:', error);
-      return [];
-    }
-  };
+
+
 
   // Format time for display (convert 24-hour to 12-hour format)
   const formatTimeDisplay = (time24) => {
