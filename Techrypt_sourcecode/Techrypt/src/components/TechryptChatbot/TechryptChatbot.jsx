@@ -91,8 +91,9 @@ const TechryptChatbot = ({ isOpen, onClose }) => {
     time: '',
     notes: ''
   });
-  const [conflictData, setConflictData] = useState(null);
-  const [showConflictModal, setShowConflictModal] = useState(false);
+  // MODIFICATION: Removed conflict-related state variables since multiple appointments per time slot are now allowed
+  // const [conflictData, setConflictData] = useState(null);
+  // const [showConflictModal, setShowConflictModal] = useState(false);
   const [contactErrors, setContactErrors] = useState({});
   const [appointmentErrors, setAppointmentErrors] = useState({});
 
@@ -694,47 +695,89 @@ Would you like to schedule a consultation or learn more about any specific servi
 
   // Generate available time slots based on business hours and selected date (timezone-aware)
   const getAvailableTimeSlots = () => {
-    if (!formData.date) return [];
+    if (!formData.date) {
+      console.log('🕒 No date selected, returning empty time slots');
+      return [];
+    }
 
     const selectedDate = new Date(formData.date);
     const dayOfWeek = selectedDate.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+
+    console.log('🕒 Generating time slots for:', {
+      date: formData.date,
+      dayOfWeek: dayOfWeek,
+      dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek]
+    });
 
     let timeSlots = [];
 
     if (dayOfWeek === 0) {
       // Sunday - Closed
+      console.log('🕒 Sunday selected - no time slots available (closed)');
       return [];
     } else {
       // Get business hours in user's timezone
       const localBusinessHours = getLocalBusinessHours();
+      console.log('🕒 Local business hours:', localBusinessHours);
 
       if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-        // Monday-Friday: Use converted weekday hours
+        // Monday-Friday: Use converted weekday hours (9 AM - 6 PM PKT)
+        console.log('🕒 Weekday selected - generating slots from', localBusinessHours.weekdays.start, 'to', localBusinessHours.weekdays.end);
         timeSlots = generateTimeSlots(localBusinessHours.weekdays.start, localBusinessHours.weekdays.end);
       } else if (dayOfWeek === 6) {
-        // Saturday: Use converted Saturday hours
+        // Saturday: Use converted Saturday hours (10 AM - 4 PM PKT)
+        console.log('🕒 Saturday selected - generating slots from', localBusinessHours.saturday.start, 'to', localBusinessHours.saturday.end);
         timeSlots = generateTimeSlots(localBusinessHours.saturday.start, localBusinessHours.saturday.end);
       }
     }
 
+    console.log('🕒 Generated time slots:', timeSlots);
     return timeSlots;
   };
 
   // Generate time slots in 20-minute intervals
   const generateTimeSlots = (startTime, endTime) => {
-    const slots = [];
-    const start = new Date(`2000-01-01T${startTime}:00`);
-    const end = new Date(`2000-01-01T${endTime}:00`);
+    console.log('🕒 Generating time slots from', startTime, 'to', endTime);
 
-    let current = new Date(start);
-
-    while (current < end) {
-      const timeString = current.toTimeString().slice(0, 5); // HH:MM format
-      slots.push(timeString);
-      current.setMinutes(current.getMinutes() + 20); // 20-minute intervals
+    if (!startTime || !endTime) {
+      console.warn('🕒 Invalid start or end time:', { startTime, endTime });
+      return [];
     }
 
-    return slots;
+    const slots = [];
+
+    try {
+      // Parse start and end times
+      const [startHours, startMinutes] = startTime.split(':').map(Number);
+      const [endHours, endMinutes] = endTime.split(':').map(Number);
+
+      // Create date objects for comparison
+      const start = new Date(2000, 0, 1, startHours, startMinutes);
+      const end = new Date(2000, 0, 1, endHours, endMinutes);
+
+      // Handle overnight schedule (e.g., 6 PM to 3 AM next day)
+      // If end time is earlier than start time, it means it goes to next day
+      if (end <= start) {
+        end.setDate(end.getDate() + 1);
+        console.log('🕒 Overnight schedule detected - end time moved to next day');
+      }
+
+      let current = new Date(start);
+
+      while (current < end) {
+        const hours = current.getHours().toString().padStart(2, '0');
+        const minutes = current.getMinutes().toString().padStart(2, '0');
+        const timeString = `${hours}:${minutes}`;
+        slots.push(timeString);
+        current.setMinutes(current.getMinutes() + 20); // 20-minute intervals
+      }
+
+      console.log('🕒 Generated', slots.length, 'time slots:', slots);
+      return slots;
+    } catch (error) {
+      console.error('🕒 Error generating time slots:', error);
+      return [];
+    }
   };
 
   // Format time for display (convert 24-hour to 12-hour format)
@@ -816,6 +859,9 @@ Would you like to schedule a consultation or learn more about any specific servi
     const userTimezone = getUserTimezone();
 
     try {
+      // REVERTED: Original Pakistan business hours (evening/overnight schedule)
+      // Monday-Friday: 6:00 PM - 3:00 AM (next day) PKT
+      // Saturday: 6:00 PM - 10:00 PM PKT
       const weekdayStart = convertPakistanTimeToLocal('18:00');
       const weekdayEnd = convertPakistanTimeToLocal('03:00');
       const saturdayStart = convertPakistanTimeToLocal('18:00');
@@ -837,16 +883,17 @@ Would you like to schedule a consultation or learn more about any specific servi
       };
     } catch (error) {
       // Fallback to Pakistan time if conversion fails
+      console.warn('Timezone conversion failed, using Pakistan time:', error);
       return {
         weekdays: {
-          start: '09:00',
-          end: '18:00',
-          display: '6:00 PM - 12:00 AM'
+          start: '18:00',
+          end: '03:00',
+          display: '6:00 PM - 3:00 AM (Pakistan Time)'
         },
         saturday: {
-          start: '10:00',
-          end: '16:00',
-          display: '6:00 AM - 10:00 PM'
+          start: '18:00',
+          end: '22:00',
+          display: '6:00 PM - 10:00 PM (Pakistan Time)'
         },
         timezone: PAKISTAN_TIMEZONE,
         pakistanTimezone: PAKISTAN_TIMEZONE
@@ -983,16 +1030,16 @@ Would you like to schedule a consultation or learn more about any specific servi
         throw new Error('Could not connect to backend server on any port');
       }
 
-      if (response.status === 409) {
-        // Handle time conflict
-        const conflictResult = await response.json();
-        console.log('⚠️ Time conflict detected:', conflictResult);
-
-        setIsLoading(false);
-        setConflictData(conflictResult);
-        setShowConflictModal(true);
-        return;
-      }
+      // MODIFICATION: Removed 409 conflict handling since multiple appointments per time slot are now allowed
+      // Original conflict handling code (commented out):
+      // if (response.status === 409) {
+      //   const conflictResult = await response.json();
+      //   console.log('⚠️ Time conflict detected:', conflictResult);
+      //   setIsLoading(false);
+      //   setConflictData(conflictResult);
+      //   setShowConflictModal(true);
+      //   return;
+      // }
 
       // Parse response
       const result = await response.json();
@@ -1052,9 +1099,9 @@ Thank you for choosing Techrypt.io! 🚀`,
 
       setIsLoading(false);
 
-      // Show error message but still close form and show confirmation
+      // For errors, close form but DON'T show thank you modal
       setShowAppointmentForm(false);
-      setShowThankYouModal(true);
+      // setShowThankYouModal(true); // REMOVED - only show for successful submissions
 
       // Determine error type and create user-friendly message
       const isConnectionError = error.message.includes('Could not connect') ||
@@ -1132,107 +1179,27 @@ Thank you for choosing Techrypt.io! 🚀`,
     }
   };
 
-  // Handle accepting suggested time slot
-  const handleAcceptSuggestedTime = async () => {
-    if (!conflictData?.suggested_slot) return;
+  // MODIFICATION: Conflict resolution functions removed since multiple appointments per time slot are now allowed
+  // Original conflict handling functions (commented out):
+  // const handleAcceptSuggestedTime = async () => {
+  //   if (!conflictData?.suggested_slot) return;
+  //   const updatedFormData = {
+  //     ...formData,
+  //     date: conflictData.suggested_slot.date,
+  //     time: conflictData.suggested_slot.time
+  //   };
+  //   setFormData(updatedFormData);
+  //   setShowConflictModal(false);
+  //   setConflictData(null);
+  //   // Appointment submission logic was here but has been removed
+  // };
 
-    // Update form data with suggested time
-    const updatedFormData = {
-      ...formData,
-      date: conflictData.suggested_slot.date,
-      time: conflictData.suggested_slot.time
-    };
-
-    setFormData(updatedFormData);
-    setShowConflictModal(false);
-    setConflictData(null);
-
-    // Automatically submit with the new time
-    try {
-      setIsLoading(true);
-
-      const appointmentData = {
-        name: updatedFormData.name.trim(),
-        email: updatedFormData.email.trim(),
-        phone: updatedFormData.phone.trim(),
-        services: updatedFormData.services,
-        preferred_date: updatedFormData.date,
-        preferred_time: updatedFormData.time,
-        notes: updatedFormData.notes.trim(),
-        status: 'Pending',
-        created_at: new Date().toISOString(),
-        source: 'chatbot_form'
-      };
-
-      // Try multiple ports for backend connection
-      const backendPorts = [5000, 5001, 5002];
-      let response = null;
-
-      for (const port of backendPorts) {
-        try {
-          response = await fetch(`http://localhost:${port}/appointment`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(appointmentData)
-          });
-          break; // Success, exit loop
-        } catch (error) {
-          continue; // Try next port
-        }
-      }
-
-      if (!response) {
-        throw new Error('Could not connect to backend server');
-      }
-
-      if (response.ok) {
-        const result = await response.json();
-        setIsLoading(false);
-        setShowAppointmentForm(false);
-        setShowThankYouModal(true);
-
-        const confirmationMessage = {
-          id: Date.now() + 1,
-          text: `🎉 Appointment Booked Successfully!
-
-Your appointment has been confirmed for the suggested time.
-
-**Appointment Details:**
-• **Services:** ${updatedFormData.services.join(', ')}
-• **Date:** ${updatedFormData.date}
-• **Time:** ${formatTimeDisplay(updatedFormData.time)}
-• **Contact:** ${updatedFormData.email}
-
-📧 **Next Steps:**
-• Our team will contact you within 24 hours to confirm
-• You'll receive a confirmation email shortly
-• We'll send calendar details once confirmed
-
-Thank you for choosing Techrypt.io! 🚀`,
-          sender: 'bot',
-          timestamp: new Date()
-        };
-
-        setMessages(prev => [...prev, confirmationMessage]);
-        setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
-        setAppointmentErrors({});
-        setError(null);
-      }
-    } catch (error) {
-      console.error('Error booking suggested time:', error);
-      setIsLoading(false);
-      setError('Failed to book the suggested time. Please try again.');
-    }
-  };
-
-  // Handle rejecting suggested time
-  const handleRejectSuggestedTime = () => {
-    setShowConflictModal(false);
-    setConflictData(null);
-    // Keep the appointment form open for user to choose different time
-  };
+  // MODIFICATION: Conflict rejection function removed since multiple appointments per time slot are now allowed
+  // const handleRejectSuggestedTime = () => {
+  //   setShowConflictModal(false);
+  //   setConflictData(null);
+  //   // Keep the appointment form open for user to choose different time
+  // };
 
   if (!isOpen) return null;
 
@@ -1764,9 +1731,17 @@ Thank you for choosing Techrypt.io! 🚀`,
                         }}
                         className={appointmentErrors.time ? 'error' : ''}
                         required
+                        disabled={formData.date && isSelectedDateSunday()}
                       >
-                        <option value="">Select a time</option>
-                        {getAvailableTimeSlots().map(time => (
+                        <option value="">
+                          {formData.date && isSelectedDateSunday()
+                            ? "Closed on Sundays"
+                            : formData.date && getAvailableTimeSlots().length === 0
+                            ? "No time slots available"
+                            : "Select a time"
+                          }
+                        </option>
+                        {!isSelectedDateSunday() && getAvailableTimeSlots().map(time => (
                           <option key={time} value={time}>{formatTimeDisplay(time)}</option>
                         ))}
                       </select>
@@ -1784,6 +1759,21 @@ Thank you for choosing Techrypt.io! 🚀`,
                           fontSize: '14px'
                         }}>
                           ⚠️ We are closed on Sundays. Please select another day for your appointment.
+                        </div>
+                      )}
+
+                      {/* No time slots available message */}
+                      {formData.date && !isSelectedDateSunday() && getAvailableTimeSlots().length === 0 && (
+                        <div className="techrypt-no-slots-message" style={{
+                          marginTop: '8px',
+                          padding: '10px',
+                          backgroundColor: '#fef2f2',
+                          border: '1px solid #f87171',
+                          borderRadius: '6px',
+                          color: '#dc2626',
+                          fontSize: '14px'
+                        }}>
+                          ⚠️ No time slots available for this date. Please select a different date.
                         </div>
                       )}
                     </div>
@@ -1818,70 +1808,7 @@ Thank you for choosing Techrypt.io! 🚀`,
           </div>
         )}
 
-        {/* Time Conflict Resolution Modal */}
-        {showConflictModal && conflictData && (
-          <div className="techrypt-form-overlay">
-            <div className="techrypt-form-modal">
-              <div className="techrypt-form-header">
-                <h3 style={{color:"black"}}>⏰ Time Conflict Detected</h3>
-                <button onClick={() => setShowConflictModal(false)}>×</button>
-              </div>
-              <div className="techrypt-form-content">
-                <p className="techrypt-conflict-message" style={{marginBottom: '15px', color: '#d97706'}}>
-                  {conflictData.message}
-                </p>
-
-                {conflictData.suggested_slot && (
-                  <div className="techrypt-suggested-slot" style={{backgroundColor: '#c4d322', padding: '15px', borderRadius: '8px', marginBottom: '15px'}}>
-                    <h4 style={{color: "black", marginBottom: '10px', fontWeight: 'bold'}}>🕐 Suggested Alternative:</h4>
-                    <div className="techrypt-slot-details" >
-                      <p style={{color:"black"}}><strong>Date:</strong> {conflictData.suggested_slot.date}</p>
-                      <p style={{color:"black"}}><strong>Time:</strong> {conflictData.suggested_slot.time}</p>
-                    </div>
-                    <p className="techrypt-suggestion-text" style={{marginTop: '10px', fontStyle: 'italic', color:"black"}}>
-                      {conflictData.suggestion_message}
-                    </p>
-                  </div>
-                )}
-
-                {conflictData.business_hours && (
-                  <div className="techrypt-business-hours" style={{backgroundColor: '#eff6ff', padding: '15px', borderRadius: '8px', marginBottom: '15px'}}>
-                    <h4 style={{color: '#1d4ed8', marginBottom: '10px'}}>🕒 Business Hours:</h4>
-                    <p><strong>Monday - Friday:</strong> {conflictData.business_hours.monday_friday}</p>
-                    <p><strong>Saturday:</strong> {conflictData.business_hours.saturday}</p>
-                    <p><strong>Sunday:</strong> {conflictData.business_hours.sunday}</p>
-                  </div>
-                )}
-
-                <div className="techrypt-form-actions">
-                  {conflictData.suggested_slot ? (
-                    <>
-                      <button
-                        className="techrypt-form-cancel"
-                        onClick={handleRejectSuggestedTime}
-                      >
-                        Choose Different Time
-                      </button>
-                      <button
-                        className="techrypt-form-submit"
-                        onClick={handleAcceptSuggestedTime}
-                      >
-                        Accept Suggested Time
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      className="techrypt-form-submit"
-                      onClick={handleRejectSuggestedTime}
-                    >
-                      Choose Different Time
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* MODIFICATION: Conflict resolution modal removed since multiple appointments per time slot are now allowed */}
 
         {/* Thank You Modal */}
         {showThankYouModal && (

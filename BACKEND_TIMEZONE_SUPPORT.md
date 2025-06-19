@@ -17,11 +17,13 @@ def _is_business_hours(self, date_str: str, time_str: str, user_timezone: str = 
 
 **Business Hours Validation**:
 ```python
-# Monday-Friday:6:00 PM - 3:00 AM EST  PKT
-time(9, 0) <= appointment_time <= time(18, 0)
+# Monday-Friday: 6:00 PM - 3:00 AM (next day) PKT
+evening_valid = time(18, 0) <= appointment_time <= time(23, 59)
+overnight_valid = time(0, 0) <= appointment_time <= time(3, 0)
+is_valid = evening_valid or overnight_valid
 
-# Saturday: 6:00 PM - 3:00 AM PKT  
-time(10, 0) <= appointment_time <= time(16, 0)
+# Saturday: 6:00 PM - 10:00 PM PKT
+time(18, 0) <= appointment_time <= time(22, 0)
 
 # Sunday: Closed
 return False
@@ -174,11 +176,11 @@ appointment_data = {
 
 ### **Test 3: Business Hours Validation**
 ```python
-# Valid Pakistan time (2:00 PM PKT = 9:00 AM EST)
-"preferred_time": "14:00"  # ✅ Should pass
+# Valid Pakistan time (8:00 PM PKT - within business hours)
+"preferred_time": "20:00"  # ✅ Should pass
 
-# Invalid Pakistan time (8:00 PM PKT = 1:00 PM EST) 
-"preferred_time": "20:00"  # ❌ Should fail with timezone-aware error
+# Invalid Pakistan time (4:00 PM PKT - outside business hours)
+"preferred_time": "16:00"  # ❌ Should fail with timezone-aware error
 ```
 
 ---

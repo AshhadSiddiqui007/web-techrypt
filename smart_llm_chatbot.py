@@ -63,15 +63,13 @@ try:
     import sys
     import os
     from dotenv import load_dotenv
+    sys.path.append('Techrypt_sourcecode/Techrypt/src')
+    from mongodb_backend import TechryptMongoDBBackend
 
     # Load environment variables first - check multiple locations
     load_dotenv()  # Load from current directory
     load_dotenv('Techrypt_sourcecode/Techrypt/src/.env')  # Load from src directory
-    load_dotenv('.env')  # Load from current directory again as fallback
-
-    # Add path and import MongoDB backend
-    sys.path.append('Techrypt_sourcecode/Techrypt/src')
-    from mongodb_backend import TechryptMongoDBBackend
+    load_dotenv('.env')  # Load from current directory again as fallback    
 
     print("✅ MongoDB Backend imported successfully")
 
@@ -3222,25 +3220,15 @@ def book_appointment():
             try:
                 result = mongodb_backend.create_appointment(appointment_data)
 
-                # Handle conflict scenarios
+                # Handle validation errors (conflict detection disabled)
                 if not result.get("success"):
-                    if result.get("conflict"):
-                        # Time conflict detected
-                        return jsonify({
-                            'success': False,
-                            'conflict': True,
-                            'message': result.get('message'),
-                            'suggested_slot': result.get('suggested_slot'),
-                            'suggestion_message': result.get('suggestion_message'),
-                            'business_hours': result.get('business_hours')
-                        }), 409  # Conflict status code
-                    else:
-                        # Other validation error
-                        return jsonify({
-                            'success': False,
-                            'error': result.get('error'),
-                            'business_hours': result.get('business_hours')
-                        }), 400
+                    # MODIFICATION: Removed conflict-specific handling since conflicts are now allowed
+                    # All validation errors are treated as general errors (business hours, required fields, etc.)
+                    return jsonify({
+                        'success': False,
+                        'error': result.get('error'),
+                        'business_hours': result.get('business_hours')
+                    }), 400
 
                 # Success case
                 appointment_id = result.get('appointment_id')

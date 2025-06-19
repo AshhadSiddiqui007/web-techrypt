@@ -518,22 +518,31 @@ Techrypt Appointment System
             if user_timezone:
                 logger.info(f"🌍 Timezone validation - User: {user_timezone}, Pakistan time: {time_str}")
 
-            # Business hours in Pakistan time:
-            # Monday-Friday: 9:00 AM - 6:00 PM PKT
-            # Saturday: 10:00 AM - 4:00 PM PKT
+            # Business hours in Pakistan time (Evening/Overnight Schedule):
+            # Monday-Friday: 6:00 PM - 3:00 AM (next day) PKT
+            # Saturday: 6:00 PM - 10:00 PM PKT
             # Sunday: Closed
             if day_of_week == 6:  # Sunday
                 logger.info(f"❌ Sunday appointment rejected: {date_str} {time_str}")
                 return False
-            elif day_of_week <= 4:  # Monday-Friday
-                is_valid = time(9, 0) <= appointment_time <= time(18, 0)
+            elif day_of_week <= 4:  # Monday-Friday (6:00 PM - 3:00 AM next day)
+                # Check if time is between 6:00 PM (18:00) and 11:59 PM (23:59) same day
+                # OR between 12:00 AM (00:00) and 3:00 AM (03:00) next day
+                evening_valid = time(18, 0) <= appointment_time <= time(23, 59)
+                overnight_valid = time(0, 0) <= appointment_time <= time(3, 0)
+                is_valid = evening_valid or overnight_valid
+
                 if not is_valid:
-                    logger.info(f"❌ Weekday hours violation: {date_str} {time_str} (valid: 9:00-18:00)")
+                    logger.info(f"❌ Weekday hours violation: {date_str} {time_str} (valid: 18:00-23:59 or 00:00-03:00)")
+                else:
+                    logger.info(f"✅ Weekday appointment accepted: {date_str} {time_str}")
                 return is_valid
-            elif day_of_week == 5:  # Saturday
-                is_valid = time(10, 0) <= appointment_time <= time(16, 0)
+            elif day_of_week == 5:  # Saturday (6:00 PM - 10:00 PM)
+                is_valid = time(18, 0) <= appointment_time <= time(22, 0)
                 if not is_valid:
-                    logger.info(f"❌ Saturday hours violation: {date_str} {time_str} (valid: 10:00-16:00)")
+                    logger.info(f"❌ Saturday hours violation: {date_str} {time_str} (valid: 18:00-22:00)")
+                else:
+                    logger.info(f"✅ Saturday appointment accepted: {date_str} {time_str}")
                 return is_valid
 
             return False
@@ -578,11 +587,12 @@ Techrypt Appointment System
 
                     if day_of_week == 6:  # Sunday - skip to Monday
                         next_day += timedelta(days=1)
-                        check_datetime = datetime.combine(next_day, datetime.strptime("09:00", "%H:%M").time())
-                    elif day_of_week <= 4:  # Monday-Friday (9:00 AM start)
-                        check_datetime = datetime.combine(next_day, datetime.strptime("09:00", "%H:%M").time())
-                    elif day_of_week == 5:  # Saturday (10:00 AM start)
-                        check_datetime = datetime.combine(next_day, datetime.strptime("10:00", "%H:%M").time())
+                        # Monday starts at 6:00 PM (18:00)
+                        check_datetime = datetime.combine(next_day, datetime.strptime("18:00", "%H:%M").time())
+                    elif day_of_week <= 4:  # Monday-Friday (6:00 PM start)
+                        check_datetime = datetime.combine(next_day, datetime.strptime("18:00", "%H:%M").time())
+                    elif day_of_week == 5:  # Saturday (6:00 PM start)
+                        check_datetime = datetime.combine(next_day, datetime.strptime("18:00", "%H:%M").time())
 
             return None  # No available slot found
 
@@ -591,19 +601,24 @@ Techrypt Appointment System
             return None
 
     def _is_time_slot_taken(self, date_str: str, time_str: str) -> bool:
-        """Check if a specific time slot is already taken"""
-        try:
-            appointment_collection = self.db["Appointment data"]
-            existing = appointment_collection.find_one({
-                "preferred_date": date_str,
-                "preferred_time": time_str,
-                "status": {"$ne": "Cancelled"}  # Exclude cancelled appointments
-            })
-            return existing is not None
+        """Check if a specific time slot is already taken - DISABLED to allow multiple appointments per slot"""
+        # MODIFICATION: Always return False to allow multiple appointments for the same time slot
+        # This disables conflict detection while preserving the method signature for compatibility
+        logger.info(f"🔄 Time slot conflict check disabled - allowing multiple appointments for {date_str} {time_str}")
+        return False
 
-        except Exception as e:
-            logger.error(f"❌ Error checking time slot: {e}")
-            return False
+        # Original conflict detection logic (commented out):
+        # try:
+        #     appointment_collection = self.db["Appointment data"]
+        #     existing = appointment_collection.find_one({
+        #         "preferred_date": date_str,
+        #         "preferred_time": time_str,
+        #         "status": {"$ne": "Cancelled"}  # Exclude cancelled appointments
+        #     })
+        #     return existing is not None
+        # except Exception as e:
+        #     logger.error(f"❌ Error checking time slot: {e}")
+        #     return False
 
     def create_appointment(self, appointment_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -641,33 +656,35 @@ Techrypt Appointment System
                     "success": False,
                     "error": "Requested time is outside business hours",
                     "business_hours": {
-                        "monday_friday": "9:00 AM - 6:00 PM PKT",
-                        "saturday": "10:00 AM - 4:00 PM PKT",
+                        "monday_friday": "6:00 PM - 3:00 AM (next day) PKT",
+                        "saturday": "6:00 PM - 10:00 PM PKT",
                         "sunday": "Closed"
                     },
                     "user_timezone": user_timezone  # Include for frontend timezone conversion
                 }
 
-            # Check for time conflicts
-            if self._is_time_slot_taken(requested_date, requested_time):
-                # Find next available slot
-                next_slot = self._find_next_available_slot(requested_date, requested_time)
+            # MODIFICATION: Conflict detection disabled - multiple appointments allowed per time slot
+            # Original conflict detection logic (commented out):
+            # if self._is_time_slot_taken(requested_date, requested_time):
+            #     # Find next available slot
+            #     next_slot = self._find_next_available_slot(requested_date, requested_time)
+            #     if next_slot:
+            #         return {
+            #             "success": False,
+            #             "conflict": True,
+            #             "message": f"The requested time slot ({requested_date} at {requested_time}) is already booked.",
+            #             "suggested_slot": next_slot,
+            #             "suggestion_message": f"The next available slot is {next_slot['date']} at {next_slot['time']}. Would you like to book this time instead?"
+            #         }
+            #     else:
+            #         return {
+            #             "success": False,
+            #             "conflict": True,
+            #             "message": "The requested time slot is already booked and no alternative slots are available in the next 5 hours.",
+            #             "suggestion_message": "Please choose a different date or time."
+            #         }
 
-                if next_slot:
-                    return {
-                        "success": False,
-                        "conflict": True,
-                        "message": f"The requested time slot ({requested_date} at {requested_time}) is already booked.",
-                        "suggested_slot": next_slot,
-                        "suggestion_message": f"The next available slot is {next_slot['date']} at {next_slot['time']}. Would you like to book this time instead?"
-                    }
-                else:
-                    return {
-                        "success": False,
-                        "conflict": True,
-                        "message": "The requested time slot is already booked and no alternative slots are available in the next 5 hours.",
-                        "suggestion_message": "Please choose a different date or time."
-                    }
+            logger.info(f"✅ Proceeding with appointment creation - conflict detection disabled")
 
             # Prepare appointment document with timezone-aware fields
             appointment_doc = {
