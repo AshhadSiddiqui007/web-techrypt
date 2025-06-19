@@ -6,6 +6,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import "./App.css";
+import CursorGradient from './components/CursorGradient/CursorGradient.jsx';
 
 // Import components
 import Footer from "./components/Footer/Footer.jsx";
@@ -70,6 +71,8 @@ const AppContent = () => {
     </div>
   ) : (
     <>
+      {/*Unused gradient component*/} 
+      {/*<CursorGradient />*/} 
       <ToastContainer toastClassName={"bg-[#121212] border-2 border-primary text-white"} progressClassName={"bg-primary"} />
       <ScrollToTop />
       <Header />

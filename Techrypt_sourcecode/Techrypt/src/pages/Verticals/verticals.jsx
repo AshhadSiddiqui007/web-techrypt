@@ -1,6 +1,7 @@
 import React from "react";
 import Hero from "../../components/Hero/Hero.jsx";
 import Verticals from "../../components/Verticals/Verticals.jsx";
+import VerticalsPara from "../../components/VerticalsPara/VerticalsPara.jsx";
 
 const VerticalsPage = () => {
   const handleGetStarted = () => {
@@ -61,6 +62,7 @@ const VerticalsPage = () => {
           `}
         </style>
       </div>
+      <VerticalsPara/>
       <Verticals />
     </div>
   );

@@ -816,10 +816,10 @@ Would you like to schedule a consultation or learn more about any specific servi
     const userTimezone = getUserTimezone();
 
     try {
-      const weekdayStart = convertPakistanTimeToLocal('09:00');
-      const weekdayEnd = convertPakistanTimeToLocal('18:00');
-      const saturdayStart = convertPakistanTimeToLocal('10:00');
-      const saturdayEnd = convertPakistanTimeToLocal('16:00');
+      const weekdayStart = convertPakistanTimeToLocal('18:00');
+      const weekdayEnd = convertPakistanTimeToLocal('03:00');
+      const saturdayStart = convertPakistanTimeToLocal('18:00');
+      const saturdayEnd = convertPakistanTimeToLocal('22:00');
 
       return {
         weekdays: {
