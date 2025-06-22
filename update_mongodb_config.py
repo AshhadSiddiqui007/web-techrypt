@@ -36,8 +36,8 @@ class MongoDBConfigUpdater:
 
 # MongoDB Atlas Connection (Cloud)
 # Replace with your actual Atlas connection string
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/techrypt_chatbot?retryWrites=true&w=majority
-
+MONGODB_URI=mongodb+srv://admin:admin!23456@websitedatabase.dhcngef.mongodb.net/?retryWrites=true&w=majority&appName=WebsiteDatabase
+MONGODB_DATABASE=TechryptAppoinment
 # Local MongoDB Connection (Fallback)
 MONGODB_LOCAL_URI=mongodb://localhost:27017/
 

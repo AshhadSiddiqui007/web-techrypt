@@ -121,7 +121,8 @@ Create a `.env` file in your project root:
 MONGO_URI=mongodb://localhost:27017/
 
 # MongoDB Atlas (replace with your connection string)
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/
+MONGO_URI=mongodb+srv:mongodb+srv://admin:admin!23456@websitedatabase.dhcngef.mongodb.net/?retryWrites=true&w=majority&appName=WebsiteDatabase
+MONGODB_DATABASE=TechryptAppoinment
 
 # Database name
 MONGO_DB_NAME=techrypt_chatbot

@@ -443,7 +443,7 @@ Which service would you like to know more about? You can ask about specific feat
     } else if (msg.includes('support') || msg.includes('hours') || msg.includes('available')) {
       return "Our support is available Monday through Friday, 9 AM to 6 PM EST. We also provide 24/7 emergency support for critical issues.";
     } else if (msg.includes('trial') || msg.includes('free') || msg.includes('demo')) {
-      return "We don't offer a trial, but our initial consultation is completely free! During this consultation, we'll understand your needs and show you exactly how we can help your business grow.";
+      return "We don't offer a trial, but our initial consultation is completely free! During this consultation, we'll understand your needs and show you exactly how we can help.";
     } else if (msg.includes('portfolio') || msg.includes('work') || msg.includes('examples') || msg.includes('projects')) {
       return "We'd love to show you our portfolio! We have examples of websites, social media campaigns, branding projects, and automation solutions. Shall we schedule a consultation where we can showcase our work relevant to your industry?";
     } else if (msg.includes('tell me about') || msg.includes('about') || msg.includes('what is') || msg.includes('explain')) {
@@ -994,8 +994,7 @@ Would you like to schedule a consultation or learn more about any specific servi
         phone: formData.phone.trim(),
         services: formData.services,
         preferred_date: formData.date,
-        preferred_time: pakistanTime, // Send Pakistan time to backend
-        preferred_time_local: formData.time, // Keep local time for reference
+        preferred_time: formData.time, // ✅ Send the slot label directly!
         user_timezone: getUserTimezone(),
         notes: formData.notes.trim(),
         status: 'Pending',
@@ -1696,7 +1695,7 @@ Thank you for choosing Techrypt.io! 🚀`,
                           )}
 
                           <p style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', marginBottom: '0' }}>
-                            Time slots are available in 20-minute intervals during business hours.
+                            Our team will reach out within the selected time interval
                           </p>
                         </div>
                       );
@@ -1743,14 +1742,16 @@ Thank you for choosing Techrypt.io! 🚀`,
                         <option value="">
                           {formData.date && isSelectedDateSunday()
                             ? "Closed on Sundays"
-                            : formData.date && getAvailableTimeSlots().length === 0
-                            ? "No time slots available"
                             : "Select a time"
                           }
                         </option>
-                        {!isSelectedDateSunday() && getAvailableTimeSlots().map(time => (
-                          <option key={time} value={time}>{formatTimeDisplay(time)}</option>
-                        ))}
+                        {!isSelectedDateSunday() && (
+                          <>
+                            <option value="6pm-9pm">6:00 PM – 9:00 PM</option>
+                            <option value="9pm-12am">9:00 PM – 12:00 AM</option>
+                            <option value="12am-3am">12:00 AM – 3:00 AM</option>
+                          </>
+                        )}
                       </select>
                       {appointmentErrors.time && <span className="techrypt-field-error">{appointmentErrors.time}</span>}
 

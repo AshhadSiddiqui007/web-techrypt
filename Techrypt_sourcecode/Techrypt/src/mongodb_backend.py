@@ -321,15 +321,11 @@ New Appointment Booking - {customer_name}
 • Phone: {customer_phone}
 • Services: {services_text}
 • Date: {preferred_date}
-• Time: {preferred_time} (Pakistan Time)
+• Time Slot: {preferred_time} (Pakistan Time)
 • Customer Local Time: {local_time} ({user_timezone})
 • Reference ID: {appointment_id}
-• Booked: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} UTC
+• Booked: {datetime.now()} UTC
 
-Please prepare for this appointment and contact the customer if needed.
-
----
-Techrypt Appointment System
 """
 
             # Send emails
@@ -495,24 +491,29 @@ Techrypt Appointment System
     def _is_business_hours(self, date_str: str, time_str: str, user_timezone: str = None) -> bool:
         """
         Check if the requested time is within business hours (Pakistan time)
-
-        Args:
-            date_str: Date in YYYY-MM-DD format
-            time_str: Time in HH:MM format (should be in Pakistan time)
-            user_timezone: User's timezone (for logging purposes only)
-
-        Returns:
-            bool: True if within business hours, False otherwise
+        Accepts either a time string (HH:MM) or a slot label (e.g., "6pm-9pm").
         """
+        # Accept new slot labels directly (case and whitespace insensitive)
+        ALLOWED_TIME_SLOTS = ["6pm-9pm", "9pm-12am", "12am-3am"]
+        normalized_time_str = (time_str or "").replace(" ", "").lower()
+        normalized_slots = [slot.replace(" ", "").lower() for slot in ALLOWED_TIME_SLOTS]
+        if normalized_time_str in normalized_slots:
+            return True
+
+        # Guard: If time_str or date_str is empty or not valid, reject early
+        if (
+            not time_str or time_str.lower() in ["invalid date", "invalid", "none", ""]
+            or not date_str or date_str.lower() in ["invalid date", "invalid", "none", ""]
+        ):
+            logger.error(f"❌ Invalid or missing date/time string for business hours check: date='{date_str}', time='{time_str}'")
+            return False
+
         try:
             from datetime import datetime, time
 
             # Parse the date to get the day of week
             appointment_date = datetime.strptime(date_str, "%Y-%m-%d")
             day_of_week = appointment_date.weekday()  # 0=Monday, 6=Sunday
-
-            # Parse the time (expecting Pakistan time)
-            appointment_time = datetime.strptime(time_str, "%H:%M").time()
 
             # Log timezone information for debugging
             if user_timezone:
@@ -551,54 +552,6 @@ Techrypt Appointment System
             logger.error(f"❌ Error checking business hours: {e}")
             return False
 
-    def _find_next_available_slot(self, date_str: str, time_str: str) -> Optional[Dict[str, str]]:
-        """Find the next available appointment slot (20 minutes after requested time)"""
-        try:
-            from datetime import datetime, timedelta
-
-            # Parse the requested datetime
-            requested_datetime = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
-
-            # Start checking from 20 minutes after the requested time
-            check_datetime = requested_datetime + timedelta(minutes=20)
-
-            # Check for the next 5 hours (in 20-minute intervals)
-            for _ in range(15):  # 15 * 20 minutes = 5 hours
-                check_date = check_datetime.strftime("%Y-%m-%d")
-                check_time = check_datetime.strftime("%H:%M")
-
-                # Check if this time is within business hours
-                if self._is_business_hours(check_date, check_time):
-                    # Check if this slot is available
-                    if not self._is_time_slot_taken(check_date, check_time):
-                        return {
-                            "date": check_date,
-                            "time": check_time,
-                            "datetime": check_datetime.strftime("%Y-%m-%d %H:%M")
-                        }
-
-                # Move to next 20-minute slot
-                check_datetime += timedelta(minutes=20)
-
-                # If we've moved to the next day, reset to business hours start
-                if check_datetime.date() != requested_datetime.date():
-                    next_day = check_datetime.date()
-                    day_of_week = next_day.weekday()
-
-                    if day_of_week == 6:  # Sunday - skip to Monday
-                        next_day += timedelta(days=1)
-                        # Monday starts at 6:00 PM (18:00)
-                        check_datetime = datetime.combine(next_day, datetime.strptime("18:00", "%H:%M").time())
-                    elif day_of_week <= 4:  # Monday-Friday (6:00 PM start)
-                        check_datetime = datetime.combine(next_day, datetime.strptime("18:00", "%H:%M").time())
-                    elif day_of_week == 5:  # Saturday (6:00 PM start)
-                        check_datetime = datetime.combine(next_day, datetime.strptime("18:00", "%H:%M").time())
-
-            return None  # No available slot found
-
-        except Exception as e:
-            logger.error(f"❌ Error finding next available slot: {e}")
-            return None
 
     def _is_time_slot_taken(self, date_str: str, time_str: str) -> bool:
         """Check if a specific time slot is already taken - DISABLED to allow multiple appointments per slot"""
@@ -654,13 +607,9 @@ Techrypt Appointment System
             if not self._is_business_hours(requested_date, requested_time, user_timezone):
                 return {
                     "success": False,
-                    "error": "Requested time is outside business hours",
-                    "business_hours": {
-                        "monday_friday": "6:00 PM - 3:00 AM (next day) PKT",
-                        "saturday": "6:00 PM - 10:00 PM PKT",
-                        "sunday": "Closed"
-                    },
-                    "user_timezone": user_timezone  # Include for frontend timezone conversion
+                    "error": "Requested time is outside available slots.",
+                    "available_slots": ["6pm-9pm", "9pm-12am", "12am-3am"],
+                    "user_timezone": user_timezone
                 }
 
             # MODIFICATION: Conflict detection disabled - multiple appointments allowed per time slot
