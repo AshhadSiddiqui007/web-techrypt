@@ -100,6 +100,9 @@ const TechryptChatbot = ({ isOpen, onClose }) => {
   // Add new state variable for the thank you modal
   const [showThankYouModal, setShowThankYouModal] = useState(false);
 
+  // Add this with your other state variables
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -1005,8 +1008,9 @@ Would you like to schedule a consultation or learn more about any specific servi
       return;
     }
 
-    // Show loading state
+    // Show loading state and loading overlay
     setIsLoading(true);
+    setShowLoadingOverlay(true);
     setError(null);
 
     try {
@@ -1085,17 +1089,19 @@ Would you like to schedule a consultation or learn more about any specific servi
       console.log('✅ Appointment saved successfully:', result);
       console.log('💾 Saved to database:', result.saved_to_database);
 
-      // Close the appointment form
-      setShowAppointmentForm(false);
-      setIsLoading(false);
-
-      // Show the thank you modal
-      setShowThankYouModal(true);
-
-      // Create clean success message without technical details
-      const confirmationMessage = {
-        id: Date.now() + 1,
-        text: `🎉 Appointment Request Submitted Successfully!
+      // Close the appointment form with a slight delay to show success animation
+      setTimeout(() => {
+        setShowAppointmentForm(false);
+        setIsLoading(false);
+        setShowLoadingOverlay(false); // Hide loading overlay after form closes
+        
+        // Show the thank you modal
+        setShowThankYouModal(true);
+        
+        // Create clean success message
+        const confirmationMessage = {
+          id: Date.now() + 1,
+          text: `🎉 Appointment Request Submitted Successfully!
 
 Your appointment has been confirmed and our team will be in touch soon.
 
@@ -1111,14 +1117,15 @@ Appointment Details:
 • We'll send calendar details once confirmed
 
 Thank you for choosing Techrypt.io! 🚀`,
-        sender: 'bot',
-        timestamp: new Date()
-      };
+          sender: 'bot',
+          timestamp: new Date()
+        };
 
-      setMessages(prev => [...prev, confirmationMessage]);
-      setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
-      setAppointmentErrors({});
-      setError(null);
+        setMessages(prev => [...prev, confirmationMessage]);
+        setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
+        setAppointmentErrors({});
+        setError(null);
+      }, 1500); // 1.5 second delay to show success animation
 
     } catch (error) {
       console.error('❌ Error saving appointment:', error);
@@ -1128,30 +1135,32 @@ Thank you for choosing Techrypt.io! 🚀`,
         formData: formData
       });
 
-      setIsLoading(false);
+      // Close form with a slight delay even on error
+      setTimeout(() => {
+        setShowAppointmentForm(false);
+        setIsLoading(false);
+        setShowLoadingOverlay(false); // Hide loading overlay after form closes
+        
+        // For errors, we don't show thank you modal
+        
+        // Determine error type and create user-friendly message
+        const isConnectionError = error.message.includes('Could not connect') ||
+                                 error.message.includes('fetch') ||
+                                 error.message.includes('network');
 
-      // For errors, close form but DON'T show thank you modal
-      setShowAppointmentForm(false);
-      // setShowThankYouModal(true); // REMOVED - only show for successful submissions
+        const isBusinessHoursError = error.message.includes('business hours');
+        const isValidationError = error.message.includes('required') ||
+                                 error.message.includes('invalid') ||
+                                 error.message.includes('valid');
 
-      // Determine error type and create user-friendly message
-      const isConnectionError = error.message.includes('Could not connect') ||
-                               error.message.includes('fetch') ||
-                               error.message.includes('network');
+        let userFriendlyMessage = '';
 
-      const isBusinessHoursError = error.message.includes('business hours');
-      const isValidationError = error.message.includes('required') ||
-                               error.message.includes('invalid') ||
-                               error.message.includes('valid');
+        if (isBusinessHoursError) {
+          const localHours = getLocalBusinessHours();
+          const userTz = getUserTimezone();
+          const isLocalTime = userTz !== PAKISTAN_TIMEZONE;
 
-      let userFriendlyMessage = '';
-
-      if (isBusinessHoursError) {
-        const localHours = getLocalBusinessHours();
-        const userTz = getUserTimezone();
-        const isLocalTime = userTz !== PAKISTAN_TIMEZONE;
-
-        userFriendlyMessage = `⏰ Appointment Time Not Available
+          userFriendlyMessage = `⏰ Appointment Time Not Available
 
 The selected time is outside our business hours. Please choose a time during:
 
@@ -1161,14 +1170,14 @@ The selected time is outside our business hours. Please choose a time during:
 • **Sunday:** Closed
 
 ${isLocalTime ? 'Original hours: Mon-Fri 6:00 PM - 3:00 AM, Sat 6:00 PM - 10:00 PM (Pakistan Time)\n\n' : ''}Please select a different time and try again.`;
-      } else if (isValidationError) {
-        userFriendlyMessage = `📝 Appointment Information Issue
+        } else if (isValidationError) {
+          userFriendlyMessage = `📝 Appointment Information Issue
 
 Please check your appointment details and ensure all required fields are filled correctly.
 
 You can try submitting your appointment again with the corrected information.`;
-      } else if (isConnectionError) {
-        userFriendlyMessage = `🔄 Connection Issue
+        } else if (isConnectionError) {
+          userFriendlyMessage = `🔄 Connection Issue
 
 We're experiencing a temporary connection issue. Your appointment information has been noted and our team will contact you directly.
 
@@ -1177,8 +1186,8 @@ We're experiencing a temporary connection issue. Your appointment information ha
 • Preferred Date: ${formData.date}
 • Preferred Time Slot: ${formatTimeSlotDisplay(formData.time)}
 • Contact: ${formData.email}`;
-      } else {
-        userFriendlyMessage = `⚠️ Appointment Request Received
+        } else {
+          userFriendlyMessage = `⚠️ Appointment Request Received
 
 Your appointment request has been received. Our team will review it and contact you directly to confirm the details.
 
@@ -1187,11 +1196,11 @@ Your appointment request has been received. Our team will review it and contact 
 • Preferred Date: ${formData.date}
 • Preferred Time Slot: ${formatTimeSlotDisplay(formData.time)}
 • Contact: ${formData.email}`;
-      }
+        }
 
-      const errorMessage = {
-        id: Date.now() + 1,
-        text: `${userFriendlyMessage}
+        const errorMessage = {
+          id: Date.now() + 1,
+          text: `${userFriendlyMessage}
 
 📧 **Next Steps:**
 • Our team will contact you within 24 hours
@@ -1199,16 +1208,19 @@ Your appointment request has been received. Our team will review it and contact 
 • We'll send calendar details once confirmed
 
 Thank you for choosing Techrypt.io! 🚀`,
-        sender: 'bot',
-        timestamp: new Date()
-      };
+          sender: 'bot',
+          timestamp: new Date()
+        };
 
-      setMessages(prev => [...prev, errorMessage]);
-      setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
-      setAppointmentErrors({});
-      setError(null);
+        setMessages(prev => [...prev, errorMessage]);
+        setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
+        setAppointmentErrors({});
+        setError(null);
+      }, 1500); // 1.5 second delay for consistent UX
     }
   };
+
+
 
   // MODIFICATION: Conflict resolution functions removed since multiple appointments per time slot are now allowed
   // Original conflict handling functions (commented out):
@@ -1575,10 +1587,10 @@ Thank you for choosing Techrypt.io! 🚀`,
                 </h3>
 
                 <button onClick={() => setShowAppointmentForm(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                  <img src = {closeIcon} style={{ width: '20px', height: '20px' }} />
+                  <img src={closeIcon} style={{ width: '20px', height: '20px' }} />
                 </button>
-
               </div>
+              
               <div className="techrypt-form-content">
                 <p>Complete your appointment details below. Your contact information has been pre-filled.</p>
                 <div className="techrypt-form-fields">
@@ -1799,7 +1811,7 @@ Thank you for choosing Techrypt.io! 🚀`,
                       {formData.date && !isSelectedDateSunday() && getAvailableTimeSlots().length === 0 && (
                         <div className="techrypt-no-slots-message" style={{
                           marginTop: '8px',
-                          padding: '10px',
+                                                   padding: '10px',
                           backgroundColor: '#fef2f2',
                           border: '1px solid #f87171',
                           borderRadius: '6px',
@@ -1810,7 +1822,7 @@ Thank you for choosing Techrypt.io! 🚀`,
                         </div>
                       )}
                     </div>
-                  </div>
+                                   </div>
                   <div className="techrypt-form-field">
                     <label>Additional Notes (Optional)</label>
                     <textarea
@@ -1889,6 +1901,16 @@ Thank you for choosing Techrypt.io! 🚀`,
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading Overlay */}
+        {showLoadingOverlay && (
+          <div className="techrypt-loading-overlay">
+            <div className="techrypt-loading-content">
+              <div className="techrypt-loading-spinner"></div>
+              <p>Processing your appointment...</p>
             </div>
           </div>
         )}
