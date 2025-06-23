@@ -887,7 +887,27 @@ New Appointment Booking - {customer_name}
         except Exception as e:
             logger.error(f"❌ Statistics retrieval error: {e}")
             return {}
-    
+    def insert_contact_info(self, contact_data: Dict[str, Any]) -> Optional[str]:
+        """Insert user contact info into MongoDB"""
+        if not self.is_connected():
+            return None
+
+        try:
+            contact_doc = {
+                "name": contact_data.get("name", "").strip(),
+                "email": contact_data.get("email", "").strip(),
+                "phone": contact_data.get("phone", "").strip(),
+                "submitted_at": datetime.utcnow()
+            }
+
+            result = self.db["contact_info"].insert_one(contact_doc)
+            logger.info(f"✅ Saved contact info for: {contact_doc['email']}")
+            return str(result.inserted_id)
+
+        except Exception as e:
+            logger.error(f"❌ Contact info insertion failed: {e}")
+            return None
+
     def close(self):
         """Close database connection"""
         if self.client:
