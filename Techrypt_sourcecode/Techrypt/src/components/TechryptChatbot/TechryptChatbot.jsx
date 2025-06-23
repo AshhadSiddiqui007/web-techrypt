@@ -796,6 +796,31 @@ Would you like to schedule a consultation or learn more about any specific servi
     return `${hour12}:${minutes} ${ampm}`;
   };
 
+  // Format time slot for display (handles slot values like "6pm-9pm", "9pm-12am", "12am-3am")
+  const formatTimeSlotDisplay = (timeSlot) => {
+    if (!timeSlot) return 'Not specified';
+
+    // Handle the predefined time slot values
+    const timeSlotMap = {
+      '6pm-9pm': '6:00 PM - 9:00 PM PKT',
+      '9pm-12am': '9:00 PM - 12:00 AM PKT',
+      '12am-3am': '12:00 AM - 3:00 AM PKT'
+    };
+
+    // Return the formatted display if it's a known slot
+    if (timeSlotMap[timeSlot]) {
+      return timeSlotMap[timeSlot];
+    }
+
+    // Fallback: if it's a regular time format, use the original formatter
+    if (timeSlot.includes(':')) {
+      return formatTimeDisplay(timeSlot);
+    }
+
+    // Final fallback: return as-is
+    return timeSlot;
+  };
+
   // Check if selected date is Sunday
   const isSelectedDateSunday = () => {
     if (!formData.date) return false;
@@ -1077,7 +1102,7 @@ Your appointment has been confirmed and our team will be in touch soon.
 Appointment Details:
 • Services: ${formData.services.join(', ')}
 • Date: ${formData.date}
-• Time: ${formatTimeDisplay(formData.time)}
+• Time: ${formatTimeSlotDisplay(formData.time)}
 • Contact: ${formData.email}
 
 📧 Next Steps:
@@ -1150,7 +1175,7 @@ We're experiencing a temporary connection issue. Your appointment information ha
 **Your Details:**
 • Services: ${formData.services.join(', ')}
 • Preferred Date: ${formData.date}
-• Preferred Time: ${formData.time}
+• Preferred Time: ${formatTimeSlotDisplay(formData.time)}
 • Contact: ${formData.email}`;
       } else {
         userFriendlyMessage = `⚠️ Appointment Request Received
@@ -1160,7 +1185,7 @@ Your appointment request has been received. Our team will review it and contact 
 **Your Details:**
 • Services: ${formData.services.join(', ')}
 • Preferred Date: ${formData.date}
-• Preferred Time: ${formData.time}
+• Preferred Time: ${formatTimeSlotDisplay(formData.time)}
 • Contact: ${formData.email}`;
       }
 

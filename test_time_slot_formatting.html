@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Slot Formatting Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        .pass {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .fail {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .appointment-preview {
+            background-color: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #c3e6c3;
+        }
+        .appointment-preview h3 {
+            margin-top: 0;
+            color: #2d5a2d;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🕐 Time Slot Formatting Test</h1>
+    <p>Testing the <code>formatTimeSlotDisplay</code> function to ensure appointment confirmation messages show correct time slots.</p>
+
+    <div class="test-container">
+        <h2>📋 Test Cases</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>📅 Appointment Confirmation Preview</h2>
+        <div id="appointment-preview"></div>
+    </div>
+
+    <script>
+        // Replicate the formatTimeSlotDisplay function from the React component
+        function formatTimeSlotDisplay(timeSlot) {
+            if (!timeSlot) return 'Not specified';
+            
+            // Handle the predefined time slot values
+            const timeSlotMap = {
+                '6pm-9pm': '6:00 PM - 9:00 PM PKT',
+                '9pm-12am': '9:00 PM - 12:00 AM PKT',
+                '12am-3am': '12:00 AM - 3:00 AM PKT'
+            };
+            
+            // Return the formatted display if it's a known slot
+            if (timeSlotMap[timeSlot]) {
+                return timeSlotMap[timeSlot];
+            }
+            
+            // Fallback: if it's a regular time format, use the original formatter
+            if (timeSlot.includes(':')) {
+                return formatTimeDisplay(timeSlot);
+            }
+            
+            // Final fallback: return as-is
+            return timeSlot;
+        }
+
+        // Original formatTimeDisplay function for comparison
+        function formatTimeDisplay(time24) {
+            const [hours, minutes] = time24.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+
+        // Test cases
+        const testCases = [
+            {
+                input: '6pm-9pm',
+                expected: '6:00 PM - 9:00 PM PKT',
+                description: 'Evening slot (6 PM - 9 PM)'
+            },
+            {
+                input: '9pm-12am',
+                expected: '9:00 PM - 12:00 AM PKT',
+                description: 'Late evening slot (9 PM - 12 AM)'
+            },
+            {
+                input: '12am-3am',
+                expected: '12:00 AM - 3:00 AM PKT',
+                description: 'Overnight slot (12 AM - 3 AM)'
+            },
+            {
+                input: '',
+                expected: 'Not specified',
+                description: 'Empty input'
+            },
+            {
+                input: null,
+                expected: 'Not specified',
+                description: 'Null input'
+            },
+            {
+                input: undefined,
+                expected: 'Not specified',
+                description: 'Undefined input'
+            }
+        ];
+
+        // Run tests
+        function runTests() {
+            const resultsContainer = document.getElementById('test-results');
+            let passCount = 0;
+            let totalCount = testCases.length;
+
+            testCases.forEach((testCase, index) => {
+                const result = formatTimeSlotDisplay(testCase.input);
+                const passed = result === testCase.expected;
+                
+                if (passed) passCount++;
+
+                const testDiv = document.createElement('div');
+                testDiv.className = `test-result ${passed ? 'pass' : 'fail'}`;
+                testDiv.innerHTML = `
+                    <strong>Test ${index + 1}: ${testCase.description}</strong><br>
+                    Input: <code>${testCase.input || 'null/undefined'}</code><br>
+                    Expected: <code>${testCase.expected}</code><br>
+                    Actual: <code>${result}</code><br>
+                    ${passed ? '✅ PASS' : '❌ FAIL'}
+                `;
+                resultsContainer.appendChild(testDiv);
+            });
+
+            // Add summary
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = `test-result ${passCount === totalCount ? 'pass' : 'fail'}`;
+            summaryDiv.innerHTML = `
+                <strong>Test Summary</strong><br>
+                Passed: ${passCount}/${totalCount}<br>
+                ${passCount === totalCount ? '🎉 All tests passed!' : '⚠️ Some tests failed'}
+            `;
+            resultsContainer.appendChild(summaryDiv);
+        }
+
+        // Generate appointment confirmation preview
+        function generateAppointmentPreview() {
+            const previewContainer = document.getElementById('appointment-preview');
+            
+            const sampleAppointments = [
+                {
+                    services: ['Social Media Marketing', 'Chatbot Development'],
+                    date: '2025-06-30',
+                    time: '6pm-9pm',
+                    email: 'osama.ahmed.00@hotmail.com'
+                },
+                {
+                    services: ['Website Development'],
+                    date: '2025-07-01',
+                    time: '9pm-12am',
+                    email: 'john.doe@example.com'
+                },
+                {
+                    services: ['Branding Services', 'Payment Gateway Integration'],
+                    date: '2025-07-02',
+                    time: '12am-3am',
+                    email: 'jane.smith@example.com'
+                }
+            ];
+
+            sampleAppointments.forEach((appointment, index) => {
+                const appointmentDiv = document.createElement('div');
+                appointmentDiv.className = 'appointment-preview';
+                appointmentDiv.innerHTML = `
+                    <h3>🎉 Appointment Request Submitted Successfully! (Example ${index + 1})</h3>
+                    <p>Your appointment has been confirmed and our team will be in touch soon.</p>
+                    <p><strong>Appointment Details:</strong></p>
+                    <ul>
+                        <li><strong>Services:</strong> ${appointment.services.join(', ')}</li>
+                        <li><strong>Date:</strong> ${appointment.date}</li>
+                        <li><strong>Time:</strong> ${formatTimeSlotDisplay(appointment.time)}</li>
+                        <li><strong>Contact:</strong> ${appointment.email}</li>
+                    </ul>
+                    <p><strong>📧 Next Steps:</strong></p>
+                    <ul>
+                        <li>Our team will contact you within 24 hours to confirm</li>
+                        <li>You'll receive a confirmation email shortly</li>
+                        <li>We'll send calendar details once confirmed</li>
+                    </ul>
+                    <p>Thank you for choosing Techrypt.io! 🚀</p>
+                `;
+                previewContainer.appendChild(appointmentDiv);
+            });
+        }
+
+        // Run tests and generate previews when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            runTests();
+            generateAppointmentPreview();
+        });
+    </script>
+</body>
+</html>
