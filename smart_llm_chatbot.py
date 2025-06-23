@@ -3372,6 +3372,27 @@ def reset_context():
         logger.error(f"Error resetting context: {e}")
         return jsonify({'error': 'Failed to reset context'}), 500
 
+# --- ADD THE NEW ROUTE HERE ---
+@app.route('/contact-info', methods=['POST', 'OPTIONS'])
+def contact_info():
+    """Handle contact info submissions from the chatbot frontend."""
+    if request.method == 'OPTIONS':
+        return '', 200
+    data = request.get_json() or {}
+    print(f"📥 Received contact info: {data}")
+    saved = False
+    inserted_id = None
+    if MONGODB_BACKEND_AVAILABLE and mongodb_backend and mongodb_backend.is_connected():
+        try:
+            inserted_id = mongodb_backend.insert_contact_info(data)
+            print(f"📤 MongoDB insert_contact_info result: {inserted_id}")
+            saved = inserted_id is not None
+        except Exception as e:
+            print(f"❌ Exception saving contact info: {e}")
+            saved = False
+    else:
+        print("❌ MongoDB not available or not connected.")
+    return jsonify({'success': saved, 'message': 'Contact info received.', 'inserted_id': inserted_id})
 def main():
     """Main function to start the enhanced intelligent LLM chatbot server"""
     print("🤖 ENHANCED INTELLIGENT LLM CHATBOT SERVER")
