@@ -800,11 +800,11 @@ Would you like to schedule a consultation or learn more about any specific servi
   const formatTimeSlotDisplay = (timeSlot) => {
     if (!timeSlot) return 'Not specified';
 
-    // Handle the predefined time slot values
+    // Handle the predefined time slot values with consultation details
     const timeSlotMap = {
-      '6pm-9pm': '6:00 PM - 9:00 PM PKT',
-      '9pm-12am': '9:00 PM - 12:00 AM PKT',
-      '12am-3am': '12:00 AM - 3:00 AM PKT'
+      '6pm-9pm': '6:00 PM - 9:00 PM PKT (15-20 min consultation - exact time to be confirmed within 24 hours)',
+      '9pm-12am': '9:00 PM - 12:00 AM PKT (15-20 min consultation - exact time to be confirmed within 24 hours)',
+      '12am-3am': '12:00 AM - 3:00 AM PKT (15-20 min consultation - exact time to be confirmed within 24 hours)'
     };
 
     // Return the formatted display if it's a known slot
@@ -1102,7 +1102,7 @@ Your appointment has been confirmed and our team will be in touch soon.
 Appointment Details:
 • Services: ${formData.services.join(', ')}
 • Date: ${formData.date}
-• Time: ${formatTimeSlotDisplay(formData.time)}
+• Time Slot: ${formatTimeSlotDisplay(formData.time)}
 • Contact: ${formData.email}
 
 📧 Next Steps:
@@ -1175,7 +1175,7 @@ We're experiencing a temporary connection issue. Your appointment information ha
 **Your Details:**
 • Services: ${formData.services.join(', ')}
 • Preferred Date: ${formData.date}
-• Preferred Time: ${formatTimeSlotDisplay(formData.time)}
+• Preferred Time Slot: ${formatTimeSlotDisplay(formData.time)}
 • Contact: ${formData.email}`;
       } else {
         userFriendlyMessage = `⚠️ Appointment Request Received
@@ -1185,7 +1185,7 @@ Your appointment request has been received. Our team will review it and contact 
 **Your Details:**
 • Services: ${formData.services.join(', ')}
 • Preferred Date: ${formData.date}
-• Preferred Time: ${formatTimeSlotDisplay(formData.time)}
+• Preferred Time Slot: ${formatTimeSlotDisplay(formData.time)}
 • Contact: ${formData.email}`;
       }
 
