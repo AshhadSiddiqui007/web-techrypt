@@ -3269,19 +3269,39 @@ def book_appointment():
             appointment_data['id'] = len(book_appointment.appointments) + 1
             book_appointment.appointments.append(appointment_data)
             appointment_id = str(appointment_data['id'])
-            logger.info(f"âš ï¸ Appointment saved to memory (MongoDB unavailable): {appointment_id}")
+            logger.info(f"⚠️ Appointment saved to memory (MongoDB unavailable): {appointment_id}")
+
+        # Format time slot for display
+        def format_time_slot_display(time_slot):
+            if not time_slot:
+                return 'Flexible'
+
+            # Handle the predefined time slot values
+            time_slot_map = {
+                '6pm-9pm': '6:00 PM - 9:00 PM PKT',
+                '9pm-12am': '9:00 PM - 12:00 AM PKT',
+                '12am-3am': '12:00 AM - 3:00 AM PKT'
+            }
+
+            # Return the formatted display if it's a known slot
+            if time_slot in time_slot_map:
+                return time_slot_map[time_slot]
+
+            # Fallback: return as-is for other formats
+            return time_slot
 
         # Generate confirmation response
         services_text = ', '.join(appointment_data['services']) if appointment_data['services'] else 'To be discussed'
+        formatted_time = format_time_slot_display(appointment_data['preferred_time'])
 
         confirmation_message = f"""âœ… Appointment Booked Successfully!
 
-ðŸ“… **Appointment Details:**
-â€¢ **Name**: {appointment_data['name']}
-â€¢ **Email**: {appointment_data['email']}
-â€¢ **Services**: {services_text}
-â€¢ **Preferred Date**: {appointment_data['preferred_date'] or 'Flexible'}
-â€¢ **Preferred Time**: {appointment_data['preferred_time'] or 'Flexible'}
+📅 **Appointment Details:**
+• **Name**: {appointment_data['name']}
+• **Email**: {appointment_data['email']}
+• **Services**: {services_text}
+• **Preferred Date**: {appointment_data['preferred_date'] or 'Flexible'}
+• **Preferred Time**: {formatted_time}
 
 ðŸŽ¯ **Next Steps:**
 1. You'll receive a confirmation email within 24 hours
