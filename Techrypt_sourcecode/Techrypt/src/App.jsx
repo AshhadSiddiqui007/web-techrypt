@@ -24,7 +24,7 @@ import EventCalendar from "./pages/EventCalendar/EventCalendar.jsx";
 import Offers from "./pages/Offers/Offers.jsx";
 import ContactPage from "./pages/ContactPage/ContactPage.jsx";
 import VerticalsPage from "./pages/Verticals/verticals.jsx";
-
+import PRLandingPage from "./pages/LandingPages/PRLandingPage.jsx";
 // Import other components
 import { AnimatedLoader } from "./assets/mainImages.js";
 import { ToastContainer } from "react-toastify";
@@ -90,6 +90,7 @@ const AppContent = () => {
         <Route path="/Offers" element={<Offers />} />
         <Route path="/Contact" element={<ContactPage />} />
         <Route path="/Verticals" element={<VerticalsPage />} />
+        <Route path="/PRLandingPage" element={<PRLandingPage />} />
       </Routes>
       <MessageSidebar />
       <Footer />
