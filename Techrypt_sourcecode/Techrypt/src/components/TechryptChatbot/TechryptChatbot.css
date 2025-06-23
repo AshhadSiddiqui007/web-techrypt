@@ -870,10 +870,7 @@
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(174, 187, 30, 0.3), 0 0 0 1px rgba(174, 187, 30, 0.1);
   margin: 0;
-}
-
-.techrypt-appointment-modal {
-  max-width: 650px;
+  position: relative;  /* This ensures the absolute positioning of the overlay works correctly */
 }
 
 /* Mobile Form Styles */
@@ -1315,3 +1312,5 @@
   font-size: 1rem;
   margin: 0;
 }
+
+
