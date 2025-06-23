@@ -159,6 +159,7 @@
   visibility: hidden;
 }
 
+
 /* Keyframe for slide down from top to bottom */
 @keyframes dropdownSlideIn {
   0% {
@@ -351,6 +352,12 @@
   .main-tab {
     display: none !important;
   }
+}
+
+.vertices-dropdown-wrapper:hover .vertices-dropdown-content {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
 }
 
 .small-nav {
@@ -656,4 +663,52 @@
   .mobile-menu-button {
     display: none;
   }
+}
+
+/* Add these styles to ensure dropdown works properly */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-toggle:hover + .dropdown-content,
+.dropdown-content:hover {
+  display: block;
+}
+
+/* Dual-function dropdown styles */
+.dropdown-dual-function {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  background-color: #aebc1f; /* slightly darker than #c4d322 */
+  border-radius: 0.75rem; /* rounded corners (e.g., Tailwind's rounded-xl) */
+  padding: 0.5rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* optional: subtle shadow */
+  z-index: 50; /* ensures it appears above other content */
+}
+
+
+.dropdown-dual-function .dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 200px;
+  background-color: #1a1a1a;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1000;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.dropdown-dual-function:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }

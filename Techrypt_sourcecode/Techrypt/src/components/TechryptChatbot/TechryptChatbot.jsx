@@ -583,7 +583,7 @@ Would you like to schedule a consultation or learn more about any specific servi
       'drug', 'drugs', 'cocaine', 'heroin', 'marijuana', 'cannabis', 'weed', 'meth',
       'kidnapping', 'kidnap', 'ransom', 'extortion', 'blackmail',
       'weapon', 'weapons', 'gun', 'guns', 'firearm', 'ammunition',
-      'prostitution
+      'prostitution',
       'gambling', 'casino', 'betting', 'lottery',
       'fraud', 'scam', 'ponzi', 'pyramid',
       'counterfeit', 'fake', 'forgery',
@@ -1819,7 +1819,7 @@ Thank you for choosing Techrypt.io! 🚀`,
                             <option value="9pm-12am">9:00 PM – 12:00 AM</option>
                             <option value="12am-3am">12:00 AM – 3:00 AM</option>
                           </>
-                        )}
+                        }
                       </select>
                       {appointmentErrors.time && <span className="techrypt-field-error">{appointmentErrors.time}</span>}
 

@@ -5,6 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import { HeaderLogo } from "../../assets/mainImages";
 import ContactForm from "../ContactForm/ContactForm";
 import { HiMenu, HiX } from "react-icons/hi";
+import DropdownMenu from "../DropDownMenu/DropDownMenu";
 
 export default function Header() {
   const location = useLocation();
@@ -75,20 +76,53 @@ export default function Header() {
               alignItems: "center", // Vertically center the list items
             }}
           >
-            {tabs.map((tab) => (
-              <li className="listItems" key={tab.id}>
-                <Link
-                  to={tab.path}
-                  className={`anchor navButton ${activeTab === tab.id ? "active" : ""}`}
-                  onClick={(e) => {
-                    setActiveTab(tab.id);
-                    console.log(`Navigating to: ${tab.path}`);
-                  }}
+           {/* Verticals dropdown with dual functionality */}
+          <li className="listItems">
+            <div className="dropdown-dual-function">
+              <Link 
+                to="/Verticals" 
+                className={`anchor navButton ${activeTab === "verticals" ? "active" : ""}`}
+                onClick={(e) => {
+                  // Only set active tab if directly clicked (not when clicking a dropdown item)
+                  if (e.currentTarget === e.target) {
+                    setActiveTab("verticals");
+                    console.log(`Navigating to: /Verticals`);
+                  }
+                }}
+              >
+                Verticals
+              </Link>
+              <div className="dropdown-content">
+                <Link 
+                  to="/LandingPages/PetLandingPage" 
+                  onClick={handleLinkClick} 
+                  style={{ color: 'white', textDecoration: 'none', display: 'block', padding: '10px 15px' }}
                 >
-                  {tab.label}
+                  Pet Landing Page
                 </Link>
-              </li>
+                {/* Add more landing pages here as needed */}
+              </div>
+            </div>
+          </li>   
+
+            {/* Render the rest of the tabs, excluding Verticals */}
+            {tabs
+              .filter(tab => tab.id !== "verticals")
+              .map((tab) => (
+                <li className="listItems" key={tab.id}>
+                  <Link
+                    to={tab.path}
+                    className={`anchor navButton ${activeTab === tab.id ? "active" : ""}`}
+                    onClick={(e) => {
+                      setActiveTab(tab.id);
+                      console.log(`Navigating to: ${tab.path}`);
+                    }}
+                  >
+                    {tab.label}
+                  </Link>
+                </li>
             ))}
+
           </ul>
         </div>
 
