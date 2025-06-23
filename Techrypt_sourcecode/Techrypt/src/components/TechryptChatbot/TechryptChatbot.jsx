@@ -110,13 +110,11 @@ const TechryptChatbot = ({ isOpen, onClose }) => {
 
   // Show contact form automatically after welcome message on first open
   useEffect(() => {
-    if (isOpen) {
-      // Always show contact form on first chatbot open after page load
-      setTimeout(() => {
-        setShowContactForm(true);
-      }, 1000);
-    }
-  }, [isOpen]);
+  const alreadySubmitted = localStorage.getItem("contactFormSubmitted") === "true";
+  if (!alreadySubmitted) {
+    setShowContactForm(true); // Only show if not already submitted
+  }
+}, []);
 
   // Save messages to localStorage whenever messages change
   useEffect(() => {
@@ -969,33 +967,33 @@ Would you like to schedule a consultation or learn more about any specific servi
   };
 
   // Handle contact form submission
-  const handleContactSubmit = () => {
-    const errors = validateContactForm();
-    setContactErrors(errors);
+  const handleContactSubmit = async () => {
+  if (!contactFormData.name || !contactFormData.email) return;
 
-    if (Object.keys(errors).length > 0) {
-      const errorMessages = Object.values(errors);
-      setError(errorMessages[0]); // Show first error
-      return;
+  setIsLoading(true);
+
+  try {
+    const res = await fetch("http://localhost:5000/contact-info", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(contactFormData),
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      localStorage.setItem("contactFormSubmitted", "true");
+      setShowContactForm(false);
+    } else {
+      console.error("Error saving contact info:", result.error);
     }
+  } catch (error) {
+    console.error("Network error:", error);
+  }
 
-    // Save the form data to the main contact data
-    setContactData(contactFormData);
+  setIsLoading(false);
+};
 
-    const botMessage = {
-      id: Date.now() + 1,
-      text: `Thank you, ${contactFormData.name}! How can I assist you today?`,
-      sender: 'bot',
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, botMessage]);
-    setShowContactForm(false);
-    setContactErrors({});
-    setError(null);
-    // Reset the contact form for next time
-    setContactFormData({ name: '', email: '', phone: '' });
-  };
 
   // Handle appointment form submission
   const handleAppointmentSubmit = async () => {
@@ -1571,7 +1569,40 @@ Thank you for choosing Techrypt.io! 🚀`,
         {/* Appointment Form Modal */}
         {showAppointmentForm && (
           <div className="techrypt-form-overlay">
-            <div className="techrypt-form-modal techrypt-appointment-modal">
+            <div className="techrypt-form-modal techrypt-appointment-modal" style={{ position: 'relative' }}>
+              {/* Loading Overlay for Appointment Form */}
+              {showLoadingOverlay && (
+                <div className="techrypt-appointment-loading-overlay" style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 1000,
+                  borderRadius: '12px'
+                }}>
+                  <div className="techrypt-loading-content" style={{
+                    textAlign: 'center',
+                    color: 'white'
+                  }}>
+                    <div className="techrypt-loading-spinner" style={{
+                      width: '40px',
+                      height: '40px',
+                      border: '4px solid rgba(255, 255, 255, 0.3)',
+                      borderTop: '4px solid #AEBB1E',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      margin: '0 auto 15px auto'
+                    }}></div>
+                    <p style={{ margin: 0, fontSize: '16px', fontWeight: '500' }}>Processing your appointment...</p>
+                  </div>
+                </div>
+              )}
+
               <div className="techrypt-form-header text-black">
                 <h3 style={{ display: 'flex', alignItems: 'center' }}>
                   <img
@@ -1905,15 +1936,7 @@ Thank you for choosing Techrypt.io! 🚀`,
           </div>
         )}
 
-        {/* Loading Overlay */}
-        {showLoadingOverlay && (
-          <div className="techrypt-loading-overlay">
-            <div className="techrypt-loading-content">
-              <div className="techrypt-loading-spinner"></div>
-              <p>Processing your appointment...</p>
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );

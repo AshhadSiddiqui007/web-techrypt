@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ðŸ¤– INTELLIGENT LLM CHATBOT - Advanced Business Intelligence for Techrypt
+🤖 INTELLIGENT LLM CHATBOT - Advanced Business Intelligence for Techrypt
 Contextual, personalized responses with business-specific guidance
 """
 
@@ -23,7 +23,7 @@ try:
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
     TRANSFORMERS_AVAILABLE = False
-    print("âš ï¸ Transformers not available - TinyLLaMA disabled")
+    print("⚠️ Transformers not available - TinyLLaMA disabled")
 
 try:
     from sentence_transformers import SentenceTransformer
@@ -31,32 +31,32 @@ try:
     SENTENCE_TRANSFORMERS_AVAILABLE = True
 except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
-    print("âš ï¸ Sentence Transformers not available - CSV similarity disabled")
+    print("⚠️ Sentence Transformers not available - CSV similarity disabled")
 
 try:
     import pandas as pd
     PANDAS_AVAILABLE = True
 except ImportError:
     PANDAS_AVAILABLE = False
-    print("âš ï¸ Pandas not available - CSV processing disabled")
+    print("⚠️ Pandas not available - CSV processing disabled")
 
 # Import the business-focused API integration
 try:
     from techrypt_business_api import TechryptBusinessAPI
     BUSINESS_API_AVAILABLE = True
-    print("âœ… Techrypt Business API integration loaded")
+    print("✅ Techrypt Business API integration loaded")
 except ImportError as e:
     BUSINESS_API_AVAILABLE = False
-    print(f"âš ï¸ Business API integration not available: {e}")
+    print(f"⚠️ Business API integration not available: {e}")
 
 # Import enhanced business intelligence
 try:
     from enhanced_business_intelligence import get_enhanced_response
     ENHANCED_INTELLIGENCE_AVAILABLE = True
-    print("âœ… Enhanced Business Intelligence loaded")
+    print("✅ Enhanced Business Intelligence loaded")
 except ImportError as e:
     ENHANCED_INTELLIGENCE_AVAILABLE = False
-    print(f"âš ï¸ Enhanced Intelligence not available: {e}")
+    print(f"⚠️ Enhanced Intelligence not available: {e}")
 
 # Import MongoDB backend for data persistence
 try:
@@ -71,7 +71,7 @@ try:
     load_dotenv('Techrypt_sourcecode/Techrypt/src/.env')  # Load from src directory
     load_dotenv('.env')  # Load from current directory again as fallback    
 
-    print("âœ… MongoDB Backend imported successfully")
+    print("✅ MongoDB Backend imported successfully")
 
     # Initialize MongoDB backend
     mongodb_backend = TechryptMongoDBBackend()
@@ -79,19 +79,19 @@ try:
     # Test connection
     if mongodb_backend.is_connected():
         MONGODB_BACKEND_AVAILABLE = True
-        print(f"âœ… MongoDB Backend connected to: {mongodb_backend.database_name}")
+        print(f"✅ MongoDB Backend connected to: {mongodb_backend.database_name}")
     else:
         MONGODB_BACKEND_AVAILABLE = False
-        print("âŒ MongoDB Backend connection failed")
+        print("❌ MongoDB Backend connection failed")
 
 except ImportError as e:
     MONGODB_BACKEND_AVAILABLE = False
     mongodb_backend = None
-    print(f"âš ï¸ MongoDB Backend import failed: {e}")
+    print(f"⚠️ MongoDB Backend import failed: {e}")
 except Exception as e:
     MONGODB_BACKEND_AVAILABLE = False
     mongodb_backend = None
-    print(f"âš ï¸ MongoDB Backend initialization failed: {e}")
+    print(f"⚠️ MongoDB Backend initialization failed: {e}")
     import traceback
     traceback.print_exc()
 
@@ -238,7 +238,7 @@ class TinyLLaMAHandler:
 
     def _load_optimized_model(self):
         """Load TinyLLaMA with performance optimizations and quantization"""
-        logger.info(f"ðŸš€ Loading optimized TinyLLaMA for fast inference...")
+        logger.info(f"🚀 Loading optimized TinyLLaMA for fast inference...")
 
         model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
@@ -276,7 +276,7 @@ class TinyLLaMAHandler:
                 break
 
             self.load_attempts += 1
-            logger.info(f"ðŸ”§ Attempt {self.load_attempts}: {config['name']}")
+            logger.info(f"🔧 Attempt {self.load_attempts}: {config['name']}")
 
             try:
                 # Load tokenizer once
@@ -284,7 +284,7 @@ class TinyLLaMAHandler:
                     self.tokenizer = AutoTokenizer.from_pretrained(model_name)
                     if self.tokenizer.pad_token is None:
                         self.tokenizer.pad_token = self.tokenizer.eos_token
-                    logger.info("âœ… Tokenizer loaded")
+                    logger.info("✅ Tokenizer loaded")
 
                 # Load model with optimization
                 start_time = time.time()
@@ -298,9 +298,9 @@ class TinyLLaMAHandler:
                 if hasattr(torch, 'compile'):
                     try:
                         self.model = torch.compile(self.model, mode="reduce-overhead")
-                        logger.info("âœ… Model compiled for optimization")
+                        logger.info("✅ Model compiled for optimization")
                     except:
-                        logger.info("âš ï¸ Compilation not available, using standard model")
+                        logger.info("⚠️ Compilation not available, using standard model")
 
                 load_time = time.time() - start_time
 
@@ -308,20 +308,20 @@ class TinyLLaMAHandler:
                 if self._test_fast_generation():
                     self.model_loaded = True
                     self.working_config = config['name']
-                    logger.info(f"âœ… TinyLLaMA loaded in {load_time:.2f}s with {config['name']}")
+                    logger.info(f"✅ TinyLLaMA loaded in {load_time:.2f}s with {config['name']}")
                     return
                 else:
-                    logger.warning(f"âš ï¸ Generation test failed with {config['name']}")
+                    logger.warning(f"⚠️ Generation test failed with {config['name']}")
                     self.model = None
 
             except Exception as e:
-                logger.warning(f"âŒ {config['name']} failed: {e}")
+                logger.warning(f"❌ {config['name']} failed: {e}")
                 self.model = None
                 continue
 
         # Fallback to lightweight alternative
         if not self.model_loaded:
-            logger.info("ðŸ”„ Trying lightweight alternative models...")
+            logger.info("🔄 Trying lightweight alternative models...")
             self._load_lightweight_alternative()
 
     def _test_fast_generation(self):
@@ -348,14 +348,14 @@ class TinyLLaMAHandler:
             success = len(response.strip()) > len(test_prompt) and generation_time < 3.0
 
             if success:
-                logger.info(f"âœ… Fast generation test passed in {generation_time:.3f}s")
+                logger.info(f"✅ Fast generation test passed in {generation_time:.3f}s")
             else:
-                logger.warning(f"âš ï¸ Generation too slow: {generation_time:.3f}s")
+                logger.warning(f"⚠️ Generation too slow: {generation_time:.3f}s")
 
             return success
 
         except Exception as e:
-            logger.warning(f"âš ï¸ Fast generation test failed: {e}")
+            logger.warning(f"⚠️ Fast generation test failed: {e}")
             return False
 
     def _load_lightweight_alternative(self):
@@ -364,7 +364,7 @@ class TinyLLaMAHandler:
 
         for model_name in alternatives:
             try:
-                logger.info(f"ðŸ”„ Trying lightweight model: {model_name}")
+                logger.info(f"🔄 Trying lightweight model: {model_name}")
 
                 self.tokenizer = AutoTokenizer.from_pretrained(model_name)
                 if self.tokenizer.pad_token is None:
@@ -382,14 +382,14 @@ class TinyLLaMAHandler:
                 if self._test_fast_generation():
                     self.model_loaded = True
                     self.working_config = f"Lightweight: {model_name}"
-                    logger.info(f"âœ… Lightweight model {model_name} loaded successfully")
+                    logger.info(f"✅ Lightweight model {model_name} loaded successfully")
                     return
 
             except Exception as e:
-                logger.warning(f"âŒ Lightweight model {model_name} failed: {e}")
+                logger.warning(f"❌ Lightweight model {model_name} failed: {e}")
                 continue
 
-        logger.error("âŒ All model loading attempts failed")
+        logger.error("❌ All model loading attempts failed")
         self.model_loaded = False
 
     def _try_alternative_models(self):
@@ -402,7 +402,7 @@ class TinyLLaMAHandler:
 
         for model_name in alternative_models:
             try:
-                logger.info(f"ðŸ”„ Trying alternative model: {model_name}")
+                logger.info(f"🔄 Trying alternative model: {model_name}")
 
                 self.tokenizer = AutoTokenizer.from_pretrained(model_name)
                 if self.tokenizer.pad_token is None:
@@ -421,14 +421,14 @@ class TinyLLaMAHandler:
                 if self._test_model_generation():
                     self.model_loaded = True
                     self.working_config = f"Alternative: {model_name}"
-                    logger.info(f"âœ… Alternative model {model_name} loaded successfully")
+                    logger.info(f"✅ Alternative model {model_name} loaded successfully")
                     return
 
             except Exception as e:
-                logger.warning(f"âŒ Alternative model {model_name} failed: {e}")
+                logger.warning(f"❌ Alternative model {model_name} failed: {e}")
                 continue
 
-        logger.error("âŒ All model loading attempts failed")
+        logger.error("❌ All model loading attempts failed")
         self.model_loaded = False
 
 
@@ -436,13 +436,13 @@ class TinyLLaMAHandler:
     def generate_response(self, prompt: str, business_type: str = "general", context: dict = None) -> Optional[str]:
         """Generate optimized response with caching and fast inference"""
         if not self.model_loaded or not self.model or not self.tokenizer:
-            logger.warning("âš ï¸ TinyLLaMA not available for generation")
+            logger.warning("⚠️ TinyLLaMA not available for generation")
             return None
 
         # Check cache first
         cache_key = f"{prompt[:50]}_{business_type}"
         if cache_key in self.response_cache:
-            logger.info("âœ… Using cached response")
+            logger.info("✅ Using cached response")
             return self.response_cache[cache_key]
 
         try:
@@ -476,14 +476,14 @@ class TinyLLaMAHandler:
                         no_repeat_ngram_size=2  # Prevent repetitive phrases
                     )
                 except Exception as gen_error:
-                    logger.error(f"âŒ Fast generation failed: {gen_error}")
+                    logger.error(f"❌ Fast generation failed: {gen_error}")
                     return None
 
             generation_time = time.time() - start_time
 
             # Strict timeout for fast responses
             if generation_time > 2.0:  # Reduced timeout to 2 seconds
-                logger.warning(f"âš ï¸ Generation too slow: {generation_time:.2f}s")
+                logger.warning(f"⚠️ Generation too slow: {generation_time:.2f}s")
                 return None
 
             # Decode and clean response
@@ -501,14 +501,14 @@ class TinyLLaMAHandler:
                 if len(self.response_cache) < self.max_cache_size:
                     self.response_cache[cache_key] = response
 
-                logger.info(f"âœ… Fast TinyLLaMA response in {generation_time:.3f}s")
+                logger.info(f"✅ Fast TinyLLaMA response in {generation_time:.3f}s")
                 return response
             else:
-                logger.warning("âš ï¸ Response failed validation")
+                logger.warning("⚠️ Response failed validation")
                 return None
 
         except Exception as e:
-            logger.error(f"âŒ TinyLLaMA generation error: {e}")
+            logger.error(f"❌ TinyLLaMA generation error: {e}")
             return None
 
     def _create_business_prompt(self, prompt: str, business_type: str, context: dict) -> str:
@@ -716,7 +716,7 @@ class IntelligentBusinessConsultant:
         """Generate intelligent business consultation response with enhanced context"""
 
         if not self.tinyllama_handler.model_loaded:
-            logger.warning("âš ï¸ TinyLLaMA not available, falling back to CSV")
+            logger.warning("⚠️ TinyLLaMA not available, falling back to CSV")
             return None
 
         # Detect intent and customize prompt accordingly
@@ -743,14 +743,14 @@ class IntelligentBusinessConsultant:
             if response and len(response.strip()) > 15:
                 # Post-process response for quality and business context
                 response = self._post_process_intelligent_response(response, business_type, context, conversation_context)
-                logger.info(f"ðŸ§  Intelligent business response generated | Intent: {intent} | Business: {business_type} | Length: {len(response)}")
+                logger.info(f"🧠 Intelligent business response generated | Intent: {intent} | Business: {business_type} | Length: {len(response)}")
                 return response
             else:
-                logger.warning("âš ï¸ TinyLLaMA generated insufficient response")
+                logger.warning("⚠️ TinyLLaMA generated insufficient response")
                 return None
 
         except Exception as e:
-            logger.error(f"âŒ Intelligent response generation failed: {e}")
+            logger.error(f"❌ Intelligent response generation failed: {e}")
             return None
 
     def _create_business_consultation_prompt(self, message: str, business_type: str, context: dict, conversation_stage: str, conversation_context: dict) -> str:
@@ -906,24 +906,24 @@ class CSVTrainingDataHandler:
         #     try:
         #         self._load_sentence_model()
         #     except Exception as e:
-        #         logger.warning(f"âš ï¸ Sentence transformer loading failed, continuing with TF-IDF only: {e}")
-        logger.info("ðŸ“Š Sentence transformer disabled - using TF-IDF only for CSV matching")
+        #         logger.warning(f"⚠️ Sentence transformer loading failed, continuing with TF-IDF only: {e}")
+        logger.info("📊 Sentence transformer disabled - using TF-IDF only for CSV matching")
 
     def _load_sentence_model(self):
         """Load sentence transformer model for similarity matching (optional)"""
         try:
-            logger.info("ðŸ”„ Loading sentence transformer model (this may take a moment)...")
+            logger.info("🔄 Loading sentence transformer model (this may take a moment)...")
             self.sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
-            logger.info("âœ… Sentence transformer model loaded")
+            logger.info("✅ Sentence transformer model loaded")
         except Exception as e:
-            logger.warning(f"âš ï¸ Sentence transformer not available: {e}")
-            logger.info("ðŸ“Š CSV matching will use TF-IDF only (still functional)")
+            logger.warning(f"⚠️ Sentence transformer not available: {e}")
+            logger.info("📊 CSV matching will use TF-IDF only (still functional)")
 
     def _load_csv_data(self):
         """Load and process CSV training data"""
         try:
             if not os.path.exists(CSV_DATA_PATH):
-                logger.info(f"ðŸ“„ CSV training data not found at {CSV_DATA_PATH}")
+                logger.info(f"📄 CSV training data not found at {CSV_DATA_PATH}")
                 return
 
             df = pd.read_csv(CSV_DATA_PATH)
@@ -931,7 +931,7 @@ class CSVTrainingDataHandler:
             # Expected columns: user_message, business_type, intent, response
             required_columns = ['user_message', 'business_type', 'intent', 'response']
             if not all(col in df.columns for col in required_columns):
-                logger.warning(f"âš ï¸ CSV missing required columns: {required_columns}")
+                logger.warning(f"⚠️ CSV missing required columns: {required_columns}")
                 return
 
             # Process data
@@ -943,15 +943,15 @@ class CSVTrainingDataHandler:
                 self.embeddings = self.sentence_model.encode(messages)
 
             self.data_loaded = True
-            logger.info(f"âœ… CSV training data loaded: {len(self.training_data)} rows")
+            logger.info(f"✅ CSV training data loaded: {len(self.training_data)} rows")
 
         except Exception as e:
-            logger.error(f"âŒ Failed to load CSV data: {e}")
+            logger.error(f"❌ Failed to load CSV data: {e}")
 
     def find_similar_response(self, user_message: str, similarity_threshold: float = 0.7) -> Optional[str]:
         """Find similar response from CSV data using TF-IDF + cosine similarity"""
         if not self.data_loaded:
-            logger.info(f"ðŸ” CSV matching failed: data_loaded={self.data_loaded}")
+            logger.info(f"🔍 CSV matching failed: data_loaded={self.data_loaded}")
             return None
 
         try:
@@ -1033,16 +1033,16 @@ class CSVTrainingDataHandler:
             if best_similarity >= similarity_threshold:
                 matched_question = self.training_data[best_idx]['user_message']
                 response = self.training_data[best_idx]['response']
-                logger.info(f"ðŸ“Š CSV Match: '{matched_question}' | Confidence: {best_similarity:.3f}")
-                logger.info(f"ðŸ” Testing CSV match for: '{user_message}' | Found: {response[:100]}... | Confidence: {best_similarity:.3f}")
+                logger.info(f"📊 CSV Match: '{matched_question}' | Confidence: {best_similarity:.3f}")
+                logger.info(f"🔍 Testing CSV match for: '{user_message}' | Found: {response[:100]}... | Confidence: {best_similarity:.3f}")
                 return response
             else:
-                logger.info(f"ðŸ“Š No CSV match found | Best similarity: {best_similarity:.3f} < threshold: {similarity_threshold}")
-                logger.info(f"ðŸ” Testing CSV match for: '{user_message}' | Found: None | Confidence: {best_similarity:.3f}")
+                logger.info(f"📊 No CSV match found | Best similarity: {best_similarity:.3f} < threshold: {similarity_threshold}")
+                logger.info(f"🔍 Testing CSV match for: '{user_message}' | Found: None | Confidence: {best_similarity:.3f}")
                 return None
 
         except Exception as e:
-            logger.error(f"âŒ CSV similarity matching error: {e}")
+            logger.error(f"❌ CSV similarity matching error: {e}")
             # Fallback to sentence transformer method
             try:
                 user_embedding = self.sentence_model.encode([user_message])
@@ -1053,11 +1053,11 @@ class CSVTrainingDataHandler:
                 if best_similarity >= similarity_threshold:
                     matched_question = self.training_data[best_idx]['user_message']
                     response = self.training_data[best_idx]['response']
-                    logger.info(f"ðŸ“Š CSV Match (fallback): '{matched_question}' | Confidence: {best_similarity:.3f}")
+                    logger.info(f"📊 CSV Match (fallback): '{matched_question}' | Confidence: {best_similarity:.3f}")
                     return response
 
             except Exception as fallback_error:
-                logger.error(f"âŒ CSV fallback matching also failed: {fallback_error}")
+                logger.error(f"❌ CSV fallback matching also failed: {fallback_error}")
 
             return None
 
@@ -1084,9 +1084,9 @@ class IntelligentLLMChatbot:
         if BUSINESS_API_AVAILABLE and USE_BUSINESS_API:
             try:
                 self.business_api = TechryptBusinessAPI()
-                logger.info("âœ… Techrypt Business API handler initialized")
+                logger.info("✅ Techrypt Business API handler initialized")
             except Exception as e:
-                logger.warning(f"âš ï¸ Failed to initialize Business API handler: {e}")
+                logger.warning(f"⚠️ Failed to initialize Business API handler: {e}")
 
         # Performance tracking for enhanced fallback chain
         self.response_stats = {
@@ -1427,7 +1427,7 @@ class IntelligentLLMChatbot:
                         if row['response'] == csv_response:
                             return row['business_type']
             except Exception as e:
-                logger.warning(f"âš ï¸ CSV business detection failed: {e}")
+                logger.warning(f"⚠️ CSV business detection failed: {e}")
 
         # Enhanced keyword matching with specific business types (ORDER MATTERS - most specific first)
         enhanced_business_types = {
@@ -1560,21 +1560,21 @@ class IntelligentLLMChatbot:
 
     def get_intelligent_response(self, message: str, user_context: dict, session_id: str = "default") -> dict:
         """Generate intelligent, contextual response with enhanced AI fallback chain"""
-        logger.info(f"ðŸ” DEBUG: Method started for message: '{message}'")
-        print(f"ðŸ” PRINT DEBUG: Method started for message: '{message}'")
+        logger.info(f"🔍 DEBUG: Method started for message: '{message}'")
+        print(f"🔍 PRINT DEBUG: Method started for message: '{message}'")
         start_time = time.time()
-        logger.info(f"ðŸ” DEBUG: start_time set")
+        logger.info(f"🔍 DEBUG: start_time set")
 
-        # âœ… FIX: Initialize ALL variables at the very beginning to prevent UnboundLocalError
+        # ✅ FIX: Initialize ALL variables at the very beginning to prevent UnboundLocalError
         response_text = ""
         llm_method = "fallback"
         csv_confidence = 0.0
         matched_question = None
         show_contact_form = False
         show_appointment_form = False
-        logger.info(f"ðŸ” DEBUG: Variables initialized")
-        logger.info(f"ðŸ” DEBUG: CSV handler data_loaded: {self.csv_handler.data_loaded}")
-        logger.info(f"ðŸ” DEBUG: CSV handler training_data length: {len(self.csv_handler.training_data) if self.csv_handler.training_data else 0}")
+        logger.info(f"🔍 DEBUG: Variables initialized")
+        logger.info(f"🔍 DEBUG: CSV handler data_loaded: {self.csv_handler.data_loaded}")
+        logger.info(f"🔍 DEBUG: CSV handler training_data length: {len(self.csv_handler.training_data) if self.csv_handler.training_data else 0}")
 
         try:
             # Update response stats safely
@@ -1586,13 +1586,13 @@ class IntelligentLLMChatbot:
 
             context = self.conversation_contexts[session_id]
 
-            # ðŸš¨ ABSOLUTE PRIORITY: CSV RESPONSES FIRST (BYPASS ALL OTHER LOGIC)
-            print(f"ðŸ” PRIORITY CHECK: CSV handler data_loaded = {self.csv_handler.data_loaded}")
+            # 🚨 ABSOLUTE PRIORITY: CSV RESPONSES FIRST (BYPASS ALL OTHER LOGIC)
+            print(f"🔍 PRIORITY CHECK: CSV handler data_loaded = {self.csv_handler.data_loaded}")
             if self.csv_handler.data_loaded:
                 try:
-                    print(f"ðŸ” ATTEMPTING CSV MATCH for: '{message}'")
+                    print(f"🔍 ATTEMPTING CSV MATCH for: '{message}'")
                     csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.15)
-                    print(f"ðŸ” CSV MATCH RESULT: {csv_response is not None}")
+                    print(f"🔍 CSV MATCH RESULT: {csv_response is not None}")
 
                     if csv_response:
                         # Get confidence score for metadata
@@ -1634,9 +1634,9 @@ class IntelligentLLMChatbot:
                         llm_method = "csv_priority_match"
                         self.response_stats['csv_fallback'] += 1
 
-                        print(f"âœ… CSV PRIORITY MATCH FOUND! Confidence: {csv_confidence:.3f}")
-                        print(f"ðŸ“Š Matched Question: {matched_question}")
-                        print(f"ðŸ“ Response: {response_text[:100]}...")
+                        print(f"✅ CSV PRIORITY MATCH FOUND! Confidence: {csv_confidence:.3f}")
+                        print(f"📊 Matched Question: {matched_question}")
+                        print(f"📝 Response: {response_text[:100]}...")
 
                         # IMMEDIATE RETURN - BYPASS ALL OTHER LOGIC
                         response_time = time.time() - start_time
@@ -1658,18 +1658,18 @@ class IntelligentLLMChatbot:
                         }
 
                 except Exception as e:
-                    print(f"âŒ CSV PRIORITY MATCHING ERROR: {e}")
-                    logger.error(f"âŒ CSV priority matching failed: {e}")
+                    print(f"❌ CSV PRIORITY MATCHING ERROR: {e}")
+                    logger.error(f"❌ CSV priority matching failed: {e}")
             else:
-                print(f"âŒ CSV handler not loaded - data_loaded = {self.csv_handler.data_loaded}")
+                print(f"❌ CSV handler not loaded - data_loaded = {self.csv_handler.data_loaded}")
 
             # PRIORITY: Check if this is a service inquiry first (before business detection)
-            logger.info(f"ðŸ” DEBUG: About to call detect_service_inquiry_intent")
+            logger.info(f"🔍 DEBUG: About to call detect_service_inquiry_intent")
             try:
                 service_inquiry_result = self.detect_service_inquiry_intent(message)
-                logger.info(f"ðŸ” DEBUG: detect_service_inquiry_intent completed")
+                logger.info(f"🔍 DEBUG: detect_service_inquiry_intent completed")
             except Exception as e:
-                logger.error(f"âŒ ERROR in detect_service_inquiry_intent: {e}")
+                logger.error(f"❌ ERROR in detect_service_inquiry_intent: {e}")
                 service_inquiry_result = {'intent': 'general', 'detected_services': []}
 
             if service_inquiry_result['intent'] == 'service_inquiry':
@@ -1701,7 +1701,7 @@ class IntelligentLLMChatbot:
                         correction_message = correction_message.split(pattern)[-1].strip()
                         break
                 detected_business = self.detect_business_type(correction_message)
-                logger.info(f"ðŸ”„ User correction detected: '{correction_message}' -> {detected_business}")
+                logger.info(f"🔄 User correction detected: '{correction_message}' -> {detected_business}")
 
                 # CRITICAL: Force contextual response for corrections
                 context.business_type = detected_business
@@ -1762,17 +1762,17 @@ We serve Karachi locally and offer remote consultations globally. What's your pr
                 self.response_stats['rule_based'] += 1
 
                 if fuzzy_appointment_detected:
-                    logger.info(f"ðŸŽ¯ Fuzzy appointment booking triggered for: '{message}'")
+                    logger.info(f"🎯 Fuzzy appointment booking triggered for: '{message}'")
                 else:
-                    logger.info(f"ðŸŽ¯ Exact appointment booking triggered for: '{message}'")
+                    logger.info(f"🎯 Exact appointment booking triggered for: '{message}'")
 
             # 0. CSV RESPONSES FOR ALL QUERIES (HIGHEST PRIORITY - Use our detailed explanations)
             if not response_text and self.csv_handler.data_loaded:
                 try:
-                    logger.info(f"ðŸ” DEBUG: Attempting CSV matching for: '{message}'")
+                    logger.info(f"🔍 DEBUG: Attempting CSV matching for: '{message}'")
                     # For all queries, prioritize CSV responses with 0.15 threshold
                     csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.15)
-                    logger.info(f"ðŸ” DEBUG: CSV response result: {csv_response is not None}")
+                    logger.info(f"🔍 DEBUG: CSV response result: {csv_response is not None}")
 
                     if csv_response:
                         # Get confidence score for metadata
@@ -1816,15 +1816,15 @@ We serve Karachi locally and offer remote consultations globally. What's your pr
 
                         if intent_type == 'direct_booking_request':
                             context.conversation_stage = 'closing'  # Trigger appointment form
-                            logger.info(f"ðŸŽ¯ Direct booking request detected from CSV - triggering appointment form")
+                            logger.info(f"🎯 Direct booking request detected from CSV - triggering appointment form")
 
                         response_text = formatted_response
                         llm_method = "csv_priority_match"
                         self.response_stats['csv_fallback'] += 1
-                        logger.info(f"ðŸ“Š Priority CSV match used | Confidence: {csv_confidence:.3f} | Question: {matched_question} | Intent: {intent_type}")
+                        logger.info(f"📊 Priority CSV match used | Confidence: {csv_confidence:.3f} | Question: {matched_question} | Intent: {intent_type}")
 
                 except Exception as e:
-                    logger.warning(f"âš ï¸ Service inquiry CSV matching failed: {e}")
+                    logger.warning(f"⚠️ Service inquiry CSV matching failed: {e}")
 
             # 1. STANDARDIZED SERVICE INQUIRIES (FALLBACK - only for general service lists when CSV doesn't match)
             if not response_text:
@@ -1877,7 +1877,7 @@ Would you like to schedule a consultation or learn more about any specific servi
                 context.conversation_stage = 'discovery'
 
         except Exception as e:
-            logger.error(f"âŒ Error during intelligent response generation: {e}")
+            logger.error(f"❌ Error during intelligent response generation: {e}")
             response_time = time.time() - start_time
             return {
                 'response': "I apologize for the technical difficulty. How can Techrypt help your business today?",
@@ -1973,14 +1973,14 @@ Would you like to schedule a consultation or learn more about any specific servi
                 return f"""I can help you with both angles{name_part}!
 
 **For {business_type} businesses:**
-â€¢ Industry-specific {primary_subservice} solutions
-â€¢ Tailored features for your market
-â€¢ Compliance and best practices
+• Industry-specific {primary_subservice} solutions
+• Tailored features for your market
+• Compliance and best practices
 
 **{primary_subservice.title()} service in general:**
-â€¢ Professional implementation
-â€¢ Custom configuration
-â€¢ Ongoing support and optimization
+• Professional implementation
+• Custom configuration
+• Ongoing support and optimization
 
 Which perspective interests you more - {business_type} specific solutions or general {primary_subservice} services?"""
 
@@ -2033,7 +2033,7 @@ Which perspective interests you more - {business_type} specific solutions or gen
             elif 'social media' in message_lower or 'marketing' in message_lower:
                 return f"Perfect{name_part}! Food businesses thrive on social media. I'd recommend Instagram and Facebook to showcase your fresh products, share customer testimonials, and build local community trust. What's your main product - eggs, dairy, produce, or other?"
             elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Food businesses like egg selling need strong local presence and customer trust. For your food business, I'd recommend: ðŸ¥š Local SEO optimization, ðŸ“± Social media marketing to showcase fresh products, ðŸŒ Simple website with contact info and product details, ðŸ“ž Customer communication system. What's your biggest challenge - finding customers, online presence, or managing orders?"
+                return f"Great{name_part}! Food businesses like egg selling need strong local presence and customer trust. For your food business, I'd recommend: 🥚 Local SEO optimization, 📱 Social media marketing to showcase fresh products, 🌐 Simple website with contact info and product details, 📞 Customer communication system. What's your biggest challenge - finding customers, online presence, or managing orders?"
 
         elif context.business_type == 'healthcare':
             if 'chatbot' in message_lower:
@@ -2047,31 +2047,31 @@ Which perspective interests you more - {business_type} specific solutions or gen
             if 'website' in message_lower:
                 return f"""Perfect for your retail business{name_part}!
 
-â€¢ User-friendly e-commerce website
-â€¢ Secure payment gateway integration
-â€¢ Inventory management system
-â€¢ Mobile-responsive design
-â€¢ Customer review system
+• User-friendly e-commerce website
+• Secure payment gateway integration
+• Inventory management system
+• Mobile-responsive design
+• Customer review system
 
 What products do you specialize in - electronics, fashion, or general retail?"""
             elif 'marketing' in message_lower:
                 return f"""Great choice for retail marketing{name_part}!
 
-â€¢ Product showcase campaigns
-â€¢ Social media advertising
-â€¢ Customer review management
-â€¢ Email marketing automation
-â€¢ Local SEO for Karachi customers
+• Product showcase campaigns
+• Social media advertising
+• Customer review management
+• Email marketing automation
+• Local SEO for Karachi customers
 
 Are you focusing on local Karachi sales or expanding online globally?"""
             elif context.conversation_stage == 'initial':
                 return f"""Excellent{name_part}! For your mobile/electronics shop:
 
-â€¢ Professional e-commerce website
-â€¢ Secure payment processing
-â€¢ Product catalog management
-â€¢ Social media marketing
-â€¢ Local SEO for Karachi market
+• Professional e-commerce website
+• Secure payment processing
+• Product catalog management
+• Social media marketing
+• Local SEO for Karachi market
 
 What's your main challenge - online presence, customer acquisition, or payment processing?"""
 
@@ -2079,31 +2079,31 @@ What's your main challenge - online presence, customer acquisition, or payment p
             if 'social media' in message_lower:
                 return f"""Perfect for restaurant marketing{name_part}!
 
-â€¢ Food photography and visual content
-â€¢ Customer engagement strategies
-â€¢ Social media advertising
-â€¢ Review management
-â€¢ Local Karachi market targeting
+• Food photography and visual content
+• Customer engagement strategies
+• Social media advertising
+• Review management
+• Local Karachi market targeting
 
 Do you need help with food photography or customer engagement strategies?"""
             elif 'website' in message_lower:
                 return f"""Excellent choice for restaurants{name_part}!
 
-â€¢ Online ordering system
-â€¢ Reservation booking
-â€¢ Menu display with photos
-â€¢ Customer reviews integration
-â€¢ Local delivery for Karachi
+• Online ordering system
+• Reservation booking
+• Menu display with photos
+• Customer reviews integration
+• Local delivery for Karachi
 
 Do you currently take online orders or need a complete system?"""
             elif context.conversation_stage == 'initial':
                 return f"""Perfect{name_part}! For your restaurant business:
 
-â€¢ Professional website with online ordering
-â€¢ Social media marketing with food photography
-â€¢ Google My Business for local Karachi customers
-â€¢ Customer review management
-â€¢ Delivery platform integration
+• Professional website with online ordering
+• Social media marketing with food photography
+• Google My Business for local Karachi customers
+• Customer review management
+• Delivery platform integration
 
 What's your priority - online ordering, social media marketing, or customer engagement?"""
 
@@ -2111,67 +2111,67 @@ What's your priority - online ordering, social media marketing, or customer enga
             if 'website' in message_lower:
                 return f"Automotive businesses{name_part} need websites that build trust and showcase expertise. I'd recommend service listings, customer reviews, and online booking. What automotive services do you provide?"
             elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Automotive businesses need local visibility and customer trust. I'd recommend: ðŸš— Local SEO for 'near me' searches, ðŸŒ Professional website with services and pricing, ðŸ“± Google My Business optimization, ðŸ“ž Online appointment booking. What's your main focus - repairs, sales, or specialized services?"
+                return f"Great{name_part}! Automotive businesses need local visibility and customer trust. I'd recommend: 🚗 Local SEO for 'near me' searches, 🌐 Professional website with services and pricing, 📱 Google My Business optimization, 📞 Online appointment booking. What's your main focus - repairs, sales, or specialized services?"
 
         elif context.business_type == 'construction':
             if 'website' in message_lower:
-                return f"Perfect for construction{name_part}! I recommend:\n\nâ€¢ Project portfolio website\nâ€¢ Customer testimonials\nâ€¢ Service area coverage\nâ€¢ Online quote requests\n\nWhat construction work do you specialize in?"
+                return f"Perfect for construction{name_part}! I recommend:\n\n• Project portfolio website\n• Customer testimonials\n• Service area coverage\n• Online quote requests\n\nWhat construction work do you specialize in?"
             elif context.conversation_stage == 'initial':
-                return f"Great for plumbing{name_part}! I recommend:\n\nâ€¢ Professional website\nâ€¢ Local SEO optimization  \nâ€¢ Google My Business setup\nâ€¢ Online booking system\nâ€¢ Customer reviews\n\nResidential or commercial focus?"
+                return f"Great for plumbing{name_part}! I recommend:\n\n• Professional website\n• Local SEO optimization  \n• Google My Business setup\n• Online booking system\n• Customer reviews\n\nResidential or commercial focus?"
 
         elif context.business_type == 'professional':
             if 'website' in message_lower:
                 return f"Professional services{name_part} need websites that establish expertise and generate leads. I'd recommend service descriptions, client testimonials, and consultation booking. What professional services do you offer?"
             elif context.conversation_stage == 'initial':
-                return f"Perfect{name_part}! Professional services need credibility and lead generation. I'd recommend: âš–ï¸ Professional website with expertise showcase, ðŸ“± Content marketing and SEO, ðŸŒ Client portal and automation, ðŸ“ž Lead capture and CRM integration. What's your practice area - legal, accounting, consulting, or other?"
+                return f"Perfect{name_part}! Professional services need credibility and lead generation. I'd recommend: ⚖️ Professional website with expertise showcase, 📱 Content marketing and SEO, 🌐 Client portal and automation, 📞 Lead capture and CRM integration. What's your practice area - legal, accounting, consulting, or other?"
 
         elif context.business_type == 'technology':
             if 'website' in message_lower:
                 return f"Tech businesses{name_part} need cutting-edge websites that showcase innovation. I'd recommend modern design, case studies, and technical expertise display. What technology solutions do you provide?"
             elif context.conversation_stage == 'initial':
-                return f"Excellent{name_part}! Technology businesses need to demonstrate innovation and expertise. I'd recommend: ðŸ’» Modern website with case studies, ðŸ“± Technical content marketing, ðŸŒ SaaS integration and automation, ðŸ“ž Lead generation for B2B clients. What's your tech focus - software development, IT services, or emerging technologies?"
+                return f"Excellent{name_part}! Technology businesses need to demonstrate innovation and expertise. I'd recommend: 💻 Modern website with case studies, 📱 Technical content marketing, 🌐 SaaS integration and automation, 📞 Lead generation for B2B clients. What's your tech focus - software development, IT services, or emerging technologies?"
 
         elif context.business_type == 'beauty':
             if 'social media' in message_lower:
                 return f"Beauty businesses{name_part} are perfect for visual social media marketing. I'd recommend Instagram and TikTok for before/after photos and beauty tips. Do you offer specific beauty services or sell products?"
             elif context.conversation_stage == 'initial':
-                return f"Perfect{name_part}! Beauty businesses thrive on visual marketing and customer trust. I'd recommend: ðŸ’„ Instagram and social media marketing, ðŸŒ Booking website with service menus, ðŸ“± Customer review management, ðŸ“ž Online appointment scheduling. What beauty services do you specialize in?"
+                return f"Perfect{name_part}! Beauty businesses thrive on visual marketing and customer trust. I'd recommend: 💄 Instagram and social media marketing, 🌐 Booking website with service menus, 📱 Customer review management, 📞 Online appointment scheduling. What beauty services do you specialize in?"
 
         elif context.business_type == 'fitness':
             if 'website' in message_lower:
                 return f"Fitness businesses{name_part} need websites that motivate and convert. I'd recommend class schedules, trainer profiles, and membership sign-ups. What type of fitness services do you offer?"
             elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Fitness businesses need motivation and community building. I'd recommend: ðŸ’ª Website with class schedules and trainer profiles, ðŸ“± Social media for workout tips and success stories, ðŸŒ Online membership and booking system, ðŸ“ž Community engagement tools. What's your fitness focus - gym, personal training, or specialized classes?"
+                return f"Great{name_part}! Fitness businesses need motivation and community building. I'd recommend: 💪 Website with class schedules and trainer profiles, 📱 Social media for workout tips and success stories, 🌐 Online membership and booking system, 📞 Community engagement tools. What's your fitness focus - gym, personal training, or specialized classes?"
 
         elif context.business_type == 'education':
             if 'website' in message_lower:
                 return f"Educational businesses{name_part} need websites that inform and enroll students. I'd recommend course catalogs, instructor profiles, and enrollment systems. What type of education do you provide?"
             elif context.conversation_stage == 'initial':
-                return f"Excellent{name_part}! Educational businesses need trust and clear communication. I'd recommend: ðŸ“š Professional website with course information, ðŸ“± Online learning platform integration, ðŸŒ Student management system, ðŸ“ž Parent/student communication tools. What educational services do you offer?"
+                return f"Excellent{name_part}! Educational businesses need trust and clear communication. I'd recommend: 📚 Professional website with course information, 📱 Online learning platform integration, 🌐 Student management system, 📞 Parent/student communication tools. What educational services do you offer?"
 
         elif context.business_type == 'automotive':
             if 'website' in message_lower:
                 return f"Automotive businesses{name_part} need websites that build trust and showcase expertise. I'd recommend service listings, customer reviews, and online booking. What automotive services do you provide?"
             elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Automotive businesses need local visibility and customer trust. I'd recommend: ðŸš— Local SEO for 'near me' searches, ðŸŒ Professional website with services and pricing, ðŸ“± Google My Business optimization, ðŸ“ž Online appointment booking. What's your main focus - repairs, sales, or specialized services?"
+                return f"Great{name_part}! Automotive businesses need local visibility and customer trust. I'd recommend: 🚗 Local SEO for 'near me' searches, 🌐 Professional website with services and pricing, 📱 Google My Business optimization, 📞 Online appointment booking. What's your main focus - repairs, sales, or specialized services?"
 
         elif context.business_type == 'manufacturing':
             if 'website' in message_lower:
                 return f"Manufacturing businesses{name_part} need B2B-focused websites with product catalogs and capabilities. I'd recommend technical specifications, certifications, and supplier portals. What do you manufacture?"
             elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Manufacturing businesses need B2B credibility and efficiency. I'd recommend: ðŸ­ Professional B2B website with product catalogs, ðŸ“± Supply chain integration, ðŸŒ Quality certification showcase, ðŸ“ž Supplier and customer portals. What's your manufacturing focus?"
+                return f"Great{name_part}! Manufacturing businesses need B2B credibility and efficiency. I'd recommend: 🏭 Professional B2B website with product catalogs, 📱 Supply chain integration, 🌐 Quality certification showcase, 📞 Supplier and customer portals. What's your manufacturing focus?"
 
         elif context.business_type == 'hospitality':
             if 'website' in message_lower:
                 return f"Hospitality businesses{name_part} need websites that inspire and convert bookings. I'd recommend photo galleries, booking systems, and guest reviews. What type of hospitality business do you run?"
             elif context.conversation_stage == 'initial':
-                return f"Perfect{name_part}! Hospitality businesses need to inspire and convert visitors. I'd recommend: ðŸ¨ Stunning website with photo galleries, ðŸ“± Online booking and reservation system, ðŸŒ Review management and social proof, ðŸ“ž Guest communication tools. What hospitality services do you provide?"
+                return f"Perfect{name_part}! Hospitality businesses need to inspire and convert visitors. I'd recommend: 🏨 Stunning website with photo galleries, 📱 Online booking and reservation system, 🌐 Review management and social proof, 📞 Guest communication tools. What hospitality services do you provide?"
 
         elif context.business_type == 'entertainment':
             if 'social media' in message_lower:
                 return f"Entertainment businesses{name_part} are perfect for social media marketing. I'd recommend video content, event promotion, and audience engagement. What type of entertainment do you provide?"
             elif context.conversation_stage == 'initial':
-                return f"Excellent{name_part}! Entertainment businesses need audience engagement and event promotion. I'd recommend: ðŸŽ­ Social media marketing with video content, ðŸŒ Event booking and promotion website, ðŸ“± Audience engagement tools, ðŸ“ž Ticket sales and management system. What entertainment services do you offer?"
+                return f"Excellent{name_part}! Entertainment businesses need audience engagement and event promotion. I'd recommend: 🎭 Social media marketing with video content, 🌐 Event booking and promotion website, 📱 Audience engagement tools, 📞 Ticket sales and management system. What entertainment services do you offer?"
 
         elif context.business_type == 'cleaning_services':
             if 'website' in message_lower:
@@ -2185,42 +2185,42 @@ What's your priority - online ordering, social media marketing, or customer enga
             if 'website' in message_lower:
                 return f"Landscaping businesses{name_part} need websites that showcase your outdoor transformations. I'd recommend project galleries, seasonal service information, and online estimates. Do you focus on design, maintenance, or both?"
             elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Landscaping businesses need visual marketing and seasonal customer engagement. I'd recommend: ðŸŒ¿ Website with project galleries, ðŸ“± Social media for seasonal tips and transformations, ðŸŒ Online estimate requests, ðŸ“ž Seasonal service reminders. What landscaping services do you provide?"
+                return f"Great{name_part}! Landscaping businesses need visual marketing and seasonal customer engagement. I'd recommend: 🌿 Website with project galleries, 📱 Social media for seasonal tips and transformations, 🌐 Online estimate requests, 📞 Seasonal service reminders. What landscaping services do you provide?"
 
         elif context.business_type == 'transportation_logistics':
             if 'website' in message_lower:
                 return f"Transportation businesses{name_part} need websites that build reliability and showcase service areas. I'd recommend tracking systems, service coverage maps, and online booking. What transportation services do you offer?"
             elif context.conversation_stage == 'initial':
-                return f"Excellent{name_part}! Transportation businesses need reliability and efficient operations. I'd recommend: ðŸšš Professional website with service areas, ðŸ“± Online booking and tracking systems, ðŸŒ Customer communication tools, ðŸ“ž Route optimization and scheduling. What's your transportation focus?"
+                return f"Excellent{name_part}! Transportation businesses need reliability and efficient operations. I'd recommend: 🚚 Professional website with service areas, 📱 Online booking and tracking systems, 🌐 Customer communication tools, 📞 Route optimization and scheduling. What's your transportation focus?"
 
         elif context.business_type == 'pet_services':
             if 'website' in message_lower:
                 return f"Pet service businesses{name_part} need websites that build trust with pet owners. I'd recommend staff profiles, service descriptions, and online booking. What pet services do you provide?"
             elif context.conversation_stage == 'initial':
-                return f"Perfect{name_part}! Pet service businesses need trust and convenience for pet owners. I'd recommend: ðŸ• Professional website with staff credentials, ðŸ“± Online booking and scheduling, ðŸŒ Pet owner communication tools, ðŸ“ž Service reminders and updates. What pet services do you specialize in?"
+                return f"Perfect{name_part}! Pet service businesses need trust and convenience for pet owners. I'd recommend: 🐕 Professional website with staff credentials, 📱 Online booking and scheduling, 🌐 Pet owner communication tools, 📞 Service reminders and updates. What pet services do you specialize in?"
 
         elif context.business_type == 'home_repair':
             if 'website' in message_lower:
                 return f"Home repair businesses{name_part} need websites that showcase expertise and build trust. I'd recommend service listings, before/after photos, and emergency contact options. What repair services do you offer?"
             elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Home repair businesses need local visibility and customer trust. I'd recommend: ðŸ”§ Professional website with service listings, ðŸ“± Local SEO for emergency searches, ðŸŒ Online estimate requests, ðŸ“ž Customer review management. What's your repair specialty?"
+                return f"Great{name_part}! Home repair businesses need local visibility and customer trust. I'd recommend: 🔧 Professional website with service listings, 📱 Local SEO for emergency searches, 🌐 Online estimate requests, 📞 Customer review management. What's your repair specialty?"
 
         elif context.business_type == 'security_services':
             if 'website' in message_lower:
                 return f"Security businesses{name_part} need websites that convey professionalism and reliability. I'd recommend service descriptions, certifications, and secure contact forms. What security services do you provide?"
             elif context.conversation_stage == 'initial':
-                return f"Excellent{name_part}! Security businesses need credibility and professional presence. I'd recommend: ðŸ›¡ï¸ Professional website with certifications, ðŸ“± Secure client communication, ðŸŒ Service area coverage, ðŸ“ž Emergency contact systems. What security services do you offer?"
+                return f"Excellent{name_part}! Security businesses need credibility and professional presence. I'd recommend: 🛡️ Professional website with certifications, 📱 Secure client communication, 🌐 Service area coverage, 📞 Emergency contact systems. What security services do you offer?"
 
         elif context.business_type == 'specialty_niche':
             if 'website' in message_lower:
                 return f"""Perfect{name_part}! Specialty businesses like yours need websites that educate and build trust with niche audiences.
 
-â€¢ Website Development - Educational content with expert credentials and specialized information
-â€¢ Social Media Marketing - Targeted content for specialty audiences and communities
-â€¢ Branding Services - Unique identity that reflects your specialty expertise
-â€¢ Chatbot Development - Customer education and specialized inquiry handling
-â€¢ Automation Packages - Streamlined operations for niche business processes
-â€¢ Payment Gateway Integration - Secure transactions for specialty products/services
+• Website Development - Educational content with expert credentials and specialized information
+• Social Media Marketing - Targeted content for specialty audiences and communities
+• Branding Services - Unique identity that reflects your specialty expertise
+• Chatbot Development - Customer education and specialized inquiry handling
+• Automation Packages - Streamlined operations for niche business processes
+• Payment Gateway Integration - Secure transactions for specialty products/services
 
 What makes your specialty business unique, and who is your target audience?"""
             elif context.conversation_stage == 'initial':
@@ -2228,12 +2228,12 @@ What makes your specialty business unique, and who is your target audience?"""
 
 Here are our 6 core services tailored for your specialty business:
 
-â€¢ Website Development - Educational content showcasing your expertise and building credibility
-â€¢ Social Media Marketing - Niche community building and targeted audience engagement
-â€¢ Branding Services - Unique visual identity that reflects your specialty focus
-â€¢ Chatbot Development - Automated customer education and specialized inquiry handling
-â€¢ Automation Packages - Streamlined processes for efficient niche business operations
-â€¢ Payment Gateway Integration - Secure online transactions for specialty products/services
+• Website Development - Educational content showcasing your expertise and building credibility
+• Social Media Marketing - Niche community building and targeted audience engagement
+• Branding Services - Unique visual identity that reflects your specialty focus
+• Chatbot Development - Automated customer education and specialized inquiry handling
+• Automation Packages - Streamlined processes for efficient niche business operations
+• Payment Gateway Integration - Secure online transactions for specialty products/services
 
 What's your biggest challenge - reaching your target market, educating customers, or managing specialized operations?"""
 
@@ -2280,10 +2280,10 @@ What's your biggest challenge - reaching your target market, educating customers
             context.conversation_stage = 'closing'  # Trigger appointment form
             return f"""Our solutions are customized to your needs and budget{name_part}!
 
-â€¢ Pricing varies based on your specific requirements
-â€¢ We offer flexible packages for all business sizes
-â€¢ Free consultation to discuss your exact needs
-â€¢ Transparent pricing with no hidden costs
+• Pricing varies based on your specific requirements
+• We offer flexible packages for all business sizes
+• Free consultation to discuss your exact needs
+• Transparent pricing with no hidden costs
 
 Let's schedule a consultation to discuss pricing for your specific requirements. We serve Karachi locally and offer remote consultations worldwide. What's the best time to connect?"""
 
@@ -2292,16 +2292,16 @@ Let's schedule a consultation to discuss pricing for your specific requirements.
             context.conversation_stage = 'closing'  # Trigger appointment form
             return f"""Perfect{name_part}! Let's schedule your consultation.
 
-â€¢ 15-20 minute personalized consultation
-â€¢ Discuss your specific business needs
-â€¢ Custom solution recommendations
-â€¢ Transparent pricing discussion
+• 15-20 minute personalized consultation
+• Discuss your specific business needs
+• Custom solution recommendations
+• Transparent pricing discussion
 
 We serve Karachi locally and offer remote consultations globally. What's your preferred time and method - in-person (Karachi), phone call, or video meeting?"""
 
         # Enhanced fallback response for unrecognized businesses
         if context.business_type == "general" and any(word in message_lower for word in ['business', 'company', 'service', 'shop', 'store']):
-            return f"Interesting business{name_part}! While I may not be familiar with your specific industry, I can still help you grow with proven digital strategies:\n\nâ€¢ Professional website to establish credibility\nâ€¢ Social media presence to reach customers\nâ€¢ Local SEO to be found online\nâ€¢ Customer communication systems\nâ€¢ Online booking/payment solutions\n\nWhat's your biggest challenge - getting found online, attracting customers, or managing operations?"
+            return f"Interesting business{name_part}! While I may not be familiar with your specific industry, I can still help you grow with proven digital strategies:\n\n• Professional website to establish credibility\n• Social media presence to reach customers\n• Local SEO to be found online\n• Customer communication systems\n• Online booking/payment solutions\n\nWhat's your biggest challenge - getting found online, attracting customers, or managing operations?"
 
         # Default contextual response
         return f"Thank you for your message{name_part}! I'm here to help you grow your business with personalized digital solutions. Could you tell me more about your business type and what specific challenges you're facing?"
@@ -2458,7 +2458,7 @@ We serve Karachi locally and offer remote consultations globally. What's your pr
             response = f"{service_info['description']}\n\n"
             response += "Key benefits:\n"
             for benefit in service_info['benefits']:
-                response += f"â€¢ {benefit}\n"
+                response += f"• {benefit}\n"
 
             response += f"\n{service_info['cta']} Let's schedule a free consultation to discuss your specific needs!"
 
@@ -2476,12 +2476,12 @@ We serve Karachi locally and offer remote consultations globally. What's your pr
 
 Here are our 6 core services specifically tailored for your specialty business:
 
-â€¢ Website Development - Educational content showcasing expertise, building trust with niche audiences
-â€¢ Social Media Marketing - Targeted community building and specialized audience engagement
-â€¢ Branding Services - Unique visual identity that reflects your specialty focus and expertise
-â€¢ Chatbot Development - Automated customer education and specialized inquiry handling
-â€¢ Automation Packages - Streamlined processes for efficient specialty business operations
-â€¢ Payment Gateway Integration - Secure online transactions for specialty products and services
+• Website Development - Educational content showcasing expertise, building trust with niche audiences
+• Social Media Marketing - Targeted community building and specialized audience engagement
+• Branding Services - Unique visual identity that reflects your specialty focus and expertise
+• Chatbot Development - Automated customer education and specialized inquiry handling
+• Automation Packages - Streamlined processes for efficient specialty business operations
+• Payment Gateway Integration - Secure online transactions for specialty products and services
 
 What's your biggest challenge - reaching your target market, educating potential customers, or managing specialized operations?
 
@@ -2491,12 +2491,12 @@ Ready to grow your specialty business? Let's schedule a free consultation to dis
 
 Here are our 6 core services that can help grow your business:
 
-â€¢ Website Development - Professional online presence that builds credibility and attracts customers
-â€¢ Social Media Marketing - Strategic content and advertising to reach your ideal audience
-â€¢ Branding Services - Memorable visual identity that makes your business stand out
-â€¢ Chatbot Development - 24/7 customer service automation and lead capture
-â€¢ Automation Packages - Streamlined workflows that save time and reduce errors
-â€¢ Payment Gateway Integration - Secure online payment processing for customer convenience
+• Website Development - Professional online presence that builds credibility and attracts customers
+• Social Media Marketing - Strategic content and advertising to reach your ideal audience
+• Branding Services - Memorable visual identity that makes your business stand out
+• Chatbot Development - 24/7 customer service automation and lead capture
+• Automation Packages - Streamlined workflows that save time and reduce errors
+• Payment Gateway Integration - Secure online payment processing for customer convenience
 
 What's your main business challenge - attracting customers, building online presence, or improving operations?
 
@@ -2510,67 +2510,67 @@ Let's schedule a free consultation to create a customized digital strategy for y
         explanations = {
             'website': f"""A professional website will help your {business_type} business by:
 
-â€¢ Building credibility and trust with potential customers
-â€¢ Providing 24/7 online presence for customer inquiries
-â€¢ Showcasing your services and expertise professionally
-â€¢ Improving local search visibility for "near me" searches
-â€¢ Enabling online bookings and customer contact
-â€¢ Displaying customer reviews and testimonials
+• Building credibility and trust with potential customers
+• Providing 24/7 online presence for customer inquiries
+• Showcasing your services and expertise professionally
+• Improving local search visibility for "near me" searches
+• Enabling online bookings and customer contact
+• Displaying customer reviews and testimonials
 
 For {business_type} businesses specifically, we focus on industry-relevant features and local SEO optimization. Would you like to schedule a consultation to discuss your website goals?""",
 
             'chatbot': f"""A professional chatbot will help your {business_type} business by:
 
-â€¢ Providing 24/7 automated customer support
-â€¢ Handling common questions and inquiries instantly
-â€¢ Qualifying leads and collecting customer information
-â€¢ Booking appointments and scheduling consultations
-â€¢ Reducing response time from hours to seconds
-â€¢ Freeing up your time for core business activities
+• Providing 24/7 automated customer support
+• Handling common questions and inquiries instantly
+• Qualifying leads and collecting customer information
+• Booking appointments and scheduling consultations
+• Reducing response time from hours to seconds
+• Freeing up your time for core business activities
 
 For {business_type} businesses, we customize conversation flows for industry-specific needs. Would you like to see a demo of how chatbot automation works?""",
 
             'social media': f"""Professional social media marketing will help your {business_type} business by:
 
-â€¢ Increasing brand awareness and local visibility
-â€¢ Engaging with customers and building community
-â€¢ Showcasing your work and customer testimonials
-â€¢ Driving traffic to your website and location
-â€¢ Generating leads through targeted advertising
-â€¢ Building trust through consistent professional presence
+• Increasing brand awareness and local visibility
+• Engaging with customers and building community
+• Showcasing your work and customer testimonials
+• Driving traffic to your website and location
+• Generating leads through targeted advertising
+• Building trust through consistent professional presence
 
 For {business_type} businesses, we focus on platforms and content that work best for your industry. Would you like to discuss a social media strategy consultation?""",
 
             'branding': f"""Professional branding services will help your {business_type} business by:
 
-â€¢ Creating a memorable and professional visual identity
-â€¢ Building customer trust and recognition
-â€¢ Differentiating you from competitors
-â€¢ Ensuring consistent presentation across all materials
-â€¢ Increasing perceived value of your services
-â€¢ Supporting marketing and advertising efforts
+• Creating a memorable and professional visual identity
+• Building customer trust and recognition
+• Differentiating you from competitors
+• Ensuring consistent presentation across all materials
+• Increasing perceived value of your services
+• Supporting marketing and advertising efforts
 
 For {business_type} businesses, we design branding that reflects industry expertise and builds credibility. Would you like to explore branding concepts for your business?""",
 
             'automation': f"""Business automation will help your {business_type} business by:
 
-â€¢ Streamlining repetitive tasks and processes
-â€¢ Reducing manual work and human errors
-â€¢ Improving customer response times
-â€¢ Organizing customer data and communications
-â€¢ Scheduling and managing appointments automatically
-â€¢ Generating reports and tracking performance
+• Streamlining repetitive tasks and processes
+• Reducing manual work and human errors
+• Improving customer response times
+• Organizing customer data and communications
+• Scheduling and managing appointments automatically
+• Generating reports and tracking performance
 
 For {business_type} businesses, we identify the most time-consuming processes and automate them effectively. Would you like to schedule a consultation to analyze your workflow?""",
 
             'payment': f"""Payment gateway integration will help your {business_type} business by:
 
-â€¢ Enabling secure online payment processing
-â€¢ Accepting multiple payment methods (cards, digital wallets)
-â€¢ Automating invoicing and receipt generation
-â€¢ Reducing payment collection time
-â€¢ Providing detailed transaction reporting
-â€¢ Ensuring PCI compliance and fraud protection
+• Enabling secure online payment processing
+• Accepting multiple payment methods (cards, digital wallets)
+• Automating invoicing and receipt generation
+• Reducing payment collection time
+• Providing detailed transaction reporting
+• Ensuring PCI compliance and fraud protection
 
 For {business_type} businesses, we set up payment systems that work seamlessly with your operations. Would you like to discuss your payment processing needs?"""
         }
@@ -2610,60 +2610,60 @@ Would you like to book a consultation to discuss your {service_name} requirement
         """Generate service-specific responses"""
         service_responses = {
             'website development': {
-                'specialty_niche': f"Perfect choice{name_part}! Specialty businesses need websites that educate and build trust with niche audiences:\n\nâ€¢ Educational content showcasing your expertise\nâ€¢ Professional design that builds credibility\nâ€¢ Specialized information and resources\nâ€¢ Mobile-responsive for all devices\nâ€¢ SEO optimization for niche keywords\nâ€¢ Integration with booking and payment systems\n\nWhat makes your specialty business unique?",
-                'retail_ecommerce': f"Perfect choice{name_part}! For mobile/electronics shops, I recommend:\n\nâ€¢ E-commerce website with product catalog\nâ€¢ Secure payment processing\nâ€¢ Inventory management integration\nâ€¢ Mobile-responsive design\nâ€¢ Customer reviews system\n\nWhat products do you specialize in?",
-                'restaurant': f"Excellent{name_part}! Restaurant websites should include:\n\nâ€¢ Online ordering system\nâ€¢ Menu display with photos\nâ€¢ Reservation booking\nâ€¢ Location and hours\nâ€¢ Customer reviews\n\nDo you need delivery integration?",
-                'default': f"Great choice{name_part}! Website development includes:\n\nâ€¢ Professional responsive design\nâ€¢ SEO optimization\nâ€¢ Content management system\nâ€¢ Contact forms\nâ€¢ Analytics integration\n\nWhat's your main goal for the website?"
+                'specialty_niche': f"Perfect choice{name_part}! Specialty businesses need websites that educate and build trust with niche audiences:\n\n• Educational content showcasing your expertise\n• Professional design that builds credibility\n• Specialized information and resources\n• Mobile-responsive for all devices\n• SEO optimization for niche keywords\n• Integration with booking and payment systems\n\nWhat makes your specialty business unique?",
+                'retail_ecommerce': f"Perfect choice{name_part}! For mobile/electronics shops, I recommend:\n\n• E-commerce website with product catalog\n• Secure payment processing\n• Inventory management integration\n• Mobile-responsive design\n• Customer reviews system\n\nWhat products do you specialize in?",
+                'restaurant': f"Excellent{name_part}! Restaurant websites should include:\n\n• Online ordering system\n• Menu display with photos\n• Reservation booking\n• Location and hours\n• Customer reviews\n\nDo you need delivery integration?",
+                'default': f"Great choice{name_part}! Website development includes:\n\n• Professional responsive design\n• SEO optimization\n• Content management system\n• Contact forms\n• Analytics integration\n\nWhat's your main goal for the website?"
             },
             'social media marketing': {
-                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses need targeted social media strategies:\n\nâ€¢ Niche community building and engagement\nâ€¢ Educational content for specialty audiences\nâ€¢ Expert positioning and thought leadership\nâ€¢ Targeted advertising to reach ideal customers\nâ€¢ Community management and networking\nâ€¢ Analytics and performance tracking\n\nWhat's your target audience for this specialty business?",
-                'retail_ecommerce': f"Smart choice{name_part}! For electronics/mobile shops:\n\nâ€¢ Product showcase posts\nâ€¢ Tech tips and tutorials\nâ€¢ Customer testimonials\nâ€¢ New arrival announcements\nâ€¢ Promotional campaigns\n\nWhich platforms interest you most?",
-                'restaurant': f"Perfect{name_part}! Restaurant social media should focus on:\n\nâ€¢ Food photography\nâ€¢ Behind-the-scenes content\nâ€¢ Customer reviews sharing\nâ€¢ Daily specials promotion\nâ€¢ Event announcements\n\nInstagram or Facebook priority?",
-                'default': f"Excellent choice{name_part}! Social media marketing includes:\n\nâ€¢ Content strategy development\nâ€¢ Platform management\nâ€¢ Audience engagement\nâ€¢ Analytics and reporting\nâ€¢ Paid advertising campaigns\n\nWhat's your target audience?"
+                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses need targeted social media strategies:\n\n• Niche community building and engagement\n• Educational content for specialty audiences\n• Expert positioning and thought leadership\n• Targeted advertising to reach ideal customers\n• Community management and networking\n• Analytics and performance tracking\n\nWhat's your target audience for this specialty business?",
+                'retail_ecommerce': f"Smart choice{name_part}! For electronics/mobile shops:\n\n• Product showcase posts\n• Tech tips and tutorials\n• Customer testimonials\n• New arrival announcements\n• Promotional campaigns\n\nWhich platforms interest you most?",
+                'restaurant': f"Perfect{name_part}! Restaurant social media should focus on:\n\n• Food photography\n• Behind-the-scenes content\n• Customer reviews sharing\n• Daily specials promotion\n• Event announcements\n\nInstagram or Facebook priority?",
+                'default': f"Excellent choice{name_part}! Social media marketing includes:\n\n• Content strategy development\n• Platform management\n• Audience engagement\n• Analytics and reporting\n• Paid advertising campaigns\n\nWhat's your target audience?"
             },
             'branding services': {
-                'specialty_niche': f"Perfect choice{name_part}! Specialty businesses need unique branding that reflects expertise:\n\nâ€¢ Custom logo design reflecting your specialty focus\nâ€¢ Professional brand identity and color palette\nâ€¢ Marketing materials for niche audiences\nâ€¢ Expert positioning and credibility elements\nâ€¢ Brand guidelines for consistent application\nâ€¢ Specialized business card and letterhead design\n\nWhat makes your specialty business unique?",
-                'retail_ecommerce': f"Great choice{name_part}! Electronics/mobile shop branding includes:\n\nâ€¢ Professional logo design\nâ€¢ Store signage design\nâ€¢ Business card design\nâ€¢ Social media templates\nâ€¢ Brand guidelines\n\nWhat's your shop's personality?",
-                'default': f"Perfect{name_part}! Branding services include:\n\nâ€¢ Logo design and brand identity\nâ€¢ Color palette and typography\nâ€¢ Business card and letterhead\nâ€¢ Social media templates\nâ€¢ Brand guidelines document\n\nWhat image do you want to project?"
+                'specialty_niche': f"Perfect choice{name_part}! Specialty businesses need unique branding that reflects expertise:\n\n• Custom logo design reflecting your specialty focus\n• Professional brand identity and color palette\n• Marketing materials for niche audiences\n• Expert positioning and credibility elements\n• Brand guidelines for consistent application\n• Specialized business card and letterhead design\n\nWhat makes your specialty business unique?",
+                'retail_ecommerce': f"Great choice{name_part}! Electronics/mobile shop branding includes:\n\n• Professional logo design\n• Store signage design\n• Business card design\n• Social media templates\n• Brand guidelines\n\nWhat's your shop's personality?",
+                'default': f"Perfect{name_part}! Branding services include:\n\n• Logo design and brand identity\n• Color palette and typography\n• Business card and letterhead\n• Social media templates\n• Brand guidelines document\n\nWhat image do you want to project?"
             },
             'chatbot development': {
-                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses benefit from educational chatbots:\n\nâ€¢ Automated customer education about your specialty\nâ€¢ FAQ handling for common specialty questions\nâ€¢ Lead qualification for serious inquiries\nâ€¢ Appointment booking for consultations\nâ€¢ 24/7 availability for customer support\nâ€¢ Integration with WhatsApp and website\n\nWhat type of customer questions do you get most often?",
+                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses benefit from educational chatbots:\n\n• Automated customer education about your specialty\n• FAQ handling for common specialty questions\n• Lead qualification for serious inquiries\n• Appointment booking for consultations\n• 24/7 availability for customer support\n• Integration with WhatsApp and website\n\nWhat type of customer questions do you get most often?",
                 'retail_ecommerce': f"""Excellent choice{name_part}! For mobile/electronics shops:
 
-â€¢ Product recommendation chatbot
-â€¢ Technical support automation
-â€¢ Order status tracking
-â€¢ FAQ automation
-â€¢ Lead generation for Karachi market
+• Product recommendation chatbot
+• Technical support automation
+• Order status tracking
+• FAQ automation
+• Lead generation for Karachi market
 
 What's your priority - sales automation or customer support? We can integrate with your existing systems and provide 24/7 service.""",
                 'restaurant': f"""Smart choice{name_part}! Restaurant chatbots can handle:
 
-â€¢ Order taking and menu questions
-â€¢ Reservation booking
-â€¢ Delivery status updates
-â€¢ Customer feedback collection
-â€¢ Promotional announcements
+• Order taking and menu questions
+• Reservation booking
+• Delivery status updates
+• Customer feedback collection
+• Promotional announcements
 
 Ordering or reservations priority? We serve Karachi restaurants with local delivery integration.""",
                 'default': f"""Great choice{name_part}! Chatbot development includes:
 
-â€¢ Custom conversation flows
-â€¢ Business-specific responses
-â€¢ Integration with your systems
-â€¢ Analytics and optimization
-â€¢ 24/7 customer support
+• Custom conversation flows
+• Business-specific responses
+• Integration with your systems
+• Analytics and optimization
+• 24/7 customer support
 
 What tasks should it handle? We provide ongoing support and optimization."""
             },
             'automation packages': {
-                'specialty_niche': f"Smart choice{name_part}! Specialty businesses benefit from targeted automation:\n\nâ€¢ Customer inquiry automation and routing\nâ€¢ Specialized email marketing sequences\nâ€¢ Appointment booking and reminders\nâ€¢ Customer education follow-up sequences\nâ€¢ Inventory management for specialty products\nâ€¢ Social media scheduling for niche content\n\nWhat specialty business processes take most of your time?",
-                'default': f"Smart choice{name_part}! Automation packages include:\n\nâ€¢ Email marketing automation\nâ€¢ Social media scheduling\nâ€¢ Customer follow-up sequences\nâ€¢ Appointment reminders\nâ€¢ Invoice and payment automation\n\nWhat processes take most of your time?"
+                'specialty_niche': f"Smart choice{name_part}! Specialty businesses benefit from targeted automation:\n\n• Customer inquiry automation and routing\n• Specialized email marketing sequences\n• Appointment booking and reminders\n• Customer education follow-up sequences\n• Inventory management for specialty products\n• Social media scheduling for niche content\n\nWhat specialty business processes take most of your time?",
+                'default': f"Smart choice{name_part}! Automation packages include:\n\n• Email marketing automation\n• Social media scheduling\n• Customer follow-up sequences\n• Appointment reminders\n• Invoice and payment automation\n\nWhat processes take most of your time?"
             },
             'payment gateway integration': {
-                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses need secure payment solutions:\n\nâ€¢ Secure online payment processing for specialty products\nâ€¢ Multiple payment methods for customer convenience\nâ€¢ Subscription billing for ongoing services\nâ€¢ Automated invoicing and receipts\nâ€¢ Integration with booking and consultation systems\nâ€¢ PCI compliance and fraud protection\n\nDo you sell products, services, or consultations?",
-                'retail_ecommerce': f"Essential choice{name_part}! For electronics/mobile shops:\n\nâ€¢ Secure online payments\nâ€¢ Multiple payment methods\nâ€¢ Inventory sync\nâ€¢ Receipt automation\nâ€¢ Fraud protection\n\nOnline store or in-person payments?",
-                'default': f"Excellent choice{name_part}! Payment gateway integration includes:\n\nâ€¢ Secure payment processing\nâ€¢ Multiple payment methods\nâ€¢ Automated invoicing\nâ€¢ Transaction reporting\nâ€¢ PCI compliance\n\nOnline or in-person payments?"
+                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses need secure payment solutions:\n\n• Secure online payment processing for specialty products\n• Multiple payment methods for customer convenience\n• Subscription billing for ongoing services\n• Automated invoicing and receipts\n• Integration with booking and consultation systems\n• PCI compliance and fraud protection\n\nDo you sell products, services, or consultations?",
+                'retail_ecommerce': f"Essential choice{name_part}! For electronics/mobile shops:\n\n• Secure online payments\n• Multiple payment methods\n• Inventory sync\n• Receipt automation\n• Fraud protection\n\nOnline store or in-person payments?",
+                'default': f"Excellent choice{name_part}! Payment gateway integration includes:\n\n• Secure payment processing\n• Multiple payment methods\n• Automated invoicing\n• Transaction reporting\n• PCI compliance\n\nOnline or in-person payments?"
             }
         }
 
@@ -2673,17 +2673,17 @@ What tasks should it handle? We provide ongoing support and optimization."""
     def get_correction_response(self, business_type: str, name_part: str) -> str:
         """Generate immediate business-specific response for user corrections"""
         correction_responses = {
-            'retail_ecommerce': f"Ah, I understand now{name_part}! For your mobile/electronics shop, I recommend:\n\nâ€¢ E-commerce website with product catalog\nâ€¢ Secure payment processing\nâ€¢ Inventory management integration\nâ€¢ Social media marketing for tech products\nâ€¢ Customer review system\n\nWhat products do you specialize in - smartphones, accessories, or general electronics?",
-            'restaurant': f"Got it{name_part}! For your restaurant business, I recommend:\n\nâ€¢ Website with online ordering\nâ€¢ Social media with food photography\nâ€¢ Google My Business optimization\nâ€¢ Customer review management\nâ€¢ Delivery platform integration\n\nWhat type of cuisine do you serve?",
-            'construction': f"Perfect{name_part}! For your construction/plumbing business, I recommend:\n\nâ€¢ Professional website with project portfolio\nâ€¢ Local SEO optimization\nâ€¢ Google My Business setup\nâ€¢ Online booking system\nâ€¢ Customer testimonials\n\nDo you focus on residential or commercial projects?",
+            'retail_ecommerce': f"Ah, I understand now{name_part}! For your mobile/electronics shop, I recommend:\n\n• E-commerce website with product catalog\n• Secure payment processing\n• Inventory management integration\n• Social media marketing for tech products\n• Customer review system\n\nWhat products do you specialize in - smartphones, accessories, or general electronics?",
+            'restaurant': f"Got it{name_part}! For your restaurant business, I recommend:\n\n• Website with online ordering\n• Social media with food photography\n• Google My Business optimization\n• Customer review management\n• Delivery platform integration\n\nWhat type of cuisine do you serve?",
+            'construction': f"Perfect{name_part}! For your construction/plumbing business, I recommend:\n\n• Professional website with project portfolio\n• Local SEO optimization\n• Google My Business setup\n• Online booking system\n• Customer testimonials\n\nDo you focus on residential or commercial projects?",
             'specialty_niche': f"""Perfect{name_part}! For specialty businesses like yours, here are our 6 core services tailored to your niche:
 
-â€¢ Website Development - Educational content showcasing your expertise and building credibility
-â€¢ Social Media Marketing - Niche community building and targeted audience engagement
-â€¢ Branding Services - Unique visual identity that reflects your specialty focus
-â€¢ Chatbot Development - Automated customer education and specialized inquiry handling
-â€¢ Automation Packages - Streamlined processes for efficient specialty operations
-â€¢ Payment Gateway Integration - Secure transactions for specialty products/services
+• Website Development - Educational content showcasing your expertise and building credibility
+• Social Media Marketing - Niche community building and targeted audience engagement
+• Branding Services - Unique visual identity that reflects your specialty focus
+• Chatbot Development - Automated customer education and specialized inquiry handling
+• Automation Packages - Streamlined processes for efficient specialty operations
+• Payment Gateway Integration - Secure transactions for specialty products/services
 
 What makes your specialty business unique, and what's your biggest challenge right now?"""
         }
@@ -2708,61 +2708,61 @@ What makes your specialty business unique, and what's your biggest challenge rig
             # Website Development Subservices
             'site redesign': f"""Perfect{name_part}! Website redesign can transform your business presence:
 
-â€¢ Modern, responsive design that converts visitors
-â€¢ Improved user experience and navigation
-â€¢ SEO optimization for better search rankings
-â€¢ Mobile-first approach for all devices
-â€¢ Performance optimization for faster loading
+• Modern, responsive design that converts visitors
+• Improved user experience and navigation
+• SEO optimization for better search rankings
+• Mobile-first approach for all devices
+• Performance optimization for faster loading
 
 For your {business_type} business, we'll focus on industry-specific features. Ready to schedule a consultation to discuss your redesign goals? We serve Karachi locally and offer remote consultations worldwide.""",
 
             'seo optimization': f"""Excellent choice{name_part}! SEO optimization will boost your online visibility:
 
-â€¢ Keyword research and optimization
-â€¢ Local SEO for Karachi market dominance
-â€¢ Technical SEO improvements
-â€¢ Content strategy for search rankings
-â€¢ Google My Business optimization
+• Keyword research and optimization
+• Local SEO for Karachi market dominance
+• Technical SEO improvements
+• Content strategy for search rankings
+• Google My Business optimization
 
 For {business_type} businesses, we focus on industry-specific keywords. Shall we schedule a consultation to analyze your current SEO? We serve Karachi locally and offer remote consultations worldwide.""",
 
             'whatsapp chatbot': f"""Smart choice{name_part}! WhatsApp automation can revolutionize your customer service:
 
-â€¢ 24/7 automated customer support
-â€¢ Order taking and status updates
-â€¢ Appointment booking automation
-â€¢ FAQ responses and product info
-â€¢ Lead qualification and follow-up
+• 24/7 automated customer support
+• Order taking and status updates
+• Appointment booking automation
+• FAQ responses and product info
+• Lead qualification and follow-up
 
 Perfect for {business_type} businesses to handle customer inquiries efficiently. Want to schedule a consultation to see how WhatsApp automation works? We serve Karachi locally and offer remote consultations worldwide.""",
 
             'stripe integration': f"""Great choice{name_part}! Stripe integration provides secure payment processing:
 
-â€¢ Accept credit cards, debit cards, and digital wallets
-â€¢ Subscription and recurring payment management
-â€¢ International payment support
-â€¢ Advanced fraud protection
-â€¢ Real-time payment analytics
+• Accept credit cards, debit cards, and digital wallets
+• Subscription and recurring payment management
+• International payment support
+• Advanced fraud protection
+• Real-time payment analytics
 
 For {business_type} businesses, we ensure seamless checkout experiences. Ready to schedule a consultation to discuss your payment processing needs? We serve Karachi locally and offer remote consultations worldwide.""",
 
             'logo redesign': f"""Excellent{name_part}! A fresh logo can revitalize your brand identity:
 
-â€¢ Modern, memorable logo design
-â€¢ Brand guidelines and color palette
-â€¢ Multiple format delivery (vector, PNG, etc.)
-â€¢ Social media and print variations
-â€¢ Brand consistency across all platforms
+• Modern, memorable logo design
+• Brand guidelines and color palette
+• Multiple format delivery (vector, PNG, etc.)
+• Social media and print variations
+• Brand consistency across all platforms
 
 For {business_type} businesses, we create logos that build trust and recognition. Want to schedule a consultation to explore logo concepts? We serve Karachi locally and offer remote consultations worldwide.""",
 
             'workflow automation': f"""Perfect{name_part}! Workflow automation can streamline your operations:
 
-â€¢ Automated task management and scheduling
-â€¢ CRM integration and lead nurturing
-â€¢ Email marketing automation
-â€¢ Inventory and order processing
-â€¢ Report generation and analytics
+• Automated task management and scheduling
+• CRM integration and lead nurturing
+• Email marketing automation
+• Inventory and order processing
+• Report generation and analytics
 
 For {business_type} businesses, we identify time-saving automation opportunities. Shall we schedule a consultation to analyze your current workflows? We serve Karachi locally and offer remote consultations worldwide."""
         }
@@ -2785,11 +2785,11 @@ For {business_type} businesses, we identify time-saving automation opportunities
 
             return f"""Great choice{name_part}! Here's how we can help with {subservice}:
 
-â€¢ Customized solution for your {business_type} business
-â€¢ Industry-specific features and optimization
-â€¢ Professional implementation and setup
-â€¢ Ongoing support and maintenance
-â€¢ Integration with your existing systems
+• Customized solution for your {business_type} business
+• Industry-specific features and optimization
+• Professional implementation and setup
+• Ongoing support and maintenance
+• Integration with your existing systems
 
 Let's schedule a consultation to discuss your {service_name} needs in detail. We serve Karachi locally and offer remote consultations worldwide."""
 
@@ -2828,60 +2828,60 @@ Let's schedule a consultation to discuss your {service_name} needs in detail. We
             'social_media_marketing': f"""Perfect{name_part}! Social media marketing for general audiences requires a customized strategy based on your specific goals and industry.
 
 Let's schedule a consultation to discuss:
-â€¢ Your target market analysis
-â€¢ Platform selection strategy
-â€¢ Content planning approach
-â€¢ Budget and timeline
+• Your target market analysis
+• Platform selection strategy
+• Content planning approach
+• Budget and timeline
 
 We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""",
 
             'website_development': f"""Excellent{name_part}! Website development for broad audiences needs careful planning to ensure it appeals to your target market.
 
 Let's schedule a consultation to discuss:
-â€¢ Your website goals and functionality
-â€¢ Design preferences and branding
-â€¢ Content strategy and user experience
-â€¢ Timeline and budget planning
+• Your website goals and functionality
+• Design preferences and branding
+• Content strategy and user experience
+• Timeline and budget planning
 
 We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""",
 
             'branding_services': f"""Great choice{name_part}! Branding for general markets requires understanding your unique value proposition and target positioning.
 
 Let's schedule a consultation to discuss:
-â€¢ Your brand personality and values
-â€¢ Visual identity preferences
-â€¢ Market positioning strategy
-â€¢ Implementation timeline
+• Your brand personality and values
+• Visual identity preferences
+• Market positioning strategy
+• Implementation timeline
 
 We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""",
 
             'chatbot_development': f"""Smart choice{name_part}! Chatbot development for general audiences needs customization based on your specific business needs and customer interactions.
 
 Let's schedule a consultation to discuss:
-â€¢ Your automation goals and requirements
-â€¢ Integration with existing systems
-â€¢ Conversation flow design
-â€¢ Implementation and training
+• Your automation goals and requirements
+• Integration with existing systems
+• Conversation flow design
+• Implementation and training
 
 We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""",
 
             'automation_packages': f"""Excellent choice{name_part}! Automation for general business processes requires understanding your specific workflow and efficiency goals.
 
 Let's schedule a consultation to discuss:
-â€¢ Your current process analysis
-â€¢ Automation opportunities identification
-â€¢ System integration requirements
-â€¢ Implementation and training plan
+• Your current process analysis
+• Automation opportunities identification
+• System integration requirements
+• Implementation and training plan
 
 We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""",
 
             'payment_gateway_integration': f"""Smart choice{name_part}! Payment gateway integration for general business needs requires understanding your transaction volume and security requirements.
 
 Let's schedule a consultation to discuss:
-â€¢ Your payment processing needs
-â€¢ Security and compliance requirements
-â€¢ Integration with existing systems
-â€¢ Setup and testing process
+• Your payment processing needs
+• Security and compliance requirements
+• Integration with existing systems
+• Setup and testing process
 
 We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?"""
         }
@@ -2890,10 +2890,10 @@ We serve Karachi locally and offer remote consultations worldwide. What's your p
         return service_responses.get(service_name, f"""Perfect{name_part}! {service_name.title()} for general audiences requires a customized approach based on your specific business needs.
 
 Let's schedule a consultation to discuss:
-â€¢ Your specific goals and requirements
-â€¢ Customized strategy development
-â€¢ Timeline and implementation plan
-â€¢ Budget and investment options
+• Your specific goals and requirements
+• Customized strategy development
+• Timeline and implementation plan
+• Budget and investment options
 
 We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""")
 
@@ -2958,13 +2958,13 @@ We serve Karachi locally and offer remote consultations worldwide. What's your p
                 # Fuzzy match with high similarity threshold
                 similarity = difflib.SequenceMatcher(None, word, term).ratio()
                 if similarity >= 0.7:  # 70% similarity threshold
-                    logger.info(f"ðŸŽ¯ Fuzzy appointment match: '{word}' -> '{term}' (similarity: {similarity:.3f})")
+                    logger.info(f"🎯 Fuzzy appointment match: '{word}' -> '{term}' (similarity: {similarity:.3f})")
                     return True
 
                 # Check if word contains the term (for partial matches)
                 if len(term) >= 4 and (term in word or word in term):
                     if abs(len(word) - len(term)) <= 2:  # Allow 2 character difference
-                        logger.info(f"ðŸŽ¯ Partial appointment match: '{word}' contains '{term}'")
+                        logger.info(f"🎯 Partial appointment match: '{word}' contains '{term}'")
                         return True
 
         return False
@@ -2975,7 +2975,7 @@ We serve Karachi locally and offer remote consultations worldwide. What's your p
 
         # ENHANCED: Check for fuzzy appointment matches first
         if self.fuzzy_match_appointment_terms(message):
-            logger.info(f"ðŸŽ¯ Fuzzy appointment detection triggered for: '{message}'")
+            logger.info(f"🎯 Fuzzy appointment detection triggered for: '{message}'")
             return True
 
         # Direct appointment booking phrases
@@ -3112,7 +3112,7 @@ def model_status():
         return jsonify(status)
 
     except Exception as e:
-        logger.error(f"âŒ Model status error: {e}")
+        logger.error(f"❌ Model status error: {e}")
         return jsonify({'error': 'Failed to get model status'}), 500
 
 @app.route('/chat', methods=['POST'])
@@ -3136,8 +3136,8 @@ def smart_chat():
         if not user_message:
             user_message = "hello"
 
-        logger.info(f"ðŸ“¨ Intelligent chat request: '{user_message}' from user: '{user_name}'")
-        print(f"ðŸ“¨ PRINT: Intelligent chat request: '{user_message}' from user: '{user_name}'")
+        logger.info(f"📨 Intelligent chat request: '{user_message}' from user: '{user_name}'")
+        print(f"📨 PRINT: Intelligent chat request: '{user_message}' from user: '{user_name}'")
 
         # Generate intelligent response using the new LLM chatbot
         session_id = user_context.get('session_id', f"session_{int(time.time())}")
@@ -3170,12 +3170,12 @@ def smart_chat():
         response_times.append(response_time)
         successful_requests += 1
         
-        logger.info(f"âœ… Response generated in {response_time:.2f}s")
+        logger.info(f"✅ Response generated in {response_time:.2f}s")
         
         return jsonify(response_data)
 
     except Exception as e:
-        logger.error(f"âŒ Smart chat error: {e}")
+        logger.error(f"❌ Smart chat error: {e}")
         response_time = time.time() - start_time
         response_times.append(response_time)
         
@@ -3232,32 +3232,32 @@ def book_appointment():
 
                 # Success case
                 appointment_id = result.get('appointment_id')
-                logger.info(f"âœ… Appointment saved to MongoDB Atlas: {appointment_id}")
+                logger.info(f"✅ Appointment saved to MongoDB Atlas: {appointment_id}")
 
                 # Debug: Check if email functionality was triggered
-                logger.info(f"ðŸ” DEBUG: Checking email functionality for appointment {appointment_id}")
+                logger.info(f"🔍 DEBUG: Checking email functionality for appointment {appointment_id}")
                 if hasattr(mongodb_backend, 'email_config'):
                     email_config = mongodb_backend.email_config
-                    logger.info(f"ðŸ“§ DEBUG: Email enabled: {email_config.get('enabled', False)}")
-                    logger.info(f"ðŸ“¤ DEBUG: SMTP server: {email_config.get('smtp_server', 'Not set')}")
-                    logger.info(f"ðŸ‘¤ DEBUG: Sender email: {email_config.get('sender_email', 'Not set')}")
+                    logger.info(f"📧 DEBUG: Email enabled: {email_config.get('enabled', False)}")
+                    logger.info(f"📤 DEBUG: SMTP server: {email_config.get('smtp_server', 'Not set')}")
+                    logger.info(f"👤 DEBUG: Sender email: {email_config.get('sender_email', 'Not set')}")
                 else:
-                    logger.warning("âš ï¸ DEBUG: Email configuration not found in Flask MongoDB backend")
+                    logger.warning("⚠️ DEBUG: Email configuration not found in Flask MongoDB backend")
 
                 # Check if email methods exist
                 has_send_email = hasattr(mongodb_backend, '_send_email')
                 has_send_appointment_email = hasattr(mongodb_backend, '_send_appointment_email')
-                logger.info(f"ðŸ”§ DEBUG: _send_email method available: {has_send_email}")
-                logger.info(f"ðŸ”§ DEBUG: _send_appointment_email method available: {has_send_appointment_email}")
+                logger.info(f"🔧 DEBUG: _send_email method available: {has_send_email}")
+                logger.info(f"🔧 DEBUG: _send_appointment_email method available: {has_send_appointment_email}")
 
                 # Log appointment data for email debugging
-                logger.info(f"ðŸ“‹ DEBUG: Appointment data for email: {appointment_data.get('name')} - {appointment_data.get('email')}")
-                logger.info(f"ðŸ“§ DEBUG: Email should be sent to customer: {appointment_data.get('email')}")
-                logger.info(f"ðŸ“§ DEBUG: Email should be sent to admin: info@techrypt.io")
-                logger.info(f"ðŸ“§ DEBUG: Email should be sent to projects: projects@techrypt.io")
+                logger.info(f"📋 DEBUG: Appointment data for email: {appointment_data.get('name')} - {appointment_data.get('email')}")
+                logger.info(f"📧 DEBUG: Email should be sent to customer: {appointment_data.get('email')}")
+                logger.info(f"📧 DEBUG: Email should be sent to admin: info@techrypt.io")
+                logger.info(f"📧 DEBUG: Email should be sent to projects: projects@techrypt.io")
 
             except Exception as mongo_error:
-                logger.error(f"âŒ MongoDB save failed: {mongo_error}")
+                logger.error(f"❌ MongoDB save failed: {mongo_error}")
                 # Continue with fallback storage
                 appointment_id = None
 
@@ -3271,39 +3271,19 @@ def book_appointment():
             appointment_id = str(appointment_data['id'])
             logger.info(f"⚠️ Appointment saved to memory (MongoDB unavailable): {appointment_id}")
 
-        # Format time slot for display
-        def format_time_slot_display(time_slot):
-            if not time_slot:
-                return 'Flexible'
-
-            # Handle the predefined time slot values
-            time_slot_map = {
-                '6pm-9pm': '6:00 PM - 9:00 PM PKT',
-                '9pm-12am': '9:00 PM - 12:00 AM PKT',
-                '12am-3am': '12:00 AM - 3:00 AM PKT'
-            }
-
-            # Return the formatted display if it's a known slot
-            if time_slot in time_slot_map:
-                return time_slot_map[time_slot]
-
-            # Fallback: return as-is for other formats
-            return time_slot
-
         # Generate confirmation response
         services_text = ', '.join(appointment_data['services']) if appointment_data['services'] else 'To be discussed'
-        formatted_time = format_time_slot_display(appointment_data['preferred_time'])
 
-        confirmation_message = f"""âœ… Appointment Booked Successfully!
+        confirmation_message = f"""✅ Appointment Booked Successfully!
 
 📅 **Appointment Details:**
 • **Name**: {appointment_data['name']}
 • **Email**: {appointment_data['email']}
 • **Services**: {services_text}
 • **Preferred Date**: {appointment_data['preferred_date'] or 'Flexible'}
-• **Preferred Time**: {formatted_time}
+• **Preferred Time**: {appointment_data['preferred_time'] or 'Flexible'}
 
-ðŸŽ¯ **Next Steps:**
+🎯 **Next Steps:**
 1. You'll receive a confirmation email within 24 hours
 2. Our team will contact you to confirm the appointment time
 3. We'll prepare a customized consultation based on your business needs
@@ -3320,7 +3300,7 @@ Thank you for choosing Techrypt! We're excited to help grow your business."""
         })
 
     except Exception as e:
-        logger.error(f"âŒ Appointment booking error: {e}")
+        logger.error(f"❌ Appointment booking error: {e}")
         return jsonify({
             'error': 'Failed to book appointment. Please try again.',
             'success': False
@@ -3336,14 +3316,14 @@ def get_appointments():
         if MONGODB_BACKEND_AVAILABLE and mongodb_backend and mongodb_backend.is_connected():
             try:
                 appointments = mongodb_backend.get_all_appointments(limit=100)
-                logger.info(f"âœ… Retrieved {len(appointments)} appointments from MongoDB")
+                logger.info(f"✅ Retrieved {len(appointments)} appointments from MongoDB")
             except Exception as mongo_error:
-                logger.error(f"âŒ MongoDB retrieval failed: {mongo_error}")
+                logger.error(f"❌ MongoDB retrieval failed: {mongo_error}")
 
         # Fallback to in-memory storage if MongoDB fails or is empty
         if not appointments:
             appointments = getattr(book_appointment, 'appointments', [])
-            logger.info(f"âš ï¸ Retrieved {len(appointments)} appointments from memory")
+            logger.info(f"⚠️ Retrieved {len(appointments)} appointments from memory")
 
         return jsonify({
             'appointments': appointments,
@@ -3394,56 +3374,56 @@ def reset_context():
 
 def main():
     """Main function to start the enhanced intelligent LLM chatbot server"""
-    print("ðŸ¤– ENHANCED INTELLIGENT LLM CHATBOT SERVER")
-    print("ðŸ” DEBUG: Main function called")
+    print("🤖 ENHANCED INTELLIGENT LLM CHATBOT SERVER")
+    print("🔍 DEBUG: Main function called")
     print("=" * 70)
-    print("ðŸŽ¯ Advanced Business Intelligence with TinyLLaMA Integration")
-    print("âš¡ Sub-3-second response times with AI fallback chain")
-    print("ðŸ§  Business-specific conversation flows (15+ industries)")
-    print("ðŸ“Š Personalized service recommendations")
-    print("ðŸŽ¨ Advanced service guidance with CSV training data")
-    print("ðŸ”„ Multi-layer AI response generation")
+    print("🎯 Advanced Business Intelligence with TinyLLaMA Integration")
+    print("⚡ Sub-3-second response times with AI fallback chain")
+    print("🧠 Business-specific conversation flows (15+ industries)")
+    print("📊 Personalized service recommendations")
+    print("🎨 Advanced service guidance with CSV training data")
+    print("🔄 Multi-layer AI response generation")
     print("=" * 70)
 
     # Display AI capabilities status
-    print("âœ… Core Intelligence: Active")
-    print("ðŸ¤– Rule-based System: Contextual Business Intelligence")
-    print("ðŸ’¾ Context Storage: In-Memory Sessions")
-    print("ðŸ“ˆ Business Types: 15+ Global Industries")
-    print("ðŸ”„ Service Categories: 6+ Digital Solutions")
+    print("✅ Core Intelligence: Active")
+    print("🤖 Rule-based System: Contextual Business Intelligence")
+    print("💾 Context Storage: In-Memory Sessions")
+    print("📈 Business Types: 15+ Global Industries")
+    print("🔄 Service Categories: 6+ Digital Solutions")
 
     # TinyLLaMA status
     if USE_TINYLLAMA:
         if TRANSFORMERS_AVAILABLE:
             if intelligent_chatbot.tinyllama_handler.model_loaded:
-                print("ðŸš€ TinyLLaMA: Loaded and Ready (CPU mode)")
+                print("🚀 TinyLLaMA: Loaded and Ready (CPU mode)")
             else:
-                print("âš ï¸ TinyLLaMA: Enabled but failed to load")
+                print("⚠️ TinyLLaMA: Enabled but failed to load")
         else:
-            print("âš ï¸ TinyLLaMA: Enabled but transformers not available")
+            print("⚠️ TinyLLaMA: Enabled but transformers not available")
     else:
-        print("ðŸ’¤ TinyLLaMA: Disabled (set USE_TINYLLAMA=true to enable)")
+        print("💤 TinyLLaMA: Disabled (set USE_TINYLLAMA=true to enable)")
 
     # CSV training data status
     if intelligent_chatbot.csv_handler.data_loaded:
-        print(f"ï¿½ CSV Training Data: {len(intelligent_chatbot.csv_handler.training_data)} rows loaded")
+        print(f"� CSV Training Data: {len(intelligent_chatbot.csv_handler.training_data)} rows loaded")
     else:
-        print("ðŸ“„ CSV Training Data: Not available")
+        print("📄 CSV Training Data: Not available")
 
     # Sentence transformers status
     if SENTENCE_TRANSFORMERS_AVAILABLE:
-        print("ðŸ” Semantic Matching: Available")
+        print("🔍 Semantic Matching: Available")
     else:
-        print("âš ï¸ Semantic Matching: Disabled (sentence-transformers not available)")
+        print("⚠️ Semantic Matching: Disabled (sentence-transformers not available)")
 
-    print("\nðŸš€ Starting Enhanced Chatbot Server...")
-    print("ðŸ“¡ Server: http://localhost:5000")
-    print("ðŸ”— Health: http://localhost:5000/health")
-    print("ðŸ¤– Model Status: http://localhost:5000/model-status")
-    print("ðŸ’¬ Chat: POST http://localhost:5000/chat")
-    print("ðŸ“… Appointments: POST http://localhost:5000/appointment")
-    print("ðŸ“Š Context: GET http://localhost:5000/context")
-    print("ðŸ”„ Reset: POST http://localhost:5000/reset")
+    print("\n🚀 Starting Enhanced Chatbot Server...")
+    print("📡 Server: http://localhost:5000")
+    print("🔗 Health: http://localhost:5000/health")
+    print("🤖 Model Status: http://localhost:5000/model-status")
+    print("💬 Chat: POST http://localhost:5000/chat")
+    print("📅 Appointments: POST http://localhost:5000/appointment")
+    print("📊 Context: GET http://localhost:5000/context")
+    print("🔄 Reset: POST http://localhost:5000/reset")
     print("=" * 70)
 
     # Start server
