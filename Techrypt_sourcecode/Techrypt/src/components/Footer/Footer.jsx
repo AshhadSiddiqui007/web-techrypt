@@ -8,6 +8,8 @@ import ContactForm from '../ContactForm/ContactForm';
 import TopModal from '../TopModal/TopModal';
 import PrivacyPolicy from '../PrivacyPolicy/PrivacyPolicy';
 import { Link, useLocation } from 'react-router-dom';
+// Import the Newsletterbox component
+import Newsletterbox from './Newsletterbox';
 
 
 const Footer = () => {
@@ -149,7 +151,7 @@ const Footer = () => {
             Privacy Policy
           </Link>
         </span>
-        <span>
+        <span> 
           {' '} and{' '}
           <Link to={"Terms&Conditions"} className="text-primary">
             Terms and Conditions
@@ -176,39 +178,39 @@ const Footer = () => {
         </a>
       </div>
 
-
-
       <div className="flex flex-col md:flex-row md:px-20 py-6 px-4 items-center justify-between gap-6 w-full mb-2">
-
-      <div className="flex flex-col items-center justify-start gap-3 md:gap-5 order-3 md:order-1">
-        <div
-          className="h-12 w-12 md:w-16 md:h-16 flex justify-center items-center text-2xl md:text-3xl text-primary cursor-pointer rounded-full border border-primary hover:bg-primary hover:text-white glowing-yellow transition-all duration-300 touch-target"
-          title='Scroll to top'
-          onClick={scrollToTop}
-        >
-          <RiArrowUpDoubleLine />
+        <div className="flex flex-col items-center justify-start gap-3 md:gap-5 order-3 md:order-1">
+          <div
+            className="h-12 w-12 md:w-16 md:h-16 flex justify-center items-center text-2xl md:text-3xl text-primary cursor-pointer rounded-full border border-primary hover:bg-primary hover:text-white glowing-yellow transition-all duration-300 touch-target"
+            title='Scroll to top'
+            onClick={scrollToTop}
+          >
+            <RiArrowUpDoubleLine />
+          </div>
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
+            <a href="mailto:INFO@TECHRYPT.IO" className="text-gray-400 text-xs md:text-sm glowing-green hover:text-primary transition-colors duration-300">
+              INFO@TECHRYPT.IO
+            </a>
+            {/* Add the Newsletterbox component here */}
+            <Newsletterbox />
+          </div>
         </div>
-        <a href="mailto:INFO@TECHRYPT.IO" className="text-gray-400 text-xs md:text-sm glowing-green hover:text-primary transition-colors duration-300">
-          INFO@TECHRYPT.IO
-        </a>
-      </div>
 
-      <div className="flex flex-col items-center justify-center text-center order-1 md:order-2">
-        <p className="text-white glowing-green text-sm md:text-base">
-          Powered by Techrypt.io
-        </p>
-      </div>
+        <div className="flex flex-col items-center justify-center text-center order-1 md:order-2">
+          <p className="text-white glowing-green text-sm md:text-base">
+            Powered by Techrypt.io
+          </p>
+        </div>
 
-      <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center text-gray-400 text-sm md:text-base order-2 md:order-3">
-        <Link to={"/PrivacyPolicy"} onClick={() => setPrivacy(true)} className="hover:text-primary transition-colors duration-300 text-center">
-          Privacy Policy
-        </Link>
-        <Link to={"/Terms&Conditions"} className="hover:text-primary transition-colors duration-300 text-center">
-          Terms & Conditions
-        </Link>
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center text-gray-400 text-sm md:text-base order-2 md:order-3">
+          <Link to={"/PrivacyPolicy"} onClick={() => setPrivacy(true)} className="hover:text-primary transition-colors duration-300 text-center">
+            Privacy Policy
+          </Link>
+          <Link to={"/Terms&Conditions"} className="hover:text-primary transition-colors duration-300 text-center">
+            Terms & Conditions
+          </Link>
+        </div>
       </div>
-
-    </div>
 
       {/* <TopModal isOpen={privacy} onClose={() => setPrivacy(false)}>
         <PrivacyPolicy />

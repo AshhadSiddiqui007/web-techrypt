@@ -93,7 +93,7 @@ const AppContent = () => {
         <Route path="/Verticals" element={<VerticalsPage />} />
         <Route path="/PetLandingPage" element={<PetLandingPage />} />
         <Route path="/LandingPages/PetLandingPage" element={<PetLandingPage />} />
-
+        <Route path="/LandingPages/PRLandingPage" element={<PRLandingPage />} />
       </Routes>
       <MessageSidebar />
       <Footer />

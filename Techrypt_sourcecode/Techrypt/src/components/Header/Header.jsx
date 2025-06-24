@@ -40,8 +40,8 @@ export default function Header() {
 
   return (
     <>
-      {/* Enhanced Desktop Navbar - Only visible on screens >768px */}
-      <nav className="navbar hidden md:flex" style={{ paddingTop: '10px' }}>
+      {/* Enhanced Desktop Navbar - Only visible on screens */}
+      <nav className="navbar hidden md:flex" style={{ paddingTop: '0px' }}>
         <div className="leftNav overflow-hidden">
           <Link to="/" className="flex items-center">
             {/* Desktop logo - properly sized and aligned */}
@@ -63,7 +63,8 @@ export default function Header() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            height: "100%", // Ensure the container takes full height
+            height: "100%", 
+            
           }}
         >
           <ul
@@ -73,39 +74,37 @@ export default function Header() {
               listStyle: "none",
               padding: 0,
               margin: 0,
-              alignItems: "center", // Vertically center the list items
+              alignItems: "center", 
             }}
           >
-           {/* Verticals dropdown with dual functionality */}
-          <li className="listItems">
-            <div className="dropdown-dual-function">
-              <Link 
-                to="/Verticals" 
-                className={`anchor navButton ${activeTab === "verticals" ? "active" : ""}`}
-                onClick={(e) => {
-                  // Only set active tab if directly clicked (not when clicking a dropdown item)
-                  if (e.currentTarget === e.target) {
-                    setActiveTab("verticals");
-                    console.log(`Navigating to: /Verticals`);
-                  }
-                }}
-              >
-                Verticals
-              </Link>
-              <div className="dropdown-content">
-                <Link 
-                  to="/LandingPages/PetLandingPage" 
-                  onClick={handleLinkClick} 
-                  style={{ color: 'white', textDecoration: 'none', display: 'block', padding: '10px 15px' }}
-                >
-                  Pet Landing Page
-                </Link>
-                {/* Add more landing pages here as needed */}
-              </div>
-            </div>
-          </li>   
 
-            {/* Render the rest of the tabs, excluding Verticals */}
+          <li className="relative listItems group">
+          {/* Trigger button */}
+          <div className="navButton cursor-pointer px-4 py-2 text-white">
+            Verticals
+          </div>
+
+          {/* Dropdown */}
+          <div className="absolute top-full left-0 w-56 bg-[#aebc1f] rounded-xl shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-50">
+            {/* Invisible bridge to prevent gap */}
+            <div className="h-2 -mt-2"></div>
+            <Link
+              to="/LandingPages/PetLandingPage"
+              onClick={handleLinkClick}
+              className="block px-4 py-3 text-white hover:bg-[#9fac1c] rounded-t-xl transition-colors"
+            >
+              Pet Businesses
+            </Link>
+            <Link
+              to="/LandingPages/PRLandingPage"
+              onClick={handleLinkClick}
+              className="block px-4 py-3 text-white hover:bg-[#9fac1c] rounded-b-xl transition-colors"
+            >
+              Public Relations
+            </Link>
+          </div>
+        </li>
+
             {tabs
               .filter(tab => tab.id !== "verticals")
               .map((tab) => (
@@ -128,19 +127,7 @@ export default function Header() {
 
         <div className="rightNav">
           <hr className="hr2" />
-          {/* Original Desktop Navigation Tabs */}
-          <div className="hidden md:flex main-tabs">
-            {tabs.map((tab) => (
-              <Link
-                key={tab.id}
-                to={tab.path}
-                className={`main-tab ${activeTab === tab.id ? "active" : ""}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </Link>
-            ))}
-          </div>
+          
           {/* Mobile Hamburger Menu Button */}
           <button
             className="md:hidden mobile-menu-button touch-target"
