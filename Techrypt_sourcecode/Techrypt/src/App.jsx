@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import "./App.css";
 import CursorGradient from './components/CursorGradient/CursorGradient.jsx';
@@ -26,6 +27,8 @@ import ContactPage from "./pages/ContactPage/ContactPage.jsx";
 import VerticalsPage from "./pages/Verticals/verticals.jsx";
 import PetLandingPage from "./pages/LandingPages/PetlandingPage.jsx";
 import PRLandingPage from "./pages/LandingPages/PRLandingPage.jsx";
+import BlogPage from "./pages/BlogPage/BlogPage.jsx";
+import AdminDashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
 // Import other components
 import { AnimatedLoader } from "./assets/mainImages.js";
 import { ToastContainer } from "react-toastify";
@@ -44,6 +47,8 @@ const ScrollToTop = () => {
 
 const AppContent = () => {
   const location = useLocation();
+  // Make the check case-insensitive by converting to lowercase
+  const isAdminRoute = location.pathname.toLowerCase().startsWith('/admin');
   const isFirstLoad = useRef(true);
   const [loader, setLoader] = useState(true);
 
@@ -76,12 +81,15 @@ const AppContent = () => {
       {/*<CursorGradient />*/} 
       <ToastContainer toastClassName={"bg-[#121212] border-2 border-primary text-white"} progressClassName={"bg-primary"} />
       <ScrollToTop />
-      <Header />
+      
+      {/* Only show header on non-admin routes */}
+      {!isAdminRoute && <Header />}
+      
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/Influence" element={<Influence />} />
         <Route path="/Services" element={<Services />} />
-        <Route path="/Performance" element={<Services />} /> {/* Redirect old Performance route to Services */}
+        <Route path="/Performance" element={<Services />} /> 
         <Route path="/Creative" element={<Creative />} />
         <Route path="/Work" element={<Work />} />
         <Route path="/About" element={<About />} />
@@ -94,9 +102,14 @@ const AppContent = () => {
         <Route path="/PetLandingPage" element={<PetLandingPage />} />
         <Route path="/LandingPages/PetLandingPage" element={<PetLandingPage />} />
         <Route path="/LandingPages/PRLandingPage" element={<PRLandingPage />} />
+        <Route path="/BlogPage" element={<BlogPage/>} />
+        <Route path="/Admin/*" element={<AdminDashboard />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <MessageSidebar />
-      <Footer />
+      
+      {/* Only show message sidebar and footer on non-admin routes */}
+      {!isAdminRoute && <MessageSidebar />}
+      {!isAdminRoute && <Footer />}
     </>
   );
 };
