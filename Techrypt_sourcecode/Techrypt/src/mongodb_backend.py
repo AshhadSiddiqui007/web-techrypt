@@ -16,6 +16,8 @@ from typing import Dict, List, Optional, Any
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, DuplicateKeyError, ServerSelectionTimeoutError
 from bson.objectid import ObjectId
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 # Load environment variables
 try:
@@ -338,15 +340,6 @@ New Appointment Booking - {customer_name}
                     logger.info(f"✅ Confirmation email sent to customer: {customer_email}")
                 else:
                     logger.warning(f"⚠️ Failed to send email to customer: {customer_email}")
-
-            # Send to admin (info@techrypt.io)
-            admin_email = self.email_config.get('admin_email', 'info@techrypt.io')
-            admin_subject = f"New Appointment: {customer_name} - {preferred_date}"
-            if self._send_email(admin_email, admin_subject, admin_email_body):
-                emails_sent += 1
-                logger.info(f"✅ Notification email sent to admin: {admin_email}")
-            else:
-                logger.warning(f"⚠️ Failed to send email to admin: {admin_email}")
 
             # Send to projects team (projects@techrypt.io)
             projects_email = "projects@techrypt.io"
@@ -887,7 +880,7 @@ New Appointment Booking - {customer_name}
         except Exception as e:
             logger.error(f"❌ Statistics retrieval error: {e}")
             return {}
-    def insert_contact_info(self, contact_data: Dict[str, Any]) -> Optional[str]:
+    def insert_Contact_Info(self, contact_data: Dict[str, Any]) -> Optional[str]:
         """Insert user contact info into MongoDB"""
         if not self.is_connected():
             return None
@@ -900,13 +893,42 @@ New Appointment Booking - {customer_name}
                 "submitted_at": datetime.utcnow()
             }
 
-            result = self.db["contact_info"].insert_one(contact_doc)
+            result = self.db["Contact_Info"].insert_one(contact_doc)
             logger.info(f"✅ Saved contact info for: {contact_doc['email']}")
             return str(result.inserted_id)
 
         except Exception as e:
             logger.error(f"❌ Contact info insertion failed: {e}")
             return None
+
+    def add_newsletter_subscriber(self, email: str, name: str = None) -> Dict[str, Any]:
+        """Add a new newsletter subscriber"""
+        if not self.is_connected():
+            return {"success": False, "error": "Database not connected"}
+        
+        try:
+            subscriber_doc = {
+                "email": email.strip().lower(),
+                "subscribed_at": datetime.now(timezone.utc),
+            }
+            
+            # Create newsletter_subscribers collection if it doesn't exist
+            if "newsletter_subscribers" not in self.db.list_collection_names():
+                self.db.create_collection("Newsletter_Subscribers")
+                self.db.newsletter_subscribers.create_index("email", unique=True)
+            
+            result = self.db.Newsletter_Subscribers.insert_one(subscriber_doc)
+            return {
+                "success": True,
+                "subscriber_id": str(result.inserted_id),
+                "message": "Successfully subscribed to newsletter"
+            }
+        
+        except DuplicateKeyError:
+            return {"success": False, "error": "Email already subscribed"}
+        except Exception as e:
+            logger.error(f"❌ Newsletter subscription error: {e}")
+            return {"success": False, "error": f"Subscription failed: {str(e)}"}
 
     def close(self):
         """Close database connection"""
@@ -922,3 +944,26 @@ mongodb_backend = TechryptMongoDBBackend()
 def get_db():
     """Get the global database instance"""
     return mongodb_backend
+
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
+
+@app.route('/api/subscribe-newsletter', methods=['POST'])
+def subscribe_newsletter():
+    try:
+        data = request.json
+        email = data.get('email', '').strip()
+        
+        if not email or '@' not in email:
+            return jsonify({"success": False, "error": "Invalid email address"}), 400
+        
+        # Call the MongoDB function
+        result = mongodb_backend.add_newsletter_subscriber(email)
+        return jsonify(result)
+        
+    except Exception as e:
+        app.logger.error(f"Newsletter subscription error: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
