@@ -1,6 +1,7 @@
 const express = require("express")
 const dotenv = require("dotenv").config()
 const connectDb = require("./config/db")
+const {errorHandlerMiddleWare,notFound}=require("./middlewares/errorHandler")
 const cors = require("cors")
 
 
@@ -19,6 +20,9 @@ app.use(express.urlencoded({ extended: true }))
 app.get("/", (req, res) => {
     res.send("Welcome to Techrypt API")
 })
+
+app.use(notFound)
+app.use(errorHandlerMiddleWare)
 
 app.listen(PORT,()=>{
     console.log("Server is running on port 5000")
