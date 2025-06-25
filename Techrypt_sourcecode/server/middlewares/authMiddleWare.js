@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken")
 const AdminModel = require("../models/AdminModel");
 const asyncHandler = require("express-async-handler");
 
-export const protectAdmin = asyncHandler(async (req, res, next) => {
+const protectAdmin = asyncHandler(async (req, res, next) => {
   let token;
 
   if (
@@ -26,4 +26,4 @@ export const protectAdmin = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = protectAdmin;
+module.exports = {protectAdmin};

@@ -1,6 +1,6 @@
 const AdminModel = require("../models/AdminModel")
 const generateToken = require("../utils/generateToken")
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcrypt")
 const asyncHandler = require('express-async-handler')
 
 // POST /api/admin/login
@@ -31,6 +31,7 @@ const adminLogin = asyncHandler(async (req,res)=>{
    }
 })
 
+// GET /api/admin/me
 const getMe = asyncHandler(async (req,res)=>{
 
     const admin = await AdminModel.findById(req.admin._id).select("-password")
@@ -47,6 +48,7 @@ const getMe = asyncHandler(async (req,res)=>{
 
 module.exports = {
     adminLogin,
+    getMe,
 }
 
 

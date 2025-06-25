@@ -3,9 +3,7 @@ const dotenv = require("dotenv").config()
 const connectDb = require("./config/db")
 const {errorHandlerMiddleWare,notFound}=require("./middlewares/errorHandler")
 const cors = require("cors")
-
-
-
+const AdminRoutes = require("./routes/AdminRoutes")
 
 connectDb()
 
@@ -18,8 +16,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 app.get("/", (req, res) => {
-    res.send("Welcome to Techrypt API")
+    res.send("Welcome to Techrypt")
 })
+
+app.use("/api/admin",AdminRoutes)
 
 app.use(notFound)
 app.use(errorHandlerMiddleWare)
