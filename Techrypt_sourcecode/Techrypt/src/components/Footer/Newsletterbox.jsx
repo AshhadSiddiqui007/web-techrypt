@@ -1,96 +1,54 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
-import "./Newsletterbox.css"; // Assuming you'll move the styles to a separate CSS file
 
-export default function Newsletterbox() {
+const Newsletterbox = () => {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState({ message: "", type: "" });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState(""); // "success", "error", or ""
 
-  const handleSubmit = async (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
-    
-    // Basic email validation
-    if (!email || !email.includes('@')) {
-      setStatus({ message: "Please enter a valid email address", type: "error" });
-      return;
-    }
-    
-    // Set loading state
-    setIsSubmitting(true);
-    setStatus({ message: "Subscribing...", type: "" });
-    
+    setStatus("");
     try {
-      // Send subscription request to server
-      const response = await fetch('/api/subscribe-newsletter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email })
+      const res = await fetch("http://localhost:5000/api/subscribe-newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setStatus({ message: "Thank you for subscribing!", type: "success" });
-        setEmail(""); // Clear input on success
-        
-        // Clear success message after 5 seconds
-        setTimeout(() => {
-          setStatus({ message: "", type: "" });
-        }, 5000);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setStatus("success");
+        setEmail("");
       } else {
-        setStatus({ 
-          message: data.error || "Subscription failed. Please try again.", 
-          type: "error" 
-        });
+        setStatus("error");
       }
-    } catch (error) {
-      console.error('Newsletter subscription error:', error);
-      setStatus({ 
-        message: "Something went wrong. Please try again later.", 
-        type: "error" 
-      });
-    } finally {
-      setIsSubmitting(false);
+    } catch (err) {
+      setStatus("error");
     }
   };
 
   return (
-    <motion.div 
-      className="newsletter-container"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <h4 className="newsletter-heading">Subscribe to Our Newsletter</h4>
-      <form className="newsletter-form" onSubmit={handleSubmit}>
-        <input 
-          type="email" 
-          className="newsletter-input" 
-          placeholder="Enter your email" 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <button 
-          type="submit" 
-          className="newsletter-button"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Subscribing..." : "Subscribe Now"}
-        </button>
-      </form>
-      {status.message && (
-        <motion.div 
-          className={`newsletter-status ${status.type}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          {status.message}
-        </motion.div>
+    <form onSubmit={handleSubscribe} className="flex flex-col md:flex-row gap-2 mt-2">
+      <input
+        type="email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        placeholder="Subscribe to our newsletter"
+        className="px-3 py-2 rounded bg-[#181818] text-white border border-gray-600 focus:border-primary"
+        required
+      />
+      <button
+        type="submit"
+        className="bg-primary text-black px-4 py-2 rounded font-bold hover:bg-primary/90 transition"
+      >
+        Subscribe
+      </button>
+      {status === "success" && (
+        <span className="text-green-400 ml-2">Subscribed!</span>
       )}
-    </motion.div>
+      {status === "error" && (
+        <span className="text-red-400 ml-2">Something went wrong. Please try again later.</span>
+      )}
+    </form>
   );
-}
+};
+
+export default Newsletterbox;
