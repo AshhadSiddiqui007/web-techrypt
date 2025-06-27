@@ -16,6 +16,16 @@ const BlogManagement = () => {
   });
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all'); // New state for filtering
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalBlogs: 0,
+    blogsPerPage: 10,
+    hasNextPage: false,
+    hasPreviousPage: false
+  });
+  const [error, setError] = useState(null);
 
   const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -24,16 +34,48 @@ const BlogManagement = () => {
     return localStorage.getItem('adminToken');
   };
 
-  // Fetch all blogs
-  const fetchBlogs = async () => {
+  // Fetch blogs with pagination
+  const fetchBlogs = async (page = 1) => {
+    setLoading(true);
+    setError(null);
+
     try {
-      const response = await fetch(`${API_BASE_URL}/blogs`);
+      // Add includeAll=true to fetch all blogs including drafts for admin
+      const response = await fetch(
+        `${API_BASE_URL}/blogs?page=${page}&limit=10&includeAll=true`
+      );
       const data = await response.json();
+
+      console.log('API Response:', data); // Debug log
+
       if (data.success) {
         setBlogs(data.data);
+        
+        // Handle both old and new API response formats
+        if (data.pagination) {
+          // New API with pagination
+          setPagination(data.pagination);
+        } else {
+          // Old API without pagination - create pagination manually
+          const totalBlogs = data.count || data.data.length;
+          const blogsPerPage = 10;
+          const totalPages = Math.ceil(totalBlogs / blogsPerPage);
+          
+          setPagination({
+            currentPage: page,
+            totalPages: totalPages,
+            totalBlogs: totalBlogs,
+            blogsPerPage: blogsPerPage,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1
+          });
+        }
+      } else {
+        setError("Failed to fetch blogs");
       }
     } catch (error) {
-      console.error('Error fetching blogs:', error);
+      console.error("Error fetching blogs:", error);
+      setError("Error loading blogs. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -191,6 +233,11 @@ const BlogManagement = () => {
     });
   };
 
+  // Filter blogs based on status
+  const filteredBlogs = statusFilter === 'all' 
+    ? blogs 
+    : blogs.filter(blog => blog.status === statusFilter);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -212,6 +259,40 @@ const BlogManagement = () => {
         </button>
       </div>
 
+      {/* Status Filter */}
+      <div className="mb-4 flex gap-2">
+        <button
+          onClick={() => setStatusFilter('all')}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            statusFilter === 'all'
+              ? 'bg-[#C4D322] text-black'
+              : 'bg-gray-700 text-white hover:bg-gray-600'
+          }`}
+        >
+          All Blogs ({blogs.length})
+        </button>
+        <button
+          onClick={() => setStatusFilter('published')}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            statusFilter === 'published'
+              ? 'bg-[#C4D322] text-black'
+              : 'bg-gray-700 text-white hover:bg-gray-600'
+          }`}
+        >
+          Published ({blogs.filter(blog => blog.status === 'published').length})
+        </button>
+        <button
+          onClick={() => setStatusFilter('draft')}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            statusFilter === 'draft'
+              ? 'bg-[#C4D322] text-black'
+              : 'bg-gray-700 text-white hover:bg-gray-600'
+          }`}
+        >
+          Drafts ({blogs.filter(blog => blog.status === 'draft').length})
+        </button>
+      </div>
+
       {/* Blog List */}
       <div className="bg-[#1a1a1a] rounded-lg overflow-hidden border border-gray-700">
         <div className="overflow-x-auto">
@@ -228,7 +309,7 @@ const BlogManagement = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {blogs.map((blog) => (
+              {filteredBlogs.map((blog) => (
                 <tr key={blog._id} className="hover:bg-[#252525]">
                   <td className="px-6 py-4">
                     {blog.image ? (
@@ -289,6 +370,12 @@ const BlogManagement = () => {
             </tbody>
           </table>
         </div>
+        
+        {filteredBlogs.length === 0 && blogs.length > 0 && (
+          <div className="text-center py-8 text-gray-400">
+            No blogs found with status: {statusFilter}
+          </div>
+        )}
         
         {blogs.length === 0 && (
           <div className="text-center py-8 text-gray-400">

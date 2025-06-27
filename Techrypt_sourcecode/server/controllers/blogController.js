@@ -3,16 +3,44 @@ const Blog = require('../models/Blog');
 const fs = require('fs');
 const path = require('path');
 
-// @desc    Get all blogs
-// @route   GET /api/blogs
-// @access  Public
+// @desc    Get all blogs with pagination
+// @route   GET /api/blogs?page=1&limit=10&includeAll=true
+// @access  Public (includeAll requires admin)
 const getAllBlogs = asyncHandler(async (req, res) => {
   try {
-    const blogs = await Blog.find({}).sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const includeAll = req.query.includeAll === 'true';
+
+    // If includeAll is requested, get all blogs (for admin)
+    // Otherwise, only get published blogs (for public)
+    const filter = includeAll ? {} : { status: 'published' };
+
+    // Get total count for pagination info
+    const totalBlogs = await Blog.countDocuments(filter);
+    
+    // Get blogs with pagination
+    const blogs = await Blog.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalPages = Math.ceil(totalBlogs / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+
     res.json({
       success: true,
-      count: blogs.length,
-      data: blogs
+      data: blogs,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalBlogs,
+        blogsPerPage: limit,
+        hasNextPage,
+        hasPreviousPage
+      }
     });
   } catch (error) {
     res.status(500);

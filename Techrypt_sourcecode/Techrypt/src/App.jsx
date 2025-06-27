@@ -29,6 +29,7 @@ import VerticalsPage from "./pages/Verticals/verticals.jsx";
 import PetLandingPage from "./pages/LandingPages/PetlandingPage.jsx";
 import PRLandingPage from "./pages/LandingPages/PRLandingPage.jsx";
 import BlogPage from "./pages/BlogPage/BlogPage.jsx";
+import BlogDetailPage from "./pages/BlogPage/BlogDetailPage.jsx";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
 // Import other components
 import { AnimatedLoader } from "./assets/mainImages.js";
@@ -93,7 +94,9 @@ const AppContent = () => {
         <Route path="/PetLandingPage" element={<PetLandingPage />} />
         <Route path="/LandingPages/PetLandingPage" element={<PetLandingPage />} />
         <Route path="/LandingPages/PRLandingPage" element={<PRLandingPage />} />
-        <Route path="/BlogPage" element={<BlogPage/>} />
+        <Route path="/BlogPage" element={<BlogPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:id" element={<BlogDetailPage />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/Admin/*" element={<AdminDashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />
