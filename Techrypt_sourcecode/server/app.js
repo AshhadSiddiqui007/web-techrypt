@@ -18,6 +18,7 @@ app.get("/", (req, res) => {
     res.send("Welcome to Techrypt")
 })
 
+
 app.use("/api/admin",AdminRoutes)
 
 app.use(notFound)
