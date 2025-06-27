@@ -53,6 +53,7 @@
   width: fit-content;
   padding: 4px 12px; /* Reduced padding */
 }
+
 @media only screen and (max-width: 768px) {
   .midNav {
     display: none;
@@ -712,3 +713,158 @@
 .dropdown-content a:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+
+
+/* MOBILE MENU OVERLAY - LEFT SLIDE & PARTIAL WIDTH */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw; /* Half screen */
+  height: 80vh;
+  background-color: rgba(20, 20, 20, 0.97);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 2rem;
+  animation: slideFromLeft 0.4s ease-out;
+  box-shadow: 8px 0 20px rgba(0, 0, 0, 0.5);
+  border-right: 2px solid #C4D322;
+}
+
+/* Content inside the overlay */
+.mobile-menu-content {
+  width: 90%;
+  background: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Logo & close button row */
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-menu-header{
+  height: auto; /* Smaller logo */
+  width: auto;
+}
+
+/* Close button */
+.mobile-menu-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.6rem;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
+
+.mobile-menu-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
+}
+
+/* Nav Links */
+.mobile-menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: px;
+  margin-top: 1rem;
+}
+
+.mobile-menu-link {
+  color: white;
+  text-align: left;
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.mobile-menu-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateX(3px);
+}
+
+/* CTA Button */
+.mobile-menu-cta {
+  background: linear-gradient(135deg, #C4D322, #AEBB1E);
+  color: #000;
+  font-weight: 600;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.mobile-menu-cta:hover {
+  background: linear-gradient(135deg, #AEBB1E, #C4D322);
+  transform: scale(1.02);
+}
+
+/* Slide-in animation from the left */
+@keyframes slideFromLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+
+.mobile-menu-header {
+  height: 100px;  /* fixed height */
+  width: 100%;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden; /* hide overflow */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* left align */
+  padding: 0 1rem;
+}
+
+/* Make logo fill container height, width adjusts automatically */
+.mobile-menu-header video,
+.mobile-menu-header img {
+  height: 100%;    /* fill container height */
+  width: auto;     /* scale width proportionally */
+  object-fit: contain;
+  display: block;
+  max-width: 100%; /* never overflow container width */
+}
+
+/* Close button */
+.mobile-menu-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.6rem;
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  z-index: 10;
+}
+
+.mobile-menu-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
+}
+

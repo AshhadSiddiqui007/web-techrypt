@@ -43,7 +43,7 @@ export default function Header() {
   return (
     <>
       {/* Enhanced Desktop Navbar - Only visible on screens */}
-      <nav className="navbar hidden md:flex" style={{ paddingTop: '0px' }}>
+      <nav className="navbar hidden lg:flex" style={{ paddingTop: '0px' }}>
         <div className="leftNav overflow-hidden">
           <Link to="/" className="flex items-center">
             {/* Desktop logo - properly sized and aligned */}
@@ -146,7 +146,7 @@ export default function Header() {
       </nav>
 
       {/* Enhanced Mobile Navbar - Only visible on screens ≤768px */}
-      <div className="small-nav md:hidden">
+      <div className="small-nav lg:hidden">
         <div className="leftNav">
           <Link to="/" onClick={handleLinkClick}>
             <video
