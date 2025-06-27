@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import "./App.css";
 import CursorGradient from './components/CursorGradient/CursorGradient.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
 
 // Import components
 import Footer from "./components/Footer/Footer.jsx";
@@ -93,6 +94,7 @@ const AppContent = () => {
         <Route path="/LandingPages/PetLandingPage" element={<PetLandingPage />} />
         <Route path="/LandingPages/PRLandingPage" element={<PRLandingPage />} />
         <Route path="/BlogPage" element={<BlogPage/>} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/Admin/*" element={<AdminDashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -106,7 +108,9 @@ const AppContent = () => {
 
 const App = () => (
   <Router>
-    <AppContent />
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   </Router>
 );
 

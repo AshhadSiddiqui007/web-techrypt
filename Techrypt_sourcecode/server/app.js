@@ -1,12 +1,24 @@
 const express = require("express")
 const dotenv = require("dotenv").config()
+
+// Debug environment variables
+console.log("=== ENVIRONMENT VARIABLES DEBUG ===")
+console.log("NODE_ENV:", process.env.NODE_ENV)
+console.log("PORT:", process.env.PORT)
+console.log("JWT_SECRET:", process.env.JWT_SECRET ? "SET" : "UNDEFINED")
+console.log("JWT_SECRET value:", process.env.JWT_SECRET)
+console.log("MONGODB_URI:", process.env.MONGODB_URI ? "SET" : "UNDEFINED")
+console.log("=====================================")
+
 const connectDb = require("./config/database")
 const {errorHandlerMiddleWare,notFound}=require("./middlewares/errorHandler")
 const cors = require("cors")
+const path = require("path")
 const AdminRoutes = require("./routes/AdminRoutes")
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const blogRoutes = require('./routes/blogRoutes');
 
 connectDb()
 
@@ -16,6 +28,9 @@ const app=express()
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// Serve static files for blog images
+app.use('/images', express.static(path.join(__dirname, '../Techrypt/public/images')))
 
 app.get("/", (req, res) => {
     res.send("Welcome to Techrypt")
@@ -29,6 +44,7 @@ app.use("/api/admin",AdminRoutes)
 app.use('/api', newsletterRoutes);
 app.use('/api', appointmentRoutes);
 app.use('/api', contactRoutes);
+app.use('/api/blogs', blogRoutes);
 
 app.use(notFound)
 app.use(errorHandlerMiddleWare)
