@@ -1,0 +1,2 @@
+email - info@techrypt.io
+password - admin!222

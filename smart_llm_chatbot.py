@@ -3186,213 +3186,7 @@ def smart_chat():
             'error': str(e)
         }), 500
 
-@app.route('/appointment', methods=['POST'])
-def book_appointment():
-    """Handle appointment booking requests with MongoDB persistence"""
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No data provided'}), 400
 
-        # Extract appointment data with support for both old and new field names
-        appointment_data = {
-            'name': data.get('name', '').strip(),
-            'email': data.get('email', '').strip(),
-            'phone': data.get('phone', '').strip(),
-            'business_type': data.get('business_type', '').strip(),
-            'services': data.get('services', data.get('services_interested', [])),  # Support both field names
-            'preferred_date': data.get('preferred_date', '').strip(),
-            'preferred_time': data.get('preferred_time', '').strip(),
-            'notes': data.get('notes', data.get('message', '')).strip(),
-            'status': data.get('status', 'Pending'),
-            'source': data.get('source', 'api'),
-            'created_at': data.get('created_at', datetime.now().isoformat())
-        }
-
-        # Validate required fields
-        if not appointment_data['name'] or not appointment_data['email']:
-            return jsonify({'error': 'Name and email are required'}), 400
-
-        appointment_id = None
-
-        # Try to save to MongoDB first with conflict prevention
-        if MONGODB_BACKEND_AVAILABLE and mongodb_backend and mongodb_backend.is_connected():
-            try:
-                result = mongodb_backend.create_appointment(appointment_data)
-
-                # Handle validation errors (conflict detection disabled)
-                if not result.get("success"):
-                    # MODIFICATION: Removed conflict-specific handling since conflicts are now allowed
-                    # All validation errors are treated as general errors (business hours, required fields, etc.)
-                    return jsonify({
-                        'success': False,
-                        'error': result.get('error'),
-                        'business_hours': result.get('business_hours')
-                    }), 400
-
-                # Success case
-                appointment_id = result.get('appointment_id')
-                logger.info(f"✅ Appointment saved to MongoDB Atlas: {appointment_id}")
-
-                # Debug: Check if email functionality was triggered
-                logger.info(f"🔍 DEBUG: Checking email functionality for appointment {appointment_id}")
-                if hasattr(mongodb_backend, 'email_config'):
-                    email_config = mongodb_backend.email_config
-                    logger.info(f"📧 DEBUG: Email enabled: {email_config.get('enabled', False)}")
-                    logger.info(f"📤 DEBUG: SMTP server: {email_config.get('smtp_server', 'Not set')}")
-                    logger.info(f"👤 DEBUG: Sender email: {email_config.get('sender_email', 'Not set')}")
-                else:
-                    logger.warning("⚠️ DEBUG: Email configuration not found in Flask MongoDB backend")
-
-                # Check if email methods exist
-                has_send_email = hasattr(mongodb_backend, '_send_email')
-                has_send_appointment_email = hasattr(mongodb_backend, '_send_appointment_email')
-                logger.info(f"🔧 DEBUG: _send_email method available: {has_send_email}")
-                logger.info(f"🔧 DEBUG: _send_appointment_email method available: {has_send_appointment_email}")
-
-                # Log appointment data for email debugging
-                logger.info(f"📋 DEBUG: Appointment data for email: {appointment_data.get('name')} - {appointment_data.get('email')}")
-                logger.info(f"📧 DEBUG: Email should be sent to customer: {appointment_data.get('email')}")
-                logger.info(f"📧 DEBUG: Email should be sent to admin: info@techrypt.io")
-                logger.info(f"📧 DEBUG: Email should be sent to projects: projects@techrypt.io")
-
-            except Exception as mongo_error:
-                logger.error(f"❌ MongoDB save failed: {mongo_error}")
-                # Continue with fallback storage
-                appointment_id = None
-
-        # Fallback to in-memory storage if MongoDB fails
-        if not appointment_id:
-            if not hasattr(book_appointment, 'appointments'):
-                book_appointment.appointments = []
-
-            appointment_data['id'] = len(book_appointment.appointments) + 1
-            book_appointment.appointments.append(appointment_data)
-            appointment_id = str(appointment_data['id'])
-            logger.info(f"⚠️ Appointment saved to memory (MongoDB unavailable): {appointment_id}")
-
-        # Generate confirmation response
-        services_text = ', '.join(appointment_data['services']) if appointment_data['services'] else 'To be discussed'
-
-        confirmation_message = f"""✅ Appointment Booked Successfully!
-
-📅 **Appointment Details:**
-• **Name**: {appointment_data['name']}
-• **Email**: {appointment_data['email']}
-• **Services**: {services_text}
-• **Preferred Date**: {appointment_data['preferred_date'] or 'Flexible'}
-• **Preferred Time**: {appointment_data['preferred_time'] or 'Flexible'}
-
-🎯 **Next Steps:**
-1. You'll receive a confirmation email within 24 hours
-2. Our team will contact you to confirm the appointment time
-3. We'll prepare a customized consultation based on your business needs
-
-Thank you for choosing Techrypt! We're excited to help grow your business."""
-
-        return jsonify({
-            'success': True,
-            'message': confirmation_message,
-            'appointment_id': appointment_id,
-            'status': 'confirmed',
-            'timestamp': appointment_data['created_at'],
-            'saved_to_database': MONGODB_BACKEND_AVAILABLE and mongodb_backend and mongodb_backend.is_connected()
-        })
-
-    except Exception as e:
-        logger.error(f"❌ Appointment booking error: {e}")
-        return jsonify({
-            'error': 'Failed to book appointment. Please try again.',
-            'success': False
-        }), 500
-
-@app.route('/appointments', methods=['GET'])
-def get_appointments():
-    """Get all appointments from MongoDB and fallback storage"""
-    try:
-        appointments = []
-
-        # Try to get from MongoDB first
-        if MONGODB_BACKEND_AVAILABLE and mongodb_backend and mongodb_backend.is_connected():
-            try:
-                appointments = mongodb_backend.get_all_appointments(limit=100)
-                logger.info(f"✅ Retrieved {len(appointments)} appointments from MongoDB")
-            except Exception as mongo_error:
-                logger.error(f"❌ MongoDB retrieval failed: {mongo_error}")
-
-        # Fallback to in-memory storage if MongoDB fails or is empty
-        if not appointments:
-            appointments = getattr(book_appointment, 'appointments', [])
-            logger.info(f"⚠️ Retrieved {len(appointments)} appointments from memory")
-
-        return jsonify({
-            'appointments': appointments,
-            'total_count': len(appointments),
-            'status': 'success',
-            'source': 'mongodb' if (MONGODB_BACKEND_AVAILABLE and mongodb_backend and mongodb_backend.is_connected()) else 'memory'
-        })
-    except Exception as e:
-        logger.error(f"Error getting appointments: {e}")
-        return jsonify({'error': 'Failed to retrieve appointments'}), 500
-
-@app.route('/context', methods=['GET'])
-def get_context():
-    """Get current conversation context"""
-    try:
-        total_contexts = len(intelligent_chatbot.conversation_contexts)
-        active_sessions = list(intelligent_chatbot.conversation_contexts.keys())
-
-        return jsonify({
-            'total_contexts': total_contexts,
-            'active_sessions': active_sessions,
-            'status': 'success',
-            'ai_backend': 'intelligent_llm'
-        })
-    except Exception as e:
-        logger.error(f"Error getting context: {e}")
-        return jsonify({'error': 'Failed to get context'}), 500
-
-@app.route('/reset', methods=['POST'])
-def reset_context():
-    """Reset conversation context"""
-    try:
-        data = request.get_json() or {}
-        session_id = data.get('session_id', 'all')
-
-        if session_id == 'all':
-            intelligent_chatbot.conversation_contexts = {}
-            return jsonify({'message': 'All contexts reset successfully', 'status': 'success'})
-        else:
-            if session_id in intelligent_chatbot.conversation_contexts:
-                del intelligent_chatbot.conversation_contexts[session_id]
-                return jsonify({'message': f'Context for session {session_id} reset successfully', 'status': 'success'})
-            else:
-                return jsonify({'message': f'Session {session_id} not found', 'status': 'not_found'})
-    except Exception as e:
-        logger.error(f"Error resetting context: {e}")
-        return jsonify({'error': 'Failed to reset context'}), 500
-
-# --- ADD THE NEW ROUTE HERE ---
-@app.route('/contact-info', methods=['POST', 'OPTIONS'])
-def contact_info():
-    """Handle contact info submissions from the chatbot frontend."""
-    if request.method == 'OPTIONS':
-        return '', 200
-    data = request.get_json() or {}
-    print(f"📥 Received contact info: {data}")
-    saved = False
-    inserted_id = None
-    if MONGODB_BACKEND_AVAILABLE and mongodb_backend and mongodb_backend.is_connected():
-        try:
-            inserted_id = mongodb_backend.insert_contact_info(data)
-            print(f"📤 MongoDB insert_contact_info result: {inserted_id}")
-            saved = inserted_id is not None
-        except Exception as e:
-            print(f"❌ Exception saving contact info: {e}")
-            saved = False
-    else:
-        print("❌ MongoDB not available or not connected.")
-    return jsonify({'success': saved, 'message': 'Contact info received.', 'inserted_id': inserted_id})
 def main():
     """Main function to start the enhanced intelligent LLM chatbot server"""
     print("🤖 ENHANCED INTELLIGENT LLM CHATBOT SERVER")
@@ -3438,19 +3232,19 @@ def main():
         print("⚠️ Semantic Matching: Disabled (sentence-transformers not available)")
 
     print("\n🚀 Starting Enhanced Chatbot Server...")
-    print("📡 Server: http://localhost:5000")
-    print("🔗 Health: http://localhost:5000/health")
-    print("🤖 Model Status: http://localhost:5000/model-status")
-    print("💬 Chat: POST http://localhost:5000/chat")
-    print("📅 Appointments: POST http://localhost:5000/appointment")
-    print("📊 Context: GET http://localhost:5000/context")
-    print("🔄 Reset: POST http://localhost:5000/reset")
+    print("📡 Server: http://localhost:5001")
+    print("🔗 Health: http://localhost:5001/health")
+    print("🤖 Model Status: http://localhost:5001/model-status")
+    print("💬 Chat: POST http://localhost:5001/chat")
+    print("📅 Appointments: POST http://localhost:5001/appointment")
+    print("📊 Context: GET http://localhost:5001/context")
+    print("🔄 Reset: POST http://localhost:5001/reset")
     print("=" * 70)
 
     # Start server
     app.run(
         host='0.0.0.0',
-        port=5000,
+        port=5001,
         debug=False,
         threaded=True
     )

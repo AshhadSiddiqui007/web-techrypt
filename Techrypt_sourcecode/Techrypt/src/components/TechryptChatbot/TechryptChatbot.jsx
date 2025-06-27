@@ -973,7 +973,7 @@ Would you like to schedule a consultation or learn more about any specific servi
   setIsLoading(true);
 
   try {
-    const res = await fetch("http://localhost:5000/contact-info", {
+    const res = await fetch("http://localhost:5000/api/contact-info", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(contactFormData),
@@ -1006,7 +1006,6 @@ Would you like to schedule a consultation or learn more about any specific servi
       return;
     }
 
-    // Show loading state and loading overlay
     setIsLoading(true);
     setShowLoadingOverlay(true);
     setError(null);
@@ -1021,7 +1020,7 @@ Would you like to schedule a consultation or learn more about any specific servi
         phone: formData.phone.trim(),
         services: formData.services,
         preferred_date: formData.date,
-        preferred_time: formData.time, // ✅ Send the slot label directly!
+        preferred_time: formData.time,
         user_timezone: getUserTimezone(),
         notes: formData.notes.trim(),
         status: 'Pending',
@@ -1031,72 +1030,30 @@ Would you like to schedule a consultation or learn more about any specific servi
 
       console.log('📅 Submitting appointment data:', appointmentData);
 
-      // Backend API URL - try multiple ports for flexibility
-      const backendPorts = [5000, 5001, 5002];
-      let response = null;
-      let workingPort = null;
+      // --- Node.js backend API call ---
+      const response = await fetch("http://localhost:5000/api/appointments", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(appointmentData)
+      });
 
-      // Try different ports to find the Python Flask backend
-      for (const port of backendPorts) {
-        try {
-          console.log(`🔗 Trying backend on port ${port}...`);
-          response = await fetch(`http://localhost:${port}/appointment`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(appointmentData)
-          });
-
-          // If we get a response (not connection error), use this port
-          workingPort = port;
-          console.log(`✅ Connected to backend on port ${port}`);
-          break;
-
-        } catch (error) {
-          console.log(`❌ Port ${port} failed: ${error.message}`);
-          continue;
-        }
-      }
-
-      if (!response) {
-        throw new Error('Could not connect to backend server on any port');
-      }
-
-      // MODIFICATION: Removed 409 conflict handling since multiple appointments per time slot are now allowed
-      // Original conflict handling code (commented out):
-      // if (response.status === 409) {
-      //   const conflictResult = await response.json();
-      //   console.log('⚠️ Time conflict detected:', conflictResult);
-      //   setIsLoading(false);
-      //   setConflictData(conflictResult);
-      //   setShowConflictModal(true);
-      //   return;
-      // }
-
-      // Parse response
       const result = await response.json();
       console.log('📊 Backend response:', result);
 
-      // Check if the appointment was successful based on backend response
       if (!response.ok || !result.success) {
         console.error('❌ Backend returned error:', result);
         throw new Error(result.error || result.message || `HTTP error! status: ${response.status}`);
       }
 
-      console.log('✅ Appointment saved successfully:', result);
-      console.log('💾 Saved to database:', result.saved_to_database);
-
-      // Close the appointment form with a slight delay to show success animation
       setTimeout(() => {
         setShowAppointmentForm(false);
         setIsLoading(false);
-        setShowLoadingOverlay(false); // Hide loading overlay after form closes
-        
-        // Show the thank you modal
+        setShowLoadingOverlay(false);
+
         setShowThankYouModal(true);
-        
-        // Create clean success message
+
         const confirmationMessage = {
           id: Date.now() + 1,
           text: `🎉 Appointment Request Submitted Successfully!
@@ -1123,7 +1080,7 @@ Thank you for choosing Techrypt.io! 🚀`,
         setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
         setAppointmentErrors({});
         setError(null);
-      }, 1500); // 1.5 second delay to show success animation
+      }, 1500);
 
     } catch (error) {
       console.error('❌ Error saving appointment:', error);
@@ -1133,15 +1090,11 @@ Thank you for choosing Techrypt.io! 🚀`,
         formData: formData
       });
 
-      // Close form with a slight delay even on error
       setTimeout(() => {
         setShowAppointmentForm(false);
         setIsLoading(false);
-        setShowLoadingOverlay(false); // Hide loading overlay after form closes
-        
-        // For errors, we don't show thank you modal
-        
-        // Determine error type and create user-friendly message
+        setShowLoadingOverlay(false);
+
         const isConnectionError = error.message.includes('Could not connect') ||
                                  error.message.includes('fetch') ||
                                  error.message.includes('network');
@@ -1214,7 +1167,7 @@ Thank you for choosing Techrypt.io! 🚀`,
         setFormData({ name: '', email: '', phone: '', services: [], date: '', time: '', notes: '' });
         setAppointmentErrors({});
         setError(null);
-      }, 1500); // 1.5 second delay for consistent UX
+      }, 1500);
     }
   };
 
@@ -1842,7 +1795,7 @@ Thank you for choosing Techrypt.io! 🚀`,
                       {formData.date && !isSelectedDateSunday() && getAvailableTimeSlots().length === 0 && (
                         <div className="techrypt-no-slots-message" style={{
                           marginTop: '8px',
-                                                   padding: '10px',
+                          padding: '10px',
                           backgroundColor: '#fef2f2',
                           border: '1px solid #f87171',
                           borderRadius: '6px',
@@ -1853,7 +1806,7 @@ Thank you for choosing Techrypt.io! 🚀`,
                         </div>
                       )}
                     </div>
-                                   </div>
+                  </div>
                   <div className="techrypt-form-field">
                     <label>Additional Notes (Optional)</label>
                     <textarea
