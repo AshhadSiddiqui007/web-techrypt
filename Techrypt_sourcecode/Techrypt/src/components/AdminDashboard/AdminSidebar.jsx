@@ -19,23 +19,25 @@ const AdminSidebar = ({ currentSection }) => {
 
       {/* Navigation Menu */}
       <div className="flex-1 py-6">
-        <ul>
-          {menuItems.map((item) => (
-            <li key={item.id} className="mb-2">
-              <NavLink
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center w-full px-6 py-3 text-left transition-colors duration-200 
-                  ${isActive 
-                    ? 'bg-primary text-white' 
-                    : 'text-gray-300 hover:bg-[#252525] hover:text-white'}`}
-              >
-                <span className="mr-4">{item.icon}</span>
-                {item.label}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
+        <nav>
+          <ul>
+            {menuItems.map((item) => (
+              <li key={item.id} className="mb-2">
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center w-full px-6 py-3 text-left transition-colors duration-200 
+                    ${isActive 
+                      ? 'bg-primary text-white' 
+                      : 'text-gray-300 hover:bg-[#252525] hover:text-white'}`}
+                >
+                  <span className="mr-4">{item.icon}</span>
+                  {item.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
 
       {/* Logout Button */}

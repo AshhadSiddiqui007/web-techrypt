@@ -47,35 +47,25 @@ const ScrollToTop = () => {
 
 const AppContent = () => {
   const location = useLocation();
-  // Make the check case-insensitive by converting to lowercase
   const isAdminRoute = location.pathname.toLowerCase().startsWith('/admin');
   const isFirstLoad = useRef(true);
   const [loader, setLoader] = useState(true);
 
   useEffect(() => {
-    // Always show loader on route change
-    setLoader(true);
-    console.log(`🔄 Loading animation triggered for: ${location.pathname}`);
-
-    const duration = isFirstLoad.current ? 3000 : 1500;
-    console.log(`⏱️ Animation duration: ${duration}ms`);
-
-    const timer = setTimeout(() => {
-      console.log('✅ Animation complete, hiding loader');
-      setLoader(false);
-      if (isFirstLoad.current) {
-        isFirstLoad.current = false;
-      }
-    }, duration);
-
+    // Only run this once on mount
+    const timer = setTimeout(() => setLoader(false), 1500); // or however long you want
     return () => clearTimeout(timer);
-  }, [location.pathname]);
+  }, []); 
 
-  return loader ? (
-    <div className="flex justify-center items-center fixed inset-0 bg-[#000] z-[9999] p-4">
-      <img src={AnimatedLoader} alt="Loading..." className="w-32 h-32 md:w-44 md:h-44 object-contain" />
-    </div>
-  ) : (
+  if (loader) {
+    return (
+      <div className="flex justify-center items-center fixed inset-0 bg-[#000] z-[9999] p-4">
+        <img src={AnimatedLoader} alt="Loading..." className="w-32 h-32 md:w-44 md:h-44 object-contain" />
+      </div>
+    );
+  }
+
+  return (
     <>
       {/*Unused gradient component*/} 
       {/*<CursorGradient />*/} 
