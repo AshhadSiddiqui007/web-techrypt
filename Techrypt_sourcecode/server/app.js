@@ -1,5 +1,8 @@
 const express = require("express")
-const dotenv = require("dotenv").config()
+require('dotenv').config();
+const axios = require('axios');
+const cron = require('node-cron');
+const NewsletterContent = require('./models/NewsletterContent');
 
 // Debug environment variables
 console.log("=== ENVIRONMENT VARIABLES DEBUG ===")
@@ -36,11 +39,21 @@ app.get("/", (req, res) => {
     res.send("Welcome to Techrypt")
 })
 
-app.use("/api/admin",AdminRoutes)
+app.use("/api/admin", AdminRoutes);
 app.use('/api', newsletterRoutes);
 app.use('/api', appointmentRoutes);
 app.use('/api', contactRoutes);
 app.use('/api/blogs', blogRoutes);
+
+// Schedule to run at 9:00 AM on the 1st of every month
+cron.schedule('0 9 1 * *', async () => {
+    const latest = await NewsletterContent.findOne().sort({ createdAt: -1 });
+    if (!latest) return;
+    await axios.post('http://localhost:5000/api/send-newsletter', {
+        subject: latest.subject,
+        content: latest.content
+    });
+});
 
 app.use(notFound)
 app.use(errorHandlerMiddleWare)

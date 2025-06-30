@@ -14,7 +14,8 @@ const AdminSidebar = ({ currentSection }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <MdDashboard size={24} />, path: '/admin/dashboard' },
     { id: 'blogs', label: 'Blog Management', icon: <MdArticle size={24} />, path: '/admin/blogs' },
-    { id: 'appointments', label: 'Appointments', icon: <MdCalendarToday size={24} />, path: '/admin/appointments' }
+    { id: 'appointments', label: 'Appointments', icon: <MdCalendarToday size={24} />, path: '/admin/appointments' },
+    { id: 'newsletter', label: 'Newsletter', icon: <MdArticle size={24} />, path: '/admin/newsletter' } // <-- Add this line
   ];
 
   return (

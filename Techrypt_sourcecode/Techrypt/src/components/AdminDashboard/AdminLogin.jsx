@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiShield } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
@@ -151,6 +152,11 @@ const AdminLogin = () => {
           <p className="text-xs text-gray-500">
             Protected area. Authorized personnel only.
           </p>
+          <div className="mt-4">
+            <Link to="/admin/forgot-password" className="text-sm text-primary hover:underline">
+              Forgot Password?
+            </Link>
+          </div>
         </div>
       </div>
     </div>

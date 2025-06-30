@@ -36,6 +36,8 @@ import { AnimatedLoader } from "./assets/mainImages.js";
 import { ToastContainer } from "react-toastify";
 import PrivacyPolicy from "./components/PrivacyPolicy/PrivacyPolicy.jsx";
 import TermsConditions from "./components/TermsConditions/TermsConditions.jsx";
+import ForgotPassword from './components/AdminDashboard/forgotPassword';
+import AdminNewsletterUpload from './components/AdminDashboard/AdminNewsletterUpload';
 
 // Scroll to top on route change
 const ScrollToTop = () => {
@@ -99,6 +101,8 @@ const AppContent = () => {
         <Route path="/blog/:id" element={<BlogDetailPage />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/Admin/*" element={<AdminDashboard />} />
+        <Route path="/admin/newsletter" element={<AdminNewsletterUpload />} />
+        <Route path="/admin/forgot-password" element={<ForgotPassword />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       
