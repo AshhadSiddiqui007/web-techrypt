@@ -16,7 +16,6 @@ export default function Header() {
     { id: "About", label: "About", path: "/About" },
     { id: "Creative", label: "Creative", path: "/Creative" },
     { id: "BlogPage", label: "Blogs", path: "/BlogPage" },
-    { id: "AdminDashboard", label: "AdminDashboard", path: "/AdminDashboard" },
   ];
   const [activeTab, setActiveTab] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -43,7 +42,7 @@ export default function Header() {
   return (
     <>
       {/* Enhanced Desktop Navbar - Only visible on screens */}
-      <nav className="navbar hidden lg:flex" style={{ paddingTop: '0px' }}>
+      <nav className="navbar hidden lg:flex" style={{  paddingTop: '0px'}}>
         <div className="leftNav overflow-hidden">
           <Link to="/" className="flex items-center">
             {/* Desktop logo - properly sized and aligned */}

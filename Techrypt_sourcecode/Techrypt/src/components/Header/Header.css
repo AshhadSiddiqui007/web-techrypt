@@ -5,7 +5,7 @@
 /* Desktop Navbar - Compact Design */
 .navbar {
   padding: 0px 8px; /* Reduced padding */
-  border-radius: 0px 0px 16px 16px; /* Slightly smaller border radius */
+  border-radius: 0 0 14px 14px; /* top-left, top-right, bottom-right, bottom-left */
   display: flex;
   align-items: center;
   gap: 15px; /* Reduced gap */
@@ -19,6 +19,11 @@
   width: 100%;
   background-color: #000000 !important;
   height: 65px; /* Reduced overall height */
+  box-shadow: 0 0 4px 1px #C4D322, 0 0 8px 2px #C4D32266; /* smaller blur and spread */
+
+  border: 1.5px solid #C4D322;
+  background: rgba(24,24,24,0.98); /* Optional: subtle dark background */
+  overflow: visible; /* Allow dropdowns to overflow outside the navbar */
 }
 
 .leftNav,
@@ -45,7 +50,7 @@
 .midNav {
   display: flex;
   /*background-color: #AEBB1E !important;*/
-  background-color: #C4D322;
+ 
   border-radius: 25px; /* Slightly smaller border radius */
   height: 42px; /* Reduced height */
   align-items: center;
@@ -301,17 +306,17 @@
 }
 
 .navButton:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-  color: #000000;
-  border-radius: 20px; /* Updated to match new border radius */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background-color: #C4D322 !important;
+  color: #000 !important;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(196, 211, 34, 0.2);
   transform: translateY(-0.5px);
 }
 
 .navButton.active:hover {
-  background-color: #ffffff;
-  color: #C4D322;
-  box-shadow: 0 4px 12px rgba(174, 187, 30, 0.3);
+  background-color: #C4D322 !important;
+  color: #000 !important;
+  box-shadow: 0 4px 12px rgba(196, 211, 34, 0.3);
   transform: translateY(-1px);
 }
 
@@ -324,7 +329,32 @@
   transform: translateY(-1px);
 }
 
+/* Thinner, sliding underline animation for nav links */
+.anchor.navButton {
+  position: relative;
+  overflow: hidden; /* This keeps the underline inside the button */
+}
 
+.anchor.navButton::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 36%;
+  right: 36%;
+  bottom: 10px;
+  height: 1px;
+  background: #C4D322;
+  border-radius: 1px;
+  transform: scaleX(0);
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+  transform-origin: left;
+}
+
+/* Show the sliding underline on hover or when active */
+.anchor.navButton:hover::after,
+.anchor.navButton.active::after {
+  transform: scaleX(1);
+}
 
 /* RESPONSIVE HEADER VISIBILITY CONTROLS */
 /* Desktop navigation - Only visible on screens >768px */
@@ -702,7 +732,7 @@
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1000;
   border-radius: 4px;
-  overflow: hidden;
+  overflow: visible;
   transition: all 0.3s ease;
 }
 
@@ -714,7 +744,29 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+/* Dropdown background black and green hover */
+.dropdown-content {
+  background-color: #181818 !important;
+  color: #fff !important;
+  border-radius: 0 0 14px 14px !important;
+  min-width: 180px;
+  padding: 0.5rem 0 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  z-index: 1000 !important;
+}
 
+.dropdown-content a {
+  color: #fff !important;
+  padding: 10px 24px;
+  display: block;
+  border-radius: 0 !important;
+  transition: background 0.2s, color 0.2s;
+}
+
+.dropdown-content a:hover {
+  background-color: #C4D322 !important;
+  color: #000 !important;
+}
 
 /* MOBILE MENU OVERLAY - LEFT SLIDE & PARTIAL WIDTH */
 .mobile-menu-overlay {
@@ -969,5 +1021,14 @@
   /* Add this if blur still happens */
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+
+/* Show dropdown on hover */
+.vertices-dropdown-wrapper:hover .dropdown-content,
+.listItems.group:hover .dropdown-content {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
 }
 

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from "framer-motion"; // Add this import
 
 // Blog Card Component to display individual blogs
-const BlogCard = ({ blog }) => {
+const BlogCard = ({ blog, index }) => {
   // Extract first 30 words for the excerpt
   const createExcerpt = (content) => {
     const words = content.split(' ');
@@ -11,7 +12,12 @@ const BlogCard = ({ blog }) => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 mb-8 bg-[#1a1a1a] p-4 rounded-lg hover:bg-[#252525] transition-colors duration-300">
+    <motion.div
+      initial={{ opacity: 0, x: 60 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.12, duration: 0.5, type: "spring" }}
+      className="flex flex-col md:flex-row gap-4 mb-8 bg-[#1a1a1a] p-4 rounded-lg hover:bg-[#252525] transition-colors duration-300"
+    >
       <div className="md:w-1/3">
         <img 
           src={blog.image ? `http://localhost:5000${blog.image}` : 'https://placehold.co/600x400/1a1a1a/cccccc?text=Techrypt+Blog'} 
@@ -31,7 +37,7 @@ const BlogCard = ({ blog }) => {
           </Link>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -111,7 +117,7 @@ const Blog_List_View = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-6 py-8">
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-white mb-4">Our Blog</h1>
@@ -126,8 +132,8 @@ const Blog_List_View = () => {
         <>
           {/* Blog List */}
           <div className="space-y-8 mb-12">
-            {Array.isArray(blogs) && blogs.map((blog) => (
-              <BlogCard key={blog._id} blog={blog} />
+            {Array.isArray(blogs) && blogs.map((blog, index) => (
+              <BlogCard key={blog._id} blog={blog} index={index} />
             ))}
           </div>
 
