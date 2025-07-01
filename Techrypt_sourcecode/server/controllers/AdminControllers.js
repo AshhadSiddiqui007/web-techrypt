@@ -115,7 +115,7 @@ const getAdminStats = asyncHandler(async (req, res) => {
     });
 });
 
-exports.getNewsletterStats = async (req, res) => {
+const getNewsletterStats = async (req, res) => {
     try {
         // Replace this with your real visitor tracking logic if you have it
         const visitorCount = 0; // Placeholder, update if you track visitors
@@ -137,6 +137,7 @@ module.exports = {
     forgotPassword,
     resetPassword,
     getAdminStats,
+    getNewsletterStats,
 }
 
 

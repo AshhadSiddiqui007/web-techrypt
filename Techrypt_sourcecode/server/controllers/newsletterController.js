@@ -69,3 +69,19 @@ exports.getLatestNewsletter = async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 };
+
+exports.getNewsletterStats = async (req, res) => {
+    try {
+        // Replace this with your real visitor tracking logic if you have it
+        const visitorCount = 0; // Placeholder, update if you track visitors
+
+        const newsletterCount = await NewsletterSubscriber.countDocuments();
+
+        res.json({
+            visitorCount,
+            newsletterCount,
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};

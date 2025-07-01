@@ -31,7 +31,7 @@ export default function VerticalsDropdownPortal({ anchorRef, open, onClose }) {
         to="/LandingPages/PetLandingPage"
         className="block px-4 py-3 text-white hover:bg-[#C4D322] hover:text-black transition-colors"
       >
-        Pet Businesses
+        Pet Industry
       </Link>
       <Link
         to="/LandingPages/PRLandingPage"

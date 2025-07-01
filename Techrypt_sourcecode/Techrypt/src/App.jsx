@@ -39,6 +39,7 @@ import TermsConditions from "./components/TermsConditions/TermsConditions.jsx";
 import ForgotPassword from './components/AdminDashboard/forgotPassword';
 import AdminNewsletterUpload from './components/AdminDashboard/AdminNewsletterUpload';
 
+
 // Scroll to top on route change
 const ScrollToTop = () => {
   const location = useLocation();

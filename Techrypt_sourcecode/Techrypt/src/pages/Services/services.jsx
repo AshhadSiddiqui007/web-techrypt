@@ -6,6 +6,7 @@ import Design from "../../components/Design/Design";
 import Awards from "../../components/Awards/Awards";
 import BusinessVerticals from "../../components/BusinessVerticals/BusinessVerticals";
 import AboutSlider from "../../components/AboutSlider/AboutSlider";
+import ServicesCarousel from "../../components/Services/ServicesCarousel.jsx";
 
 
 const Services = () => {
@@ -35,6 +36,7 @@ const Services = () => {
           `}
         </style>
       </div>
+      <ServicesCarousel />
       <BusinessVerticals />
       <ServicesComponent />
       <Payment />

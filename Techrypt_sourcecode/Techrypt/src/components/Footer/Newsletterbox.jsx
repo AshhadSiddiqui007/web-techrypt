@@ -8,7 +8,7 @@ const Newsletterbox = () => {
     e.preventDefault();
     setStatus("");
     try {
-      const res = await fetch("http://localhost:5000/api/subscribe-newsletter", {
+      const res = await fetch("http://localhost:5000/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

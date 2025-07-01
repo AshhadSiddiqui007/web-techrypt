@@ -7,6 +7,7 @@ import VideoGallery from "../../components/VideoGallery/VideoGallery.jsx";
 import Verticals from "../../components/Verticals/Verticals.jsx";
 import Services from "../../components/WhatWeDo/Services.jsx";
 import ParallaxWrapper from "../../components/ParallaxWrapper/ParallaxWrapper.jsx";
+import SimpleServicesCarousel from "../../components/Services/SimpleServicesCarousel.jsx";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useState } from 'react';
@@ -114,7 +115,8 @@ const main = () => {
       <InteractiveButton onClick={handleGetStarted} />
       
       <div className="fading"></div>
-      
+
+      <SimpleServicesCarousel/>
       <AgencyDetails />
       <CreativeTeamSection />
       <SliderLogo />
