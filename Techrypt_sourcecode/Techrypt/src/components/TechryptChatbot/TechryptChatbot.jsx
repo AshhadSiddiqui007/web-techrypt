@@ -201,7 +201,7 @@ const TechryptChatbot = ({ isOpen, onClose }) => {
 
     try {
       // Try to connect to Smart AI backend with enhanced context
-      const response = await fetch('http://localhost:5000/chat', {
+      const response = await fetch('http://localhost:5001/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
