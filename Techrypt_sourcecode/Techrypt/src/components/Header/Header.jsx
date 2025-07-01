@@ -52,7 +52,7 @@ export default function Header() {
               muted
               src={HeaderLogo}
               alt="Techrypt Logo"
-              className="desktop-header-logo icon object-cover"
+              className="w-32 h-14 object-cover"
             />
           </Link>
           <hr className="hr1" />
@@ -86,20 +86,20 @@ export default function Header() {
           </div>
 
           {/* Dropdown */}
-          <div className="absolute top-full left-0 w-56 bg-[#aebc1f] rounded-xl shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-50">
+          <div className="absolute top-full left-0 w-56 bg-black rounded-xl shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-50">
             {/* Invisible bridge to prevent gap */}
             <div className="h-2 -mt-2"></div>
             <Link
               to="/LandingPages/PetLandingPage"
               onClick={handleLinkClick}
-              className="block px-4 py-3 text-white hover:bg-[#9fac1c] rounded-t-xl transition-colors"
+              className="block px-4 py-3 text-white hover:bg-[#C4D322] rounded-t-xl transition-colors"
             >
               Pet Businesses
             </Link>
             <Link
               to="/LandingPages/PRLandingPage"
               onClick={handleLinkClick}
-              className="block px-4 py-3 text-white hover:bg-[#9fac1c] rounded-b-xl transition-colors"
+              className="block px-4 py-3 text-white hover:bg-[#C4D322] rounded-b-xl transition-colors"
             >
               Public Relations
             </Link>

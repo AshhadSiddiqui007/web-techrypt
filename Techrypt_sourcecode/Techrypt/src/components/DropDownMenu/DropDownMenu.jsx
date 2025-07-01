@@ -13,7 +13,7 @@ const DropdownMenu = ({ title, children }) => {
         onClick={toggleDropdownMenu} 
         className="dropdown-toggle"
         style={{
-          background: 'none',
+          background: 'black',
           border: 'none',
           color: 'white',
           cursor: 'pointer',
@@ -30,7 +30,7 @@ const DropdownMenu = ({ title, children }) => {
             position: 'absolute',
             top: '100%',
             left: 0,
-            backgroundColor: '#1a1a1a',
+            backgroundColor: 'black',
             minWidth: '200px',
             boxShadow: '0px 8px 16px 0px rgba(0,0,0,0.2)',
             zIndex: 1000,
