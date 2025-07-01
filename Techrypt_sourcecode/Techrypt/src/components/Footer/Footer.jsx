@@ -134,7 +134,7 @@ const Footer = () => {
           ></textarea>
         </div>
 
-        <div className="text-center">
+        <div className="flex justify-center items-center my-8">
           <button
             onClick={handleSubmit}
             className="bg-primary hover:bg-primary/90 text-black font-bold py-3 md:py-4 px-6 md:px-8 rounded-full text-base md:text-lg transition-all duration-300 transform hover:scale-105 touch-target"
@@ -178,37 +178,32 @@ const Footer = () => {
         </a>
       </div>
 
-      <div className="flex flex-col md:flex-row md:px-20 py-6 px-4 items-center justify-between gap-6 w-full mb-2">
-        <div className="flex flex-col items-center justify-start gap-3 md:gap-5 order-3 md:order-1">
-          <div
-            className="h-12 w-12 md:w-16 md:h-16 flex justify-center items-center text-2xl md:text-3xl text-primary cursor-pointer rounded-full border border-primary hover:bg-primary hover:text-white glowing-yellow transition-all duration-300 touch-target"
-            title='Scroll to top'
-            onClick={scrollToTop}
-          >
-            <RiArrowUpDoubleLine />
-          </div>
-          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
-            <a href="mailto:INFO@TECHRYPT.IO" className="text-gray-400 text-xs md:text-sm glowing-green hover:text-primary transition-colors duration-300">
+      {/* Footer Lower Section */}
+      <div className="w-full mt-4">
+        <div className="flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto px-4">
+          {/* Centered left section */}
+          <div className="flex flex-row items-center justify-center gap-3 w-full md:w-auto">
+            <a
+              href="mailto:INFO@TECHRYPT.IO"
+              className="text-gray-400 glowing-green hover:text-primary transition-colors duration-300 text-xs md:text-sm whitespace-nowrap"
+            >
               INFO@TECHRYPT.IO
             </a>
-            {/* Add the Newsletterbox component here */}
             <Newsletterbox />
           </div>
+          {/* Right: Privacy/Terms */}
+          <div className="flex flex-row items-center gap-4 mt-2 md:mt-0">
+            <Link to="/PrivacyPolicy" className="hover:text-primary transition-colors duration-300 text-gray-400 text-xs md:text-sm">
+              Privacy Policy
+            </Link>
+            <Link to="/Terms&Conditions" className="hover:text-primary transition-colors duration-300 text-gray-400 text-xs md:text-sm">
+              Terms & Conditions
+            </Link>
+          </div>
         </div>
-
-        <div className="flex flex-col items-center justify-center text-center order-1 md:order-2">
-          <p className="text-white glowing-green text-sm md:text-base">
-            Powered by Techrypt.io
-          </p>
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center text-gray-400 text-sm md:text-base order-2 md:order-3">
-          <Link to={"/PrivacyPolicy"} onClick={() => setPrivacy(true)} className="hover:text-primary transition-colors duration-300 text-center">
-            Privacy Policy
-          </Link>
-          <Link to={"/Terms&Conditions"} className="hover:text-primary transition-colors duration-300 text-center">
-            Terms & Conditions
-          </Link>
+        {/* Powered by (centered, lowest) */}
+        <div className="w-full flex justify-center items-center py-2">
+          <span className="text-white glowing-green text-sm md:text-base">Powered by Techrypt.io</span>
         </div>
       </div>
 

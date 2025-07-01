@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import './Newsletterbox.css';
 
 const Newsletterbox = () => {
   const [email, setEmail] = useState("");
@@ -26,26 +27,26 @@ const Newsletterbox = () => {
   };
 
   return (
-    <form onSubmit={handleSubscribe} className="flex flex-col md:flex-row gap-2 mt-2">
+    <form onSubmit={handleSubscribe} className="newsletter-form newsletter-container">
       <input
         type="email"
         value={email}
         onChange={e => setEmail(e.target.value)}
         placeholder="Subscribe to our newsletter"
-        className="px-3 py-2 rounded bg-[#181818] text-white border border-gray-600 focus:border-primary"
+        className="newsletter-input"
         required
       />
       <button
         type="submit"
-        className="bg-primary text-black px-4 py-2 rounded font-bold hover:bg-primary/90 transition"
+        className="newsletter-button"
       >
         Subscribe
       </button>
       {status === "success" && (
-        <span className="text-green-400 ml-2">Subscribed!</span>
+        <span className="newsletter-status success">Subscribed!</span>
       )}
       {status === "error" && (
-        <span className="text-red-400 ml-2">Something went wrong. Please try again later.</span>
+        <span className="newsletter-status error">Something went wrong. Please try again later.</span>
       )}
     </form>
   );
