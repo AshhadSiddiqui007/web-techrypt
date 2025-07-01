@@ -7,6 +7,7 @@ Contextual, personalized responses with business-specific guidance
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import logging
+import numpy as np
 import sys
 import os
 import time
@@ -1591,7 +1592,7 @@ class IntelligentLLMChatbot:
             if self.csv_handler.data_loaded:
                 try:
                     print(f"🔍 ATTEMPTING CSV MATCH for: '{message}'")
-                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.15)
+                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.7)
                     print(f"🔍 CSV MATCH RESULT: {csv_response is not None}")
 
                     if csv_response:
