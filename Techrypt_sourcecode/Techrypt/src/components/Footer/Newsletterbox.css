@@ -1,10 +1,11 @@
 .newsletter-container {
-  background-color: #c4d322;
-  padding: 12px;
-  border-radius: 5px;
-  width: 100%;
-  max-width: 320px;
-  margin: 10px 0;
+  background: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  box-shadow: none !important;
 }
 
 @media (min-width: 768px) {
@@ -26,31 +27,41 @@
 
 .newsletter-form {
   display: flex;
-  gap: 5px;
+  gap: 4px;
 }
 
 .newsletter-input {
   flex: 1;
-  padding: 8px 12px;
+  padding: 4px 8px;
   border: none;
-  border-radius: 4px;
+  border-radius: 2px;
   font-size: 13px;
+  background: #222;
+  color: #fff;
+  min-width: 120px;
+}
+
+.newsletter-input::placeholder {
+  color: #bbb;
+  font-size: 12px;
 }
 
 .newsletter-button {
-  background-color: #000;
-  color: #fff;
+  background-color: #c4d322 !important; /* Techrypt green */
+  color: #222 !important;               /* dark text for contrast */
   border: none;
-  border-radius: 4px;
-  padding: 8px 10px;
+  border-radius: 2px;
+  padding: 4px 10px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
 }
 
 .newsletter-button:hover {
-  background-color: #333;
+  background-color: #b0be1e !important; /* slightly darker green on hover */
+  color: #222 !important;
 }
 
 .newsletter-button:disabled {
