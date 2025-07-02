@@ -66,7 +66,7 @@ const Footer = () => {
   };
 
   return (
-    <div className="text-center bg-[#000] mt-10 overflow-x-hidden pt-12 md:pt-24 px-4 md:px-6">
+    <div className="text-center bg-[#000] overflow-x-hidden pt-12 md:pt-24 px-4 md:px-6">
       <div className="inline-flex flex-col items-center justify-center mb-8 md:mb-12">
         <img className="mx-auto object-contain w-48 md:w-72 mb-2 pb-4 md:pb-8" src={techryptLogo} alt="Techrypt Logo" />
         <h3 className="text-sm md:text-lg font-bold text-white mt-2 px-3 md:px-5 py-2 border-2 border-white rounded-full inline-block text-center">

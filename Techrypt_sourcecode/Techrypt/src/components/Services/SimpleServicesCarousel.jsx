@@ -1,68 +1,39 @@
 import React from 'react';
-import { FiMonitor, FiSmartphone, FiGlobe, FiShield, FiUsers, FiTrendingUp, FiSettings, FiHeart } from 'react-icons/fi';
 
 const SimpleServicesCarousel = () => {
   const services = [
-    { name: 'Web Development', icon: FiGlobe },
-    { name: 'Mobile Apps', icon: FiSmartphone },
-    { name: 'UI/UX Design', icon: FiMonitor },
-    { name: 'Cybersecurity', icon: FiShield },
-    { name: 'Digital Marketing', icon: FiTrendingUp },
-    { name: 'Consulting', icon: FiUsers },
-    { name: 'System Integration', icon: FiSettings },
-    { name: 'Support & Maintenance', icon: FiHeart },
+    'SEO',
+    'DIGITAL MARKETING',
+    'WEB DESIGN',
+    'UI / UX',
+    'APP DESIGN'
   ];
 
   return (
-    <div className="w-full bg-grey-400 py-4 overflow-hidden">
-      <div className="flex animate-scroll whitespace-nowrap">
-        {/* First set of services */}
-        {services.map((service, index) => {
-          const IconComponent = service.icon;
-          return (
-            <div key={index} className="flex items-center mx-6">
-              <IconComponent className="text-lg mr-2" style={{ color: '#c4d322' }} />
-              <span className="font-medium text-sm" style={{ color: '#c4d322' }}>
-                {service.name}
+    <div className="w-full py-6 overflow-hidden" style={{ backgroundColor: '#2d2d2d' }}>
+      <div className="flex animate-scroll whitespace-nowrap items-center">
+        {[...Array(2)].map((_, repeatIdx) =>
+          services.map((service, index) => (
+            <React.Fragment key={service + repeatIdx}>
+              <span className="px-12 font-medium text-2xl tracking-widest text-white flex items-center justify-center">
+                {service}
               </span>
-              {index < services.length - 1 && (
-                <span className="text-gray-400 mx-12">•</span>
+              {/* Add spacer after every item except the very last one */}
+              {!(repeatIdx === 1 && index === services.length - 1) && (
+                <span className="mx-4 text-2xl" style={{ color: '#c4d322' }}>✦</span>
               )}
-            </div>
-          );
-        })}
-        
-        {/* Duplicate set for seamless scrolling */}
-        {services.map((service, index) => {
-          const IconComponent = service.icon;
-          return (
-            <div key={`duplicate-${index}`} className="flex items-center mx-6">
-              <IconComponent className="text-lg mr-2" style={{ color: '#c4d322' }} />
-              <span className="font-medium text-sm" style={{ color: '#c4d322' }}>
-                {service.name}
-              </span>
-              {index < services.length - 1 && (
-                <span className="text-gray-400 mx-6">•</span>
-              )}
-            </div>
-          );
-        })}
+            </React.Fragment>
+          ))
+        )}
       </div>
-
       <style jsx>{`
         @keyframes scroll {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
-        
         .animate-scroll {
-          animation: scroll 30s linear infinite;
+          animation: scroll 20s linear infinite;
         }
-        
         .animate-scroll:hover {
           animation-play-state: paused;
         }

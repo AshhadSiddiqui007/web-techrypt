@@ -80,12 +80,9 @@ const ServicesCarousel = () => {
   };
 
   return (
-    <div className="relative w-full max-w-6xl mx-auto px-4 py-8">
+    <div className="relative w-full max-w-6xl mx-auto px-4">
       {/* Header */}
       <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-          Our <span className="text-primary">Services</span>
-        </h2>
         <p className="text-gray-400 text-lg max-w-2xl mx-auto">
           We offer comprehensive digital solutions to help your business thrive in the modern world
         </p>
