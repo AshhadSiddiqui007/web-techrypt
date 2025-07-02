@@ -27,10 +27,10 @@ import Offers from "./pages/Offers/Offers.jsx";
 import ContactPage from "./pages/ContactPage/ContactPage.jsx";
 import VerticalsPage from "./pages/Verticals/verticals.jsx";
 import PetLandingPage from "./pages/LandingPages/PetlandingPage.jsx";
-import PRLandingPage from "./pages/LandingPages/PRLandingPage.jsx";
 import BlogPage from "./pages/BlogPage/BlogPage.jsx";
 import BlogDetailPage from "./pages/BlogPage/BlogDetailPage.jsx";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
+import FitnessLandingPage from "./pages/LandingPages/FitnessLandingPage.jsx";
 // Import other components
 import { AnimatedLoader } from "./assets/mainImages.js";
 import { ToastContainer } from "react-toastify";
@@ -96,7 +96,7 @@ const AppContent = () => {
         <Route path="/Verticals" element={<VerticalsPage />} />
         <Route path="/PetLandingPage" element={<PetLandingPage />} />
         <Route path="/LandingPages/PetLandingPage" element={<PetLandingPage />} />
-        <Route path="/LandingPages/PRLandingPage" element={<PRLandingPage />} />
+        <Route path="/LandingPages/PRLandingPage" element={<FitnessLandingPage />} />
         <Route path="/BlogPage" element={<BlogPage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:id" element={<BlogDetailPage />} />
@@ -104,6 +104,7 @@ const AppContent = () => {
         <Route path="/Admin/*" element={<AdminDashboard />} />
         <Route path="/admin/newsletter" element={<AdminNewsletterUpload />} />
         <Route path="/admin/forgot-password" element={<ForgotPassword />} />
+        <Route path="/LandingPages/FitnessLandingPage" element={<FitnessLandingPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       

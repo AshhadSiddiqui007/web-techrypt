@@ -14,7 +14,7 @@ import socialmediamarketingIcon from "/Images/appointmentform/socialmediamarketi
 import webdevelopmentIcon from "/Images/appointmentform/webdevelopment.svg";
 
 
-const TechryptChatbot = ({ isOpen, onClose }) => {
+const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
   // Load messages from localStorage or use default
   const loadMessages = () => {
     try {
@@ -1194,6 +1194,14 @@ Thank you for choosing Techrypt.io! 🚀`,
   //   setConflictData(null);
   //   // Keep the appointment form open for user to choose different time
   // };
+
+  // Open appointment form directly if requested
+  useEffect(() => {
+    if (isOpen && openAppointmentDirect) {
+      setShowContactForm(false);
+      setShowAppointmentForm(true);
+    }
+  }, [isOpen, openAppointmentDirect]);
 
   if (!isOpen) return null;
 
