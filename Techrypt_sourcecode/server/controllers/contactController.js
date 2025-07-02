@@ -10,39 +10,49 @@ exports.submit = async (req, res) => {
         const contact = new Contact(contactData);
         await contact.save();
 
-        // Send email notification to info@techrypt.io
-        const mailOptions = {
-            from: process.env.SMTP_USER || 'noreply@techrypt.io',
-            to: 'info@techrypt.io',
-            subject: `New Contact Form Submission from ${name}`,
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #1a1a1a; color: white; padding: 20px; border-radius: 10px;">
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <h2 style="color: #c4d322; margin: 0;">New Contact Form Submission</h2>
-                    </div>
-                    
-                    <div style="background: #2a2a2a; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                        <h3 style="color: #c4d322; margin-top: 0;">Contact Details:</h3>
-                        <p><strong>Name:</strong> ${name}</p>
-                        <p><strong>Email:</strong> ${email}</p>
-                        <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
-                    </div>
-                    
-                    ${message ? `
-                    <div style="background: #2a2a2a; padding: 20px; border-radius: 8px;">
-                        <h3 style="color: #c4d322; margin-top: 0;">Message:</h3>
-                        <p style="line-height: 1.6;">${message}</p>
-                    </div>
-                    ` : ''}
-                    
-                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #444;">
-                        <p style="color: #888; font-size: 14px;">This email was sent from the Techrypt contact form.</p>
-                    </div>
-                </div>
-            `
-        };
+        // Send email notification to info@techrypt.io (only if SMTP is configured)
+        if (process.env.SENDER_EMAIL && process.env.SMTP_PASSWORD) {
+            try {
+                const mailOptions = {
+                    from: process.env.SENDER_EMAIL,
+                    to: process.env.ADMIN_EMAIL || 'info@techrypt.io',
+                    subject: `New Contact Form Submission from ${name}`,
+                    html: `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #1a1a1a; color: white; padding: 20px; border-radius: 10px;">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <h2 style="color: #c4d322; margin: 0;">New Contact Form Submission</h2>
+                            </div>
+                            
+                            <div style="background: #2a2a2a; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                                <h3 style="color: #c4d322; margin-top: 0;">Contact Details:</h3>
+                                <p><strong>Name:</strong> ${name}</p>
+                                <p><strong>Email:</strong> ${email}</p>
+                                <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+                            </div>
+                            
+                            ${message ? `
+                            <div style="background: #2a2a2a; padding: 20px; border-radius: 8px;">
+                                <h3 style="color: #c4d322; margin-top: 0;">Message:</h3>
+                                <p style="line-height: 1.6;">${message}</p>
+                            </div>
+                            ` : ''}
+                            
+                            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #444;">
+                                <p style="color: #888; font-size: 14px;">This email was sent from the Techrypt contact form.</p>
+                            </div>
+                        </div>
+                    `
+                };
 
-        await transporter.sendMail(mailOptions);
+                await transporter.sendMail(mailOptions);
+                console.log('Email sent successfully');
+            } catch (emailError) {
+                console.error('Email sending failed:', emailError);
+                // Don't throw error - still save to database and return success
+            }
+        } else {
+            console.log('SMTP not configured - contact saved to database only');
+        }
 
         res.json({ 
             success: true, 

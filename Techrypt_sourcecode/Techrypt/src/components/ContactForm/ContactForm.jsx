@@ -76,15 +76,6 @@ const ContactForm = () => {
       if (result.success) {
         setFormState({ isLoading: false, isSuccess: true, error: null });
         setFormData({ name: '', email: '', phone: '', message: '' });
-        
-        // Trigger chatbot with form data
-        const event = new CustomEvent('openTechryptChatbot', {
-          detail: {
-            contextMessage: `Hi ${formData.name}! Thanks for reaching out. How can I help you today?`,
-            businessType: 'Contact Form Submission'
-          }
-        });
-        window.dispatchEvent(event);
       } else {
         throw new Error(result.error || 'Failed to submit form');
       }
@@ -99,13 +90,13 @@ const ContactForm = () => {
 
   return (
     <div className="bg-[#1a1a1a] rounded-lg p-6 md:p-8 w-full max-w-6xl mx-auto">
-      <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center">
-        Get In Touch
-      </h2>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Left Column - Contact Info */}
         <div className="space-y-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-white">
+            Get In Touch
+          </h2>
+          
           {/* Email Section */}
           <div className="flex items-center space-x-4">
             <div className="flex-shrink-0">
@@ -140,7 +131,7 @@ const ContactForm = () => {
             <div className="flex space-x-4">
               {/* LinkedIn */}
               <a 
-                href="#" 
+                href="https://www.linkedin.com/company/techrypt-io/posts/?feedView=all" 
                 className="w-12 h-12 bg-[#2a2a2a] rounded-lg flex items-center justify-center hover:bg-[#c4d322] transition-all duration-300 group"
               >
                 <svg 
@@ -154,7 +145,7 @@ const ContactForm = () => {
 
               {/* Instagram */}
               <a 
-                href="#" 
+                href="https://www.instagram.com/tech.rypt" 
                 className="w-12 h-12 bg-[#2a2a2a] rounded-lg flex items-center justify-center hover:bg-[#c4d322] transition-all duration-300 group"
               >
                 <svg 
@@ -168,7 +159,7 @@ const ContactForm = () => {
 
               {/* Facebook */}
               <a 
-                href="#" 
+                href="https://www.facebook.com/people/Techrypt/61575440404641/#" 
                 className="w-12 h-12 bg-[#2a2a2a] rounded-lg flex items-center justify-center hover:bg-[#c4d322] transition-all duration-300 group"
               >
                 <svg 

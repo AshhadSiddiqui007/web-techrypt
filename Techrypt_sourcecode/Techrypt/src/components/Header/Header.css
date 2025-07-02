@@ -321,11 +321,10 @@
 }
 
 .navButton.active {
-  background-color: #ffffff;
-  /*color: #AEBB1E;*/
-  color: #9cad25;
+  background-color: #C4D322;
+  color: #000000;
   border-radius: 20px; /* Updated to match new border radius */
-  box-shadow: 0 2px 8px rgba(174, 187, 30, 0.2);
+  box-shadow: 0 2px 8px rgba(196, 211, 34, 0.2);
   transform: translateY(-1px);
 }
 
@@ -456,9 +455,8 @@
 }
 
 .mobile-tab-button.mobile-tab-active {
-  background-color: #ffffff;
-  /*color: #AEBB1E;*/
-  color: #C4D322;
+  background-color: #C4D322;
+  color: #000000;
 }
 
 @media only screen and (max-width: 768px) {

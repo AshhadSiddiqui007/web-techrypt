@@ -16,6 +16,7 @@ export default function Header() {
     { id: "About", label: "About", path: "/About" },
     { id: "Creative", label: "Creative", path: "/Creative" },
     { id: "BlogPage", label: "Blogs", path: "/BlogPage" },
+    { id: "ContactUs", label: "Contact Us", path: "/Contact" },
   ];
   const [activeTab, setActiveTab] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

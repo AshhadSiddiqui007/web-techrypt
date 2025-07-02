@@ -1,10 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import ServiceCard from './ServiceCard';
+import ServiceModal from './ServiceModal';
 
 const ServiceSection = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [visibleCards, setVisibleCards] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedServiceId, setSelectedServiceId] = useState(null);
+
+  const handleLearnMore = (serviceId) => {
+    setSelectedServiceId(serviceId);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedServiceId(null);
+  };
 
   const categories = [
     { id: 'all', name: 'All Services' },
@@ -110,7 +123,7 @@ const ServiceSection = () => {
   }, [activeCategory, searchTerm]);
 
   return (
-    <section className="py-20 px-4" style={{ background: 'linear-gradient(to bottom, #000000 0%, rgba(140, 151, 25, 0.63) 50%, rgba(196, 211, 34, 0.1) 90%, rgba(196, 211, 34, 0.05) 100%)' }}>
+    <section className="py-20 px-4" style={{ background: 'linear-gradient(to bottom, #000000 0%, rgba(196, 211, 34, 0.63) 50%, rgba(196, 211, 34, 0.1) 90%, rgba(196, 211, 34, 0.05) 100%)' }}>
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -180,6 +193,7 @@ const ServiceSection = () => {
               service={service}
               index={index}
               isVisible={visibleCards.includes(index)}
+              onLearnMore={handleLearnMore}
             />
           ))}
         </div>
@@ -193,6 +207,13 @@ const ServiceSection = () => {
           </div>
         )}
       </div>
+
+      {/* Service Modal */}
+      <ServiceModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        serviceId={selectedServiceId}
+      />
     </section>
   );
 };

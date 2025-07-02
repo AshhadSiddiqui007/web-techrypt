@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ServiceCard = ({ service, index, isVisible }) => {
+const ServiceCard = ({ service, index, isVisible, onLearnMore }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -58,6 +58,7 @@ const ServiceCard = ({ service, index, isVisible }) => {
         {/* CTA Button */}
         <div className={`transition-all duration-300 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <button 
+            onClick={() => onLearnMore(service.id)}
             className="w-full py-3 text-white font-semibold rounded-lg transition-all duration-300 hover:shadow-lg transform hover:scale-105"
             style={{ backgroundColor: '#c4d322' }}
           >
