@@ -34,10 +34,10 @@ export default function VerticalsDropdownPortal({ anchorRef, open, onClose }) {
         Pet Industry
       </Link>
       <Link
-        to="/LandingPages/PRLandingPage"
+        to="/LandingPages/FitnessLandingPage"
         className="block px-4 py-3 text-white hover:bg-[#C4D322] hover:text-black transition-colors"
       >
-        Public Relations
+        Fitness Industry
       </Link>
     </div>,
     document.getElementById("dropdown-portal-root")

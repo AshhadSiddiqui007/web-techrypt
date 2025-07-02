@@ -21,6 +21,7 @@
     "mongoose": "^8.16.0",
     "nodemailer": "^7.0.4",
     "react-router-dom": "^7.6.2",
-    "react-scripts": "^0.0.0"
+    "react-scripts": "^0.0.0",
+    "swiper": "^11.2.10"
   }
 }

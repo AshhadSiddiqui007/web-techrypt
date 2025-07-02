@@ -97,11 +97,11 @@ export default function Header() {
               Pet Industry
             </Link>
             <Link
-              to="/LandingPages/PRLandingPage"
+              to="/LandingPages/FitnessLandingPage"
               onClick={handleLinkClick}
               className="block px-4 py-3 text-white hover:bg-[#C4D322] rounded-b-xl transition-colors"
             >
-              Public Relations
+              Fitness Industry
             </Link>
           </div>
         </li>
