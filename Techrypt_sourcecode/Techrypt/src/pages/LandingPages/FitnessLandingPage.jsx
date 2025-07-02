@@ -6,6 +6,7 @@ import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import { EffectCoverflow, Autoplay } from 'swiper/modules';
 import { useNavigate } from 'react-router-dom';
+import { Zap, Palette, Laptop, TrendingUp, Bot, BarChart, Ban, LineChart,  Monitor, Moon } from 'lucide-react';
 
 import TechryptChatbot from "../../components/TechryptChatbot/TechryptChatbot";
 
@@ -41,10 +42,10 @@ const HeroSection = ({ onOpenAppointment }) => (
 
 // Problem Section
 const problems = [
-  { icon: '🚫', title: 'No Digital Presence' },
-  { icon: '📉', title: 'Low Conversions' },
-  { icon: '💤', title: 'Weak Branding' },
-  { icon: '🖥️', title: 'Generic Websites' },
+  { icon: <Ban size={32} stroke="url(#techrypt-gradient)" />, title: 'No Digital Presence' },
+  { icon: <LineChart size={32} stroke="url(#techrypt-gradient)" />, title: 'Low Conversions' },
+  { icon: <Moon size={32} stroke="url(#techrypt-gradient)" />, title: 'Weak Branding' }, // changed from Sleep to Moon
+  { icon: <Monitor size={32} stroke="url(#techrypt-gradient)" />, title: 'Generic Websites' },
 ];
 const ProblemSection = () => (
   <section className={styles.problemSection}>
@@ -77,12 +78,12 @@ const ProblemSection = () => (
 
 // Solutions Section
 const solutions = [
-  { icon: '⚡', text: 'Brand Strategy & Positioning' },
-  { icon: '🎨', text: 'Bold Fitness Design' },
-  { icon: '💻', text: 'Custom Website & App Dev' },
-  { icon: '📈', text: 'Paid Ads & SEO' },
-  { icon: '🤖', text: 'AI Automation' },
-  { icon: '📊', text: 'Analytics & Conversion' },
+  { icon: <Zap size={36} stroke="url(#techrypt-gradient)" />, text: 'Brand Strategy & Positioning' },
+  { icon: <Palette size={36} stroke="url(#techrypt-gradient)" />, text: 'Bold Fitness Design' },
+  { icon: <Laptop size={36} stroke="url(#techrypt-gradient)" />, text: 'Custom Website & App Dev' },
+  { icon: <TrendingUp size={36} stroke="url(#techrypt-gradient)" />, text: 'Paid Ads & SEO' },
+  { icon: <Bot size={36} stroke="url(#techrypt-gradient)" />, text: 'AI Automation' },
+{ icon: <LineChart size={36} stroke="url(#techrypt-gradient)" />, text: 'Analytics & Conversion' },
 ];
 const SolutionsSection = () => (
   <section className={styles.solutionsSection}>
@@ -98,7 +99,7 @@ const SolutionsSection = () => (
     <div className={styles.solutionsGrid}>
       {solutions.map((s, i) => (
         <motion.div
-          key={s.text}
+          key={s.text || `icon-only-${i}`}
           className={styles.solutionCard}
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -106,7 +107,7 @@ const SolutionsSection = () => (
           transition={{ delay: i * 0.08, duration: 0.4 }}
         >
           <span className={styles.solutionIcon}>{s.icon}</span>
-          <span className={styles.solutionText}>{s.text}</span>
+          {s.text && <span className={styles.solutionText}>{s.text}</span>}
         </motion.div>
       ))}
     </div>
@@ -213,6 +214,17 @@ const CTASection = ({ onOpenAppointment }) => (
   </section>
 );
 
+const IconGradientDefs = () => (
+  <svg width="0" height="0">
+    <defs>
+      <linearGradient id="techrypt-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop stopColor="#c4d322" offset="0%" />
+        <stop stopColor="#8c9719" offset="100%" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
 const FitnessLandingPage = () => {
   const [showAppointment, setShowAppointment] = React.useState(false);
   const [openAppointmentDirect, setOpenAppointmentDirect] = React.useState(false);
@@ -239,6 +251,7 @@ const FitnessLandingPage = () => {
           openAppointmentDirect={openAppointmentDirect}
         />
       )}
+      <IconGradientDefs />
     </div>
   );
 };
