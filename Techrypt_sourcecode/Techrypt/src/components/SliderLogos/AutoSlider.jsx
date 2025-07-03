@@ -96,9 +96,9 @@ function AutoSlider() {
   };
 
   return (
-    <div className="container-responsive py-8 md:py-16">
+    <div className="w-full py-8 md:py-16">
       <div
-        className="slider-main-container"
+        className="slider-main-container w-full"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -113,12 +113,12 @@ function AutoSlider() {
         </motion.h1>
         <Slider ref={sliderRef} {...baseSettings}>
           {sliderdata.map((item, i) => (
-            <div key={i} className="slider-container px-2">
-              <div className="slider-image-container">
+            <div key={i} className="slider-container px-4">
+              <div className="slider-image-container max-w-[200px] h-[130px] mx-auto flex items-center justify-center">
                 <img
                   src={item.logo}
                   alt={`Client logo ${i + 1}`}
-                  className="slider-image glowing-green w-full h-auto object-contain"
+                  className="slider-image glowing-green max-w-full max-h-full object-contain"
                 />
               </div>
             </div>

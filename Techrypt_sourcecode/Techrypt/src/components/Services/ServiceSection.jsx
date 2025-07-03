@@ -228,7 +228,7 @@ const ServiceSection = () => {
           serviceId={selectedServiceId}
         />
       </section>
-    </section>
+    </section> 
   );
 };
 
