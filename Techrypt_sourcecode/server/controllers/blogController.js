@@ -79,8 +79,8 @@ const getBlogById = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const createBlog = asyncHandler(async (req, res) => {
   try {
-    const { blog_title, content, tags, status, author } = req.body;
-    
+    const { blog_title, content, tags, status, author, scheduledDate } = req.body;
+
     if (!blog_title || !content) {
       res.status(400);
       throw new Error('Please provide blog title and content');
@@ -93,11 +93,16 @@ const createBlog = asyncHandler(async (req, res) => {
       status: status || 'published'
     };
 
-    if (tags) {
-      blogData.tags = Array.isArray(tags) ? tags : tags.split(',').map(tag => tag.trim());
+    if (scheduledDate && status === 'scheduled') {
+      blogData.scheduledDate = new Date(scheduledDate); // ✅ Correct placement
     }
 
-    // Handle image upload if exists
+    if (tags) {
+      blogData.tags = Array.isArray(tags)
+        ? tags
+        : tags.split(',').map(tag => tag.trim());
+    }
+
     if (req.file) {
       blogData.image = `/images/BlogsCovers/${req.file.filename}`;
     }
@@ -114,6 +119,7 @@ const createBlog = asyncHandler(async (req, res) => {
   }
 });
 
+
 // @desc    Update blog
 // @route   PUT /api/blogs/:id
 // @access  Private/Admin
@@ -126,17 +132,26 @@ const updateBlog = asyncHandler(async (req, res) => {
       throw new Error('Blog not found');
     }
 
-    const { blog_title, content, tags, status, author } = req.body;
-    
+    const { blog_title, content, tags, status, author, scheduledDate } = req.body;
+
     const updateData = {
       blog_title: blog_title || blog.blog_title,
       content: content || blog.content,
       author: author || blog.author,
-      status: status || blog.status
+      status: status || blog.status,
     };
 
+    // Handle scheduled date logic
+    if (scheduledDate && status === 'scheduled') {
+      updateData.scheduledDate = new Date(scheduledDate);
+    } else if (status !== 'scheduled') {
+      updateData.scheduledDate = null; // Reset if not scheduled anymore
+    }
+
     if (tags) {
-      updateData.tags = Array.isArray(tags) ? tags : tags.split(',').map(tag => tag.trim());
+      updateData.tags = Array.isArray(tags)
+        ? tags
+        : tags.split(',').map(tag => tag.trim());
     }
 
     // Handle new image upload
@@ -161,6 +176,7 @@ const updateBlog = asyncHandler(async (req, res) => {
       data: blog
     });
   } catch (error) {
+    console.error(error);
     res.status(500);
     throw new Error('Server Error');
   }
