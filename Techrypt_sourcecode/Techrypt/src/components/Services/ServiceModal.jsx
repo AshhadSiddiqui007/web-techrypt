@@ -1,11 +1,36 @@
 import React from 'react';
+<<<<<<< HEAD
 // import { serviceDetails } from '../data/serviceDetails';
+=======
+import { useNavigate } from 'react-router-dom';
+import { serviceDetails } from '../../data/serviceDetails';
+>>>>>>> 5deb85f50ab0d9f4b8e5a552d7d9604b1077b27a
 
 const ServiceModal = ({ isOpen, onClose, serviceId }) => {
+  const navigate = useNavigate();
+  
   if (!isOpen || !serviceId) return null;
 
   const service = serviceDetails[serviceId];
   if (!service) return null;
+
+  const handleGetConsultation = () => {
+    onClose(); // Close the modal first
+    // Trigger the chatbot to open with appointment form directly
+    const event = new CustomEvent('openTechryptChatbot', {
+      detail: {
+        contextMessage: "I'd love to help you get started with this service! Let's schedule a consultation to discuss your specific needs.",
+        businessType: 'Service Inquiry',
+        openAppointmentDirect: true
+      }
+    });
+    window.dispatchEvent(event);
+  };
+
+  const handleViewPortfolio = () => {
+    onClose(); // Close the modal first
+    navigate('/Work'); // Navigate to the Work page (portfolio)
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -99,7 +124,7 @@ const ServiceModal = ({ isOpen, onClose, serviceId }) => {
               </div>
 
               {/* Pricing & Timeline */}
-              <div className="bg-[#2a2a2a] rounded-xl p-6 border border-[#c4d322]/20">
+              {/* <div className="bg-[#2a2a2a] rounded-xl p-6 border border-[#c4d322]/20">
                 <div className="grid grid-cols-2 gap-6 mb-6">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-[#c4d322] mb-1">
@@ -121,7 +146,7 @@ const ServiceModal = ({ isOpen, onClose, serviceId }) => {
                 >
                   {service.cta}
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -132,13 +157,13 @@ const ServiceModal = ({ isOpen, onClose, serviceId }) => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
-                onClick={onClose}
+                onClick={handleGetConsultation}
                 className="px-8 py-3 bg-[#c4d322] text-black font-semibold rounded-lg hover:bg-[#c4d322]/90 transition-all duration-300"
               >
                 Get Free Consultation
               </button>
               <button 
-                onClick={onClose}
+                onClick={handleViewPortfolio}
                 className="px-8 py-3 border-2 border-[#c4d322] text-[#c4d322] font-semibold rounded-lg hover:bg-[#c4d322] hover:text-black transition-all duration-300"
               >
                 View Portfolio

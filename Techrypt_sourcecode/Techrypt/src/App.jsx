@@ -22,6 +22,7 @@ import Creative from "./pages/Creative/creative.jsx";
 import Services from "./pages/Services/services.jsx";
 import Work from "./pages/Work/work.jsx";
 import About from "./pages/About/About.jsx";
+import AboutPageNew from "./pages/About/About_v2.jsx";
 import EventCalendar from "./pages/EventCalendar/EventCalendar.jsx";
 import Offers from "./pages/Offers/Offers.jsx";
 import ContactPage from "./pages/ContactPage/ContactPage.jsx";
@@ -88,6 +89,7 @@ const AppContent = () => {
         <Route path="/Creative" element={<Creative />} />
         <Route path="/Work" element={<Work />} />
         <Route path="/About" element={<About />} />
+        <Route path="/about_v2" element={<AboutPageNew />} />
         <Route path="/Calendar" element={<EventCalendar />} />
         <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
         <Route path="/Terms&Conditions" element={<TermsConditions />} />

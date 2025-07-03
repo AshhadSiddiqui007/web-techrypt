@@ -3222,7 +3222,7 @@ def main():
 
     # CSV training data status
     if intelligent_chatbot.csv_handler.data_loaded:
-        print(f"� CSV Training Data: {len(intelligent_chatbot.csv_handler.training_data)} rows loaded")
+        print(f"  CSV Training Data: {len(intelligent_chatbot.csv_handler.training_data)} rows loaded")
     else:
         print("📄 CSV Training Data: Not available")
 
