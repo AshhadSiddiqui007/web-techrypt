@@ -1,5 +1,5 @@
 import React from 'react';
-import { serviceDetails } from '../../data/serviceDetails';
+// import { serviceDetails } from '../data/serviceDetails';
 
 const ServiceModal = ({ isOpen, onClose, serviceId }) => {
   if (!isOpen || !serviceId) return null;

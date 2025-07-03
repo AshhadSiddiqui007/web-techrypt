@@ -427,3 +427,63 @@
     padding: 1.2rem 0.7rem;
   }
 }
+
+@media (max-width: 480px) {
+  /* General spacing fix */
+  .heroSection,
+  .problemSection,
+  .solutionsSection,
+  .ctaSection,
+  .servicesSection {
+    padding: 2rem 1rem;
+  }
+
+  /* Typography scaling */
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+  .heroSubtitle,
+  .sectionTitle,
+  .ctaTitle,
+  .solutionText {
+    font-size: 1rem;
+  }
+
+  /* Swiper Slide Fix */
+  .servicesSwiper {
+    min-height: 100px;
+  }
+  .serviceSlide {
+    min-width: 160px !important;
+    font-size: 1rem;
+    margin: 0 8px;
+    transform: none !important;
+  }
+  .serviceSlideText {
+    padding: 0.5em 1.2em;
+    font-size: 0.95rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  /* Reduce glowing effect */
+  .serviceSlide:hover,
+  .serviceSlide:focus {
+    transform: none;
+    text-shadow: none;
+  }
+
+  /* Solution & Problem Card Fix */
+  .solutionCard,
+  .problemCard {
+    font-size: 0.95rem;
+    padding: 1.4rem 1rem;
+  }
+
+  /* CTA Buttons */
+  .ctaBtn,
+  .ctaBtnAlt {
+    font-size: 1rem;
+    padding: 0.8rem 1.6rem;
+  }
+}
