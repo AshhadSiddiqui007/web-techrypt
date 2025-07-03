@@ -1,10 +1,6 @@
 import React from 'react';
-<<<<<<< HEAD
-// import { serviceDetails } from '../data/serviceDetails';
-=======
 import { useNavigate } from 'react-router-dom';
 import { serviceDetails } from '../../data/serviceDetails';
->>>>>>> 5deb85f50ab0d9f4b8e5a552d7d9604b1077b27a
 
 const ServiceModal = ({ isOpen, onClose, serviceId }) => {
   const navigate = useNavigate();
