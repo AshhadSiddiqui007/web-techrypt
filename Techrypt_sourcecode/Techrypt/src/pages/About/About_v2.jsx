@@ -208,7 +208,7 @@ const About_v2 = () => {
       </section>
 
       {/* Our Team Section */}
-      <section className="py-20 bg-gray-900 relative z-5">
+      <section className="py-20 relative z-5">
         <div className="container-responsive px-4">
           <motion.div
             initial="hidden"
