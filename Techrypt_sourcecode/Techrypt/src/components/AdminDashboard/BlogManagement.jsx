@@ -12,7 +12,8 @@ const BlogManagement = () => {
     content: '',
     tags: '',
     status: 'published',
-    author: 'Admin'
+    author: 'Admin',
+    scheduledDate: '', // For scheduled blogs
   });
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -116,7 +117,8 @@ const BlogManagement = () => {
       content: '',
       tags: '',
       status: 'published',
-      author: 'Admin'
+      author: 'Admin',
+      scheduledDate: '',
     });
     setSelectedImage(null);
     setImagePreview('');
@@ -132,7 +134,8 @@ const BlogManagement = () => {
       content: blog.content,
       tags: blog.tags ? blog.tags.join(', ') : '',
       status: blog.status,
-      author: blog.author
+      author: blog.author,
+      scheduledDate: blog.scheduledDate ? blog.scheduledDate.substring(0, 16) : ''
     });
     setSelectedImage(null);
     setImagePreview(blog.image ? `http://localhost:5000${blog.image}` : '');
@@ -155,6 +158,11 @@ const BlogManagement = () => {
     formDataToSend.append('tags', formData.tags);
     formDataToSend.append('status', formData.status);
     formDataToSend.append('author', formData.author);
+    if (formData.status === 'scheduled') {
+  formDataToSend.append('scheduledDate', formData.scheduledDate);
+}
+
+
     
     if (selectedImage) {
       formDataToSend.append('image', selectedImage);
@@ -291,6 +299,18 @@ const BlogManagement = () => {
         >
           Drafts ({blogs.filter(blog => blog.status === 'draft').length})
         </button>
+
+         {/* ✅ New Scheduled Button */}
+  <button
+    onClick={() => setStatusFilter('scheduled')}
+    className={`px-4 py-2 rounded-lg transition-colors ${
+      statusFilter === 'scheduled'
+        ? 'bg-[#C4D322] text-black'
+        : 'bg-gray-700 text-white hover:bg-gray-600'
+    }`}
+  >
+    Scheduled ({blogs.filter(blog => blog.status === 'scheduled').length})
+  </button>
       </div>
 
       {/* Blog List */}
@@ -332,14 +352,24 @@ const BlogManagement = () => {
                   </td>
                   <td className="px-6 py-4">{blog.author}</td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      blog.status === 'published' 
-                        ? 'bg-green-600 text-green-100' 
-                        : 'bg-yellow-600 text-yellow-100'
-                    }`}>
-                      {blog.status}
-                    </span>
-                  </td>
+  <div>
+    <span className={`px-2 py-1 rounded text-xs ${
+      blog.status === 'published' 
+        ? 'bg-green-600 text-green-100' 
+        : blog.status === 'scheduled'
+          ? 'bg-blue-600 text-blue-100'
+          : 'bg-yellow-600 text-yellow-100'
+    }`}>
+      {blog.status}
+    </span>
+    {blog.status === 'scheduled' && blog.scheduledDate && (
+      <div className="text-xs text-gray-400 mt-1">
+        {new Date(blog.scheduledDate).toLocaleString()}
+      </div>
+    )}
+  </div>
+</td>
+
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1">
                       <FiEye className="text-gray-400" />
@@ -487,9 +517,23 @@ const BlogManagement = () => {
                   >
                     <option value="published">Published</option>
                     <option value="draft">Draft</option>
+                    <option value="scheduled">scheduled</option>
                   </select>
                 </div>
-
+                
+ {formData.status === 'scheduled' && (
+    <div className="mt-4">
+      <label className="block text-sm font-medium mb-2">Scheduled Date & Time</label>
+      <input
+        type="datetime-local"
+        name="scheduledDate"
+        value={formData.scheduledDate}
+        onChange={handleInputChange}
+        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        required
+      />
+    </div>
+  )}
                 {/* Form Actions */}
                 <div className="flex gap-4 justify-end">
                   <button

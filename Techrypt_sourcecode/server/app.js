@@ -3,6 +3,7 @@ require('dotenv').config();
 const axios = require('axios');
 const cron = require('node-cron');
 const NewsletterContent = require('./models/NewsletterContent');
+const startScheduledBlogPublisher = require('./utils/schedule');
 
 // Debug environment variables
 console.log("=== ENVIRONMENT VARIABLES DEBUG ===")
@@ -54,6 +55,7 @@ cron.schedule('0 9 1 * *', async () => {
         content: latest.content
     });
 });
+startScheduledBlogPublisher();
 
 app.use(notFound)
 app.use(errorHandlerMiddleWare)

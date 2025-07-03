@@ -1052,20 +1052,40 @@
 
 .techrypt-service-content {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   flex: 1;
+  gap: 10px;
 }
 
 .techrypt-service-icon {
-  font-size: 18px;
-  margin-bottom: 4px;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.techrypt-service-icon img {
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) invert(1);
+  transition: all 0.3s ease;
+}
+
+.techrypt-service-checkbox:hover .techrypt-service-icon img {
+  filter: brightness(0) saturate(100%) invert(84%) sepia(21%) saturate(1352%) hue-rotate(42deg) brightness(95%) contrast(89%);
+}
+
+.techrypt-service-checkbox input[type="checkbox"]:checked + .techrypt-service-content .techrypt-service-icon img {
+  filter: brightness(0) saturate(100%) invert(84%) sepia(21%) saturate(1352%) hue-rotate(42deg) brightness(95%) contrast(89%);
 }
 
 .techrypt-service-name {
   font-weight: 600;
   color: white;
-  margin-bottom: 2px;
   font-size: 14px;
+  line-height: 1.2;
 }
 
 .techrypt-service-desc {

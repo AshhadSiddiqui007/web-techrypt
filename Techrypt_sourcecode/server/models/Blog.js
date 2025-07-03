@@ -24,8 +24,12 @@ const blogSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['draft', 'published'],
-    default: 'published'
+    enum: ['draft', 'published','scheduled'],
+    default: 'draft'
+  },
+  scheduledDate:{
+    type:Date,
+    default:null
   },
   tags: [{
     type: String

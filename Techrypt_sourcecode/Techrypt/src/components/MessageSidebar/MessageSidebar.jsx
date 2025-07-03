@@ -6,6 +6,7 @@ import TechryptChatbot from "../TechryptChatbot/TechryptChatbot";
 const MessageSidebar = () => {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [contextualMessage, setContextualMessage] = useState(null);
+  const [openAppointmentDirect, setOpenAppointmentDirect] = useState(false);
 
   const toggleChatbot = () => {
     setIsChatbotOpen(!isChatbotOpen);
@@ -14,8 +15,9 @@ const MessageSidebar = () => {
   // Listen for custom events to open chatbot with context
   useEffect(() => {
     const handleOpenChatbot = (event) => {
-      const { contextMessage, businessType } = event.detail;
+      const { contextMessage, businessType, openAppointmentDirect } = event.detail;
       setContextualMessage({ contextMessage, businessType });
+      setOpenAppointmentDirect(openAppointmentDirect || false);
       setIsChatbotOpen(true);
     };
 
@@ -59,8 +61,10 @@ const MessageSidebar = () => {
           onClose={() => {
             setIsChatbotOpen(false);
             setContextualMessage(null);
+            setOpenAppointmentDirect(false);
           }}
           contextualMessage={contextualMessage}
+          openAppointmentDirect={openAppointmentDirect}
         />
       )}
     </>

@@ -5,14 +5,29 @@ import calenderIcon from "/Images/chatbot/calender.svg";
 import minimizeIcon from "/Images/chatbot/minimize.svg";
 import binIcon from "/Images/chatbot/bin.svg";
 import closeIcon from "/Images/chatbot/close.svg";
-// Alternative import method - using standard imports for SVG files
-import automationIcon from "/Images/appointmentform/automation.svg";
+// Service icons imports
 import brandingIcon from "/Images/appointmentform/branding.svg";
-import chatbotIcon from "/Images/appointmentform/chatbot.svg";
-import paymentintegrationIcon from "/Images/appointmentform/paymentintegration.svg";
-import socialmediamarketingIcon from "/Images/appointmentform/socialmediamarketing.svg";
+import digitalMarketingIcon from "/Images/appointmentform/digital-marketing.svg";
 import webdevelopmentIcon from "/Images/appointmentform/webdevelopment.svg";
+import chatbotIcon from "/Images/appointmentform/chatbot.svg";
+import influencerMarketingIcon from "/Images/appointmentform/influencer-marketing.svg";
+import videoProductionIcon from "/Images/appointmentform/video-production.svg";
+import customSoftwareIcon from "/Images/appointmentform/custom-software.svg";
+import mobileAppIcon from "/Images/appointmentform/mobile-app.svg";
+import cloudSolutionsIcon from "/Images/appointmentform/cloud-solutions.svg";
 
+// Service icon mapping
+const serviceIcons = {
+  'branding': brandingIcon,
+  'digital-marketing': digitalMarketingIcon,
+  'web-development': webdevelopmentIcon,
+  'ai-chatbots': chatbotIcon,
+  'influencer-marketing': influencerMarketingIcon,
+  'video-production': videoProductionIcon,
+  'custom-software': customSoftwareIcon,
+  'mobile-app': mobileAppIcon,
+  'cloud-solutions': cloudSolutionsIcon
+};
 
 const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
   // Load messages from localStorage or use default
@@ -450,12 +465,12 @@ Which service would you like to know more about? You can ask about specific feat
     } else if (msg.includes('tell me about') || msg.includes('about') || msg.includes('what is') || msg.includes('explain')) {
       return `Thank you for your question! I'm here to help you with Techrypt.io's digital services:
 
-1. 🌐 Website Development with SEO optimization
-2. 📱 Social Media Marketing to reach your target audience
-3. 🎨 Branding Services for professional identity
-4. 🤖 Chatbot Development for customer service
-5. ⚡ Automation Packages to streamline operations
-6. 💳 Payment Gateway Integration for seamless transactions
+1.  Website Development with SEO optimization
+2.  Social Media Marketing to reach your target audience
+3.  Branding Services for professional identity
+4.  Chatbot Development for customer service
+5.  Automation Packages to streamline operations
+6.  Payment Gateway Integration for seamless transactions
 
 Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?`;
     }
@@ -464,12 +479,12 @@ Could you tell me more about what you're looking for, or would you like to sched
     else {
       return `Thank you for your message! I'm here to help you with Techrypt.io's digital services:
 
-• 🌐 Website Development
-• 📱 Social Media Marketing
-• 🎨 Branding Services
-• 🤖 Chatbot Development
-• ⚡ Automation Packages
-• 💳 Payment Gateway Integration
+•  Website Development
+•  Social Media Marketing
+•  Branding Services
+•  Chatbot Development
+•  Automation Packages
+•  Payment Gateway Integration
 
 Could you tell me more about what you're looking for, or would you like to schedule a consultation to discuss your needs?`;
     }
@@ -1207,22 +1222,6 @@ Thank you for choosing Techrypt.io! 🚀`,
 
   return (
     <div className={`techrypt-chatbot-overlay ${isMinimized ? 'minimized' : ''}`}>
-      {/* SVG Icon Styling - Updated for img tags */}
-      <style jsx>{`
-        .techrypt-service-icon img {
-          width: 24px;
-          height: 24px;
-          display: block;
-          transition: filter 0.2s ease;
-        }
-        .techrypt-service-checkbox:hover .techrypt-service-icon img {
-          filter: brightness(0) saturate(100%) invert(84%) sepia(21%) saturate(1352%) hue-rotate(42deg) brightness(95%) contrast(89%);
-        }
-        .techrypt-service-checkbox input:checked + .techrypt-service-content .techrypt-service-icon img {
-          filter: brightness(0) saturate(100%) invert(84%) sepia(21%) saturate(1352%) hue-rotate(42deg) brightness(95%) contrast(89%);
-        }
-      `}</style>
-
       <div className={`techrypt-chatbot-container ${isMinimized ? 'minimized' : ''}`}>
         {/* Mobile Header - Only visible on screens ≤768px */}
         <div
@@ -1642,12 +1641,15 @@ Thank you for choosing Techrypt.io! 🚀`,
                     <label>Services * (Select all that apply)</label>
                     <div className="techrypt-services-grid">
                       {[
-                        { id: 'website', name: 'Website Development', icon: <img src={webdevelopmentIcon} alt="Website Development" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'Custom websites with SEO optimization' },
-                        { id: 'social', name: 'Social Media Marketing', icon: <img src={socialmediamarketingIcon} alt="Social Media Marketing" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'Instagram, Facebook, LinkedIn growth' },
-                        { id: 'branding', name: 'Branding Services', icon: <img src={brandingIcon} alt="Branding Services" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'Logo design, brand identity, marketing materials' },
-                        { id: 'chatbot', name: 'Chatbot Development', icon: <img src={chatbotIcon} alt="Chatbot Development" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'AI-powered customer service automation' },
-                        { id: 'automation', name: 'Automation Packages', icon: <img src={automationIcon} alt="Automation Packages" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'Business process automation solutions' },
-                        { id: 'payment', name: 'Payment Gateway Integration', icon: <img src={paymentintegrationIcon} alt="Payment Gateway Integration" style={{width: '24px', height: '24px', filter: 'invert(1)'}} />, desc: 'Stripe, PayPal, and custom solutions' }
+                        { id: 'branding', name: 'Branding & Logo Design' },
+                        { id: 'digital-marketing', name: 'Digital Marketing' },
+                        { id: 'web-development', name: 'Web Design & Development' },
+                        { id: 'ai-chatbots', name: 'AI & Chatbots' },
+                        { id: 'influencer-marketing', name: 'Influencer Marketing' },
+                        { id: 'video-production', name: 'Video Production' },
+                        { id: 'custom-software', name: 'Custom Software Development' },
+                        { id: 'mobile-app', name: 'Mobile App Development' },
+                        { id: 'cloud-solutions', name: 'Cloud Solutions' }
                       ].map(service => (
                         <div key={service.id} className="techrypt-service-checkbox">
                           <label>
@@ -1668,9 +1670,10 @@ Thank you for choosing Techrypt.io! 🚀`,
                               }}
                             />
                             <span className="techrypt-service-content">
-                              <span className="techrypt-service-icon">{service.icon}</span>
+                              <div className="techrypt-service-icon">
+                                <img src={serviceIcons[service.id]} alt={service.name} />
+                              </div>
                               <span className="techrypt-service-name">{service.name}</span>
-                              <span className="techrypt-service-desc">{service.desc}</span>
                             </span>
                           </label>
                         </div>

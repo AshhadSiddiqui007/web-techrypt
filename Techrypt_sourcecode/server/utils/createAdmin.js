@@ -14,7 +14,7 @@ const createAdmin = asyncHandler(async () => {
   }
 
   // Connect to MongoDB before any query
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGODB_URI);
 
   const existingAdmin = await Admin.findOne({ email: adminEmail });
   if (existingAdmin) {
