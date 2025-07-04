@@ -3,6 +3,17 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import techryptLogo from "../../assets/Images/techryptLogo.png";
 
+// Fix the import paths - try these alternatives:
+// Option 1: If files are in public/IMG folder
+import wellnessGif from "/IMG/welness-industry.gif";
+import petGif from "/IMG/pet-gif.gif";
+import fitnessGif from "/IMG/fitness-gif.gif";
+
+// Option 2: If files are in src/assets/Images folder
+// import wellnessGif from "../../assets/Images/welness-industry.gif";
+// import petGif from "../../assets/Images/pet-gif.gif";
+// import fitnessGif from "../../assets/Images/fitness-gif.gif";
+
 const About_v2 = () => {
   // Animation variants
   const fadeIn = {
@@ -279,6 +290,217 @@ const About_v2 = () => {
                 </motion.div>
               </div>
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Industries We Target Section */}
+      <section className="py-20 relative z-5">
+        <div className="container-responsive px-4">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
+            className="text-center mb-16"
+          >
+            {/* Floating Heading */}
+            <div className="relative mb-12">
+              <motion.h2 
+                className="text-4xl md:text-5xl font-bold text-white mb-4"
+                animate={{ 
+                  y: [0, -10, 0],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                Industries We <span className="text-primary">Specifically Target</span>
+              </motion.h2>
+              
+              {/* Bouncing Ball Animation */}
+              <motion.div
+                className="absolute top-full left-1/2 transform -translate-x-1/2 w-4 h-4 bg-primary rounded-full"
+                animate={{
+                  x: [0, 200, 400, 200, 0],
+                  y: [0, -20, 0, -15, 0],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  times: [0, 0.25, 0.5, 0.75, 1]
+                }}
+              />
+            </div>
+
+            {/* Industry Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              
+              {/* Pet Industry Card - CLICKABLE */}
+              <motion.div
+                className="bg-black border-2 border-primary/30 rounded-2xl p-6 hover:border-primary/60 transition-all duration-300 relative overflow-hidden group cursor-pointer"
+                variants={cardVariant}
+                whileHover={{ scale: 1.05 }}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                onClick={() => window.location.href = '/LandingPages/PetLandingPage'}
+              >
+                {/* Bouncing Ball for Pet Industry */}
+                <motion.div
+                  className="absolute top-4 right-4 w-3 h-3 bg-primary rounded-full"
+                  animate={{
+                    y: [0, -15, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0
+                  }}
+                />
+                
+                <div className="aspect-video mb-6 rounded-xl overflow-hidden bg-gray-900">
+                  <img 
+                    src={petGif}
+                    alt="Pet Industry Solutions"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-primary mb-3">Pet Industry</h3>
+                  <p className="text-gray-300 mb-4">
+                    Revolutionizing pet care with AI-powered booking systems, customer management, and automated marketing for veterinary clinics, grooming services, and pet stores.
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2 mb-4">
+                    <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm">Pet Care</span>
+                    <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm">Veterinary</span>
+                    <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm">Grooming</span>
+                  </div>
+                  {/* Click indicator */}
+                  <div className="text-primary text-sm font-semibold opacity-70 group-hover:opacity-100 transition-opacity">
+                    Click to explore Pet Solutions →
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Wellness/Spa Industry Card - NOT CLICKABLE YET */}
+              <motion.div
+                className="bg-black border-2 border-primary/30 rounded-2xl p-6 hover:border-primary/60 transition-all duration-300 relative overflow-hidden group"
+                variants={cardVariant}
+                whileHover={{ scale: 1.05 }}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                {/* Bouncing Ball for Wellness Industry */}
+                <motion.div
+                  className="absolute top-4 right-4 w-3 h-3 bg-primary rounded-full"
+                  animate={{
+                    y: [0, -15, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0.5
+                  }}
+                />
+                
+                <div className="aspect-video mb-6 rounded-xl overflow-hidden bg-gray-900">
+                  <img 
+                    src={wellnessGif}
+                    alt="Wellness & Spa Industry Solutions"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-primary mb-3">Wellness & Spa</h3>
+                  <p className="text-gray-300 mb-4">
+                    Enhancing relaxation experiences with intelligent appointment scheduling, personalized treatment recommendations, and seamless customer journey automation.
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2 mb-4">
+                    <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm">Spa Services</span>
+                    <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm">Massage</span>
+                    <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm">Wellness</span>
+                  </div>
+                  {/* Coming soon indicator */}
+                  <div className="text-gray-500 text-sm font-semibold">
+                    Landing Page Coming Soon
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Fitness Industry Card - CLICKABLE */}
+              <motion.div
+                className="bg-black border-2 border-primary/30 rounded-2xl p-6 hover:border-primary/60 transition-all duration-300 relative overflow-hidden group cursor-pointer"
+                variants={cardVariant}
+                whileHover={{ scale: 1.05 }}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                onClick={() => window.location.href = '/LandingPages/FitnessLandingPage'}
+              >
+                {/* Bouncing Ball for Fitness Industry */}
+                <motion.div
+                  className="absolute top-4 right-4 w-3 h-3 bg-primary rounded-full"
+                  animate={{
+                    y: [0, -15, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 1
+                  }}
+                />
+                
+                <div className="aspect-video mb-6 rounded-xl overflow-hidden bg-gray-900">
+                  <img 
+                    src={fitnessGif}
+                    alt="Fitness Industry Solutions"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-primary mb-3">Fitness Industry</h3>
+                  <p className="text-gray-300 mb-4">
+                    Empowering fitness centers with smart member management, AI-driven workout plans, and automated progress tracking for enhanced member experiences.
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2 mb-4">
+                    <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm">Gym Management</span>
+                    <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm">Personal Training</span>
+                    <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm">Fitness Apps</span>
+                  </div>
+                  {/* Click indicator */}
+                  <div className="text-primary text-sm font-semibold opacity-70 group-hover:opacity-100 transition-opacity">
+                    Click to explore Fitness Solutions →
+                  </div>
+                </div>
+              </motion.div>
+
+            </div>
+            
+            {/* Additional floating text */}
+            <motion.p 
+              className="text-lg text-gray-400 mt-12 max-w-3xl mx-auto"
+              animate={{ 
+                opacity: [0.7, 1, 0.7],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              These industries represent our core expertise where we've delivered transformative AI solutions that drive real business results.
+            </motion.p>
           </motion.div>
         </div>
       </section>
