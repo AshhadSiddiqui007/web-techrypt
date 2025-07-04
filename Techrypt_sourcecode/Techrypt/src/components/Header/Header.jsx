@@ -11,10 +11,9 @@ export default function Header() {
   const location = useLocation();
   const tabs = [
     { id: "services", label: "Services", path: "/Services" },
-    { id: "work", label: "Work", path: "/Work" },
+    { id: "portfolio", label: "Portfolio", path: "/Portfolio" },
     { id: "verticals", label: "Verticals", path: "/Verticals" },
     { id: "About", label: "About", path: "/About" },
-    { id: "Creative", label: "Creative", path: "/Creative" },
     { id: "BlogPage", label: "Blogs", path: "/BlogPage" },
     { id: "ContactUs", label: "Contact Us", path: "/Contact" },
   ];
@@ -80,35 +79,60 @@ export default function Header() {
             }}
           >
 
+          {/* Services dropdown with nested Verticals */}
           <li className="relative listItems group">
-          {/* Trigger button */}
-          <div className="navButton cursor-pointer px-4 py-2 text-white">
-            Verticals
-          </div>
+            {/* Services trigger button */}
+            <div className="navButton cursor-pointer px-4 py-2 text-white">
+              Services
+            </div>
 
-          {/* Dropdown */}
-          <div className="absolute top-full left-0 w-56 bg-black rounded-xl shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-50">
-            {/* Invisible bridge to prevent gap */}
-            <div className="h-2 -mt-2"></div>
-            <Link
-              to="/LandingPages/PetLandingPage"
-              onClick={handleLinkClick}
-              className="block px-4 py-3 text-white hover:bg-[#C4D322] rounded-t-xl transition-colors"
-            >
-              Pet Industry
-            </Link>
-            <Link
-              to="/LandingPages/FitnessLandingPage"
-              onClick={handleLinkClick}
-              className="block px-4 py-3 text-white hover:bg-[#C4D322] rounded-b-xl transition-colors"
-            >
-              Fitness Industry
-            </Link>
-          </div>
-        </li>
+            {/* Services Dropdown */}
+            <div className="absolute top-full left-0 w-56 bg-black rounded-xl shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-50">
+              {/* Invisible bridge to prevent gap */}
+              <div className="h-2 -mt-2"></div>
+              
+              <Link
+                to="/Services"
+                onClick={handleLinkClick}
+                className="block px-4 py-3 text-white hover:bg-[#C4D322] rounded-t-xl transition-colors"
+              >
+                All Services
+              </Link>
+              
+              {/* Nested Verticals dropdown */}
+              <div className="relative group/nested">
+                <div className="flex items-center justify-between px-4 py-3 text-white hover:bg-[#C4D322] transition-colors cursor-pointer">
+                  <span>Verticals</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                
+                {/* Nested Verticals submenu */}
+                <div className="absolute left-full top-0 w-56 bg-black rounded-xl shadow-lg opacity-0 group-hover/nested:opacity-100 pointer-events-none group-hover/nested:pointer-events-auto transition-opacity duration-200 z-50 -ml-2">
+                  {/* Invisible bridge to prevent gap issues */}
+                  <div className="absolute -left-2 top-0 w-2 h-full"></div>
+                  <Link
+                    to="/LandingPages/PetLandingPage"
+                    onClick={handleLinkClick}
+                    className="block px-4 py-3 text-white hover:bg-[#C4D322] rounded-t-xl transition-colors"
+                  >
+                    Pet Industry
+                  </Link>
+                  <Link
+                    to="/LandingPages/FitnessLandingPage"
+                    onClick={handleLinkClick}
+                    className="block px-4 py-3 text-white hover:bg-[#C4D322] rounded-b-xl transition-colors"
+                  >
+                    Fitness Industry
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </li>
 
             {tabs
-              .filter(tab => tab.id !== "verticals")
+              .filter(tab => tab.id !== "verticals" && tab.id !== "services")
               .map((tab) => (
                 <li className="listItems" key={tab.id}>
                   <Link
@@ -231,16 +255,46 @@ export default function Header() {
             </div>
 
             <nav className="mobile-menu-nav">
-              {tabs.map((tab) => (
+              <Link
+                to="/Services"
+                className="mobile-menu-link touch-target"
+                onClick={handleLinkClick}
+              >
+                Services
+              </Link>
+              
+              {/* Verticals submenu items in mobile */}
+              <div className="ml-4 border-l-2 border-gray-600 pl-4">
+                <div className="text-gray-400 text-sm py-2 px-2">Verticals:</div>
                 <Link
-                  key={tab.id}
-                  to={tab.path}
-                  className="mobile-menu-link touch-target"
+                  to="/LandingPages/PetLandingPage"
+                  className="mobile-menu-link touch-target text-sm"
                   onClick={handleLinkClick}
                 >
-                  {tab.label}
+                  Pet Industry
                 </Link>
-              ))}
+                <Link
+                  to="/LandingPages/FitnessLandingPage"
+                  className="mobile-menu-link touch-target text-sm"
+                  onClick={handleLinkClick}
+                >
+                  Fitness Industry
+                </Link>
+                
+              </div>
+              
+              {tabs
+                .filter(tab => tab.id !== "verticals" && tab.id !== "services")
+                .map((tab) => (
+                  <Link
+                    key={tab.id}
+                    to={tab.path}
+                    className="mobile-menu-link touch-target"
+                    onClick={handleLinkClick}
+                  >
+                    {tab.label}
+                  </Link>
+                ))}
               <Link
                 to="/Contact"
                 className="mobile-menu-link mobile-menu-cta touch-target"

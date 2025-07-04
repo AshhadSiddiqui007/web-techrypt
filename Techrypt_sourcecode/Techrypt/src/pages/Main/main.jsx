@@ -8,6 +8,9 @@ import Verticals from "../../components/Verticals/Verticals.jsx";
 import Services from "../../components/WhatWeDo/Services.jsx";
 import ParallaxWrapper from "../../components/ParallaxWrapper/ParallaxWrapper.jsx";
 import SimpleServicesCarousel from "../../components/Services/SimpleServicesCarousel.jsx";
+import Plans from "../../components/Plans/Plans.jsx";
+import BenefitsSection from "../../components/PetLandingPage/Benefits.jsx";
+import ComparisonSection from "../../components/PetLandingPage/Comparisons.jsx";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useState } from 'react';
@@ -121,6 +124,8 @@ const main = () => {
       <CreativeTeamSection />
       <SliderLogo />
       <Services className={"z-20"} />
+      <ComparisonSection />
+      <Plans />
     </div>
   );
 };
