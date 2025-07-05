@@ -31,6 +31,27 @@ const Footer = () => {
     goals: ''
   });
 
+  // Add state for custom dropdown
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('');
+
+  const dropdownOptions = [
+    { value: '', label: 'How Did You Hear About Us' },
+    { value: 'google', label: 'Google' },
+    { value: 'social', label: 'Social Media' },
+    { value: 'referral', label: 'Referral' },
+    { value: 'other', label: 'Other' }
+  ];
+
+  const handleOptionSelect = (option) => {
+    setSelectedOption(option.value);
+    setFormData(prev => ({
+      ...prev,
+      source: option.value
+    }));
+    setIsDropdownOpen(false);
+  };
+
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -66,11 +87,11 @@ const Footer = () => {
   };
 
   return (
-    <div className="text-center bg-[#000] overflow-x-hidden pt-12 md:pt-24 px-4 md:px-6">
+    <div className="text-center bg-[#000] pt-12 md:pt-24 px-4 md:px-6">
       <div className="inline-flex flex-col items-center justify-center mb-8 md:mb-12">
         <img className="mx-auto object-contain w-48 md:w-72 mb-2 pb-4 md:pb-8" src={techryptLogo} alt="Techrypt Logo" />
         <h3 className="text-sm md:text-lg font-bold text-white mt-2 px-3 md:px-5 py-2 border-2 border-white rounded-full inline-block text-center">
-          Empowering Digital Skills & AI-Driven Business Solutions
+          Not into chat? Fill this quick form.
         </h3>
         <div className="w-full h-16 md:h-24 pt-4 md:pt-8 flex justify-center">
           <motion.div
@@ -84,7 +105,7 @@ const Footer = () => {
       </div>
 
       {/*Enhanced Mobile-Responsive Contact Form*/}
-      <div className="max-w-3xl mx-auto px-4">
+      <div className="max-w-3xl mx-auto px-4 overflow-visible">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
           <div>
             <input
@@ -105,7 +126,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6 overflow-visible">
           <div>
             <input
               type="email"
@@ -113,16 +134,40 @@ const Footer = () => {
               className="w-full bg-transparent border-b border-gray-600 py-3 px-3 text-white focus:outline-none focus:border-primary text-base md:text-lg transition-colors duration-300"
             />
           </div>
-          <div>
-            <select
-              className="w-full bg-transparent border-b border-gray-600 py-3 px-3 text-gray-400 focus:outline-none focus:border-primary text-base md:text-lg transition-colors duration-300"
+          <div className="relative z-[9999] overflow-visible">
+            <div 
+              className="w-full bg-transparent border-b border-gray-600 py-3 px-3 text-gray-400 focus:outline-none focus:border-primary text-base md:text-lg transition-colors duration-300 cursor-pointer flex justify-between items-center"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
-              <option value="">How Did You Hear About Us</option>
-              <option value="google">Google</option>
-              <option value="social">Social Media</option>
-              <option value="referral">Referral</option>
-              <option value="other">Other</option>
-            </select>
+              <span className={selectedOption ? 'text-white' : 'text-gray-400'}>
+                {selectedOption ? dropdownOptions.find(opt => opt.value === selectedOption)?.label : 'How Did You Hear About Us'}
+              </span>
+              <svg 
+                className={`w-5 h-5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            
+            {isDropdownOpen && (
+              <div 
+                className="absolute top-full left-0 w-full bg-[#1a1a1a] border border-gray-600 rounded-md shadow-lg z-[99999] max-h-48 overflow-y-auto"
+                style={{ zIndex: '999999' }}
+              >
+                {dropdownOptions.slice(1).map((option) => (
+                  <div
+                    key={option.value}
+                    className="px-3 py-2 hover:bg-gray-700 cursor-pointer text-white text-base md:text-lg transition-colors duration-200"
+                    onClick={() => handleOptionSelect(option)}
+                  >
+                    {option.label}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

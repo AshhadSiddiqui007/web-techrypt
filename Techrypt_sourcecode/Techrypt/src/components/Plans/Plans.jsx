@@ -16,125 +16,70 @@ import TopModal from "../TopModal/TopModal";
 
 export const priceData = [
   {
-    smBtn: "starter",
-    title: "Best for solopreneurs or startups wanting fast automation.",
-    price: "$499",
-    priceInfo: "Check price in EU €",
-    demoBtn: "Book a demo",
-    serviceTitle: "What is included:",
+    smBtn: "Free Trial",
+    title: "Test the core bot before committing.",
+    price: "7 Days Free",
+    priceInfo: "No credit card required",
+    demoBtn: "Try It Free for 7 Days",
+    serviceTitle: "What's included:",
     services: [
-      { icon: <FaTruck />, label: "Smart Logo + Branding" },
-      { icon: <FaStar />, label: "1-Page Website" },
-      { icon: <SlEnergy />, label: "Instagram Setup + 5 Captions via AI" },
-      { icon: <FaUserFriends />, label: " 1 AI Video Ad" },
-      { icon: <FaRobot />, label: " AI Chatbot (Website Only)" },
-      { icon: <FaGlobe />, label: " Free Online Brand Audit" },
-      { icon: <FaClock />, label: "7 Days Delivery" },
+      { icon: <FaRobot />, label: "AI chatbot installed on your site (1 page)" },
+      { icon: <FaStar />, label: "Basic reply logic (up to 5 questions)" },
+      { icon: <FaGlobe />, label: "Lead capture sent to Google Sheet" },
+      { icon: <FaCalendarAlt />, label: "Appointment booking (Calendly/TidyCal)" },
+      { icon: <MdMail />, label: "1 follow-up message flow" },
+      { icon: <FaTruck />, label: "Bot branded with Techrypt watermark" },
+      { icon: <FaHeadset />, label: "Email support during trial" },
     ],
   },
   {
-    smBtn: "AI Growth Engine",
-    title: "Ideal for local businesses scaling lead gen & automation.",
-    price: " $999",
-    priceInfo: "Check price in EU €",
-    demoBtn: "Book a demo",
-    serviceTitle: "What is included:",
+    smBtn: "Growth Package",
+    title: "Best for service businesses wanting full automation with simple workflows.",
+    price: "$499 Setup",
+    priceInfo: "$49 per month",
+    demoBtn: "Upgrade to Growth",
+    serviceTitle: "What's included:",
     services: [
-      { icon: <FaBangladeshiTakaSign />, label: " All from Starter Package" },
-      { icon: <RiBox3Fill />, label: "WhatsApp Chatbot + FAQ Assistant" },
-      { icon: <SlEnergy />, label: "5-Page SEO Website" },
-      { icon: <FaUserFriends />, label: "AI Blog (1/Month)" },
-      { icon: <FaStopwatch />, label: "CRM + AI-Powered Follow-up Reminders" },
-      { icon: <FaGlobe />, label: " Social Media Content (10 AI-Crafted Posts + Captions)" },
-      { icon: <MdMail />, label: "Email Marketing Setup (1 AI campaign/month)" },
-      { icon: <FaClock />, label: "2 Weeks Delivery" },
+      { icon: <FaRobot />, label: "Full AI chatbot (up to 10 logic flows)" },
+      { icon: <FaStar />, label: "Branded with your business identity" },
+      { icon: <RiBox3Fill />, label: "CRM integration" },
+      { icon: <FaCalendarAlt />, label: "Booking integration with custom confirmation flow" },
+      { icon: <FaChartLine />, label: "Monthly basic performance report" },
+      { icon: <FaHeadset />, label: "Priority email support" },
+      { icon: <FaGlobe />, label: "Watermark removed" },
     ],
   },
   {
-    smBtn: "AI Dominator Suite",
-    title: "High-impact funnel + full automation + ad management.",
-    price: "$1,799",
-    priceInfo: "Check price in EU €",
-    demoBtn: "Book a demo",
-    serviceTitle: "What is included:",
+    smBtn: "Pro Scale Package",
+    title: "For serious businesses ready to scale with funnels, ads, and real-time data.",
+    price: "Custom Prices",
+    priceInfo: "Contact for pricing",
+    demoBtn: "Contact for Pro Scale",
+    serviceTitle: "What's included:",
     services: [
       {
         icon: <BsStars className="text-primary" />,
-        label: "Everything in Growth Engine"
+        label: "Everything in Growth Package"
       },
       {
         icon: <BiSolidReport className="text-primary" />,
-        label: "Full Funnel Page (Conversion Optimized)"
+        label: "1–2 page custom funnel (Landing + Thank You)"
       },
       {
         icon: <FaAd className="text-primary" />,
-        label: "Meta & Google Ad Setup with AI Ad Copy & Split Tests"
-      },
-      {
-        icon: <FaVideo className="text-primary" />,
-        label: "2 AI Video Ads / Reels"
-      },
-      {
-        icon: <FaBlog className="text-primary" />,
-        label: "2 Blog Posts + SEO Optimization"
+        label: "Meta Ads integration (Facebook + Instagram)"
       },
       {
         icon: <FaChartLine className="text-primary" />,
-        label: "AI Weekly Report with Actionable Insights"
-      },
-      {
-        icon: <RiRobot2Line className="text-primary" />,
-        label: "Custom GPT Assistant for Lead Qualification"
-      },
-      {
-        icon: <MdEmail className="text-primary" />,
-        label: "30-Day Email Automation"
-      },
-      {
-        icon: <MdSms className="text-primary" />,
-        label: "30-Day SMS Automation"
-      },
-      {
-        icon: <FaCalendarAlt className="text-primary" />,
-        label: "1-on-1 Strategy Call Monthly"
-      },
-      {
-        icon: <FaHeadset className="text-primary" />,
-        label: "3 Weeks Delivery + 30 Days Support"
-      }
-    ]
-  },
-  {
-    smBtn: "AI-Powered Monthly Retainer",
-    title: "(Post-setup ongoing growth)",
-    price: "$699/month",
-    priceInfo: "Check price in EU €",
-    demoBtn: "Book a demo",
-    serviceTitle: "What is included:",
-    services: [
-      {
-        icon: <FaRegCalendarCheck className="text-primary" />,
-        label: "Weekly AI Posts & Reels"
-      },
-      {
-        icon: <FaAd className="text-primary" />,
-        label: "Ads Management (Google + Meta)"
-      },
-      {
-        icon: <FaBlog className="text-primary" />,
-        label: "Monthly Blog + AI Report"
-      },
-      {
-        icon: <FaEnvelopeOpenText className="text-primary" />,
-        label: "Email Campaigns (2/Month)"
-      },
-      {
-        icon: <RiRobot2Line className="text-primary" />,
-        label: "Chatbot Tuning & CRM Optimization"
+        label: "Real-time analytics dashboard"
       },
       {
         icon: <FaPhoneVolume className="text-primary" />,
-        label: "Monthly Consulting Call"
+        label: "Monthly strategy call & conversion audit"
+      },
+      {
+        icon: <FaHeadset className="text-primary" />,
+        label: "Priority support via WhatsApp/email"
       }
     ]
   }
@@ -191,8 +136,8 @@ const Plans = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="text-primary">Grow your business</span> with our
-            CX tools and affordable fulfilment
+            <span className="text-primary">Scale your business</span> with AI
+            chatbots and automation tools
           </motion.h1>
 
           <motion.div
@@ -201,10 +146,7 @@ const Plans = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <button onClick={() => setIsModalOpen(!isModalOpen)} className="flex items-center gap-2 bg-primary hover:bg-white hover:text-primary text-white px-4 py-2 rounded-lg transition-colors duration-300 mb-6">
-              <CgCalendarDates className="text-xl" />
-              Calculate your fulfilment prices
-            </button>
+        
           </motion.div>
           {
             <TopModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
@@ -222,7 +164,7 @@ const Plans = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <PiArrowBendDownRightThin className="text-3xl glowing-green" />
-            <p>BtoC and BtoB logistics to scale your brand</p>
+            <p>From basic bots to advanced funnels with real-time analytics</p>
           </motion.div>
         </div>
 
@@ -234,7 +176,7 @@ const Plans = () => {
           viewport={{ margin: "-100px" }}
           variants={container}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-2 pb-6 px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-2 pb-6 px-4">
             {priceData.map((e, i) => (
               <motion.div
                 key={i}
