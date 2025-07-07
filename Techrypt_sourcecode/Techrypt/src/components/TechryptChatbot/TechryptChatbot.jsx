@@ -1823,7 +1823,7 @@ Thank you for choosing Techrypt.io! 🚀`,
                     <textarea
                       value={formData.notes}
                       onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                      placeholder="Any specific requirements or questions..."
+                      placeholder="What are your goals?"
                       rows="3"
                     />
                   </div>
@@ -1863,9 +1863,9 @@ Thank you for choosing Techrypt.io! 🚀`,
                   <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4">
                     <div className="w-10 h-10 text-primary text-3xl">✓</div>
                   </div>
-                  <h4 className="text-xl font-bold text-white mb-2">Thank You!</h4>
+                  <h4 className="text-xl font-bold text-white mb-2">Thanks! You're booked.</h4>
                   <p className="text-gray-300 mb-4">
-                    Your appointment request has been successfully submitted.
+                    You'll receive a confirmation email and meet our strategist at the time you chose.
                   </p>
                 </div>
                 
@@ -1887,10 +1887,22 @@ Thank you for choosing Techrypt.io! 🚀`,
                   </ul>
                 </div>
                 
-                <div className="techrypt-form-actions">
+                <div className="techrypt-form-actions" style={{ gap: '10px' }}>
                   <button
-                    className="techrypt-form-submit w-full"
+                    className="techrypt-form-cancel"
+                    onClick={() => {
+                      setShowThankYouModal(false);
+                      // Navigate to About Us page
+                      window.open('/about', '_blank');
+                    }}
+                    style={{ flex: 1 }}
+                  >
+                    Learn More
+                  </button>
+                  <button
+                    className="techrypt-form-submit"
                     onClick={() => setShowThankYouModal(false)}
+                    style={{ flex: 1 }}
                   >
                     Close
                   </button>
