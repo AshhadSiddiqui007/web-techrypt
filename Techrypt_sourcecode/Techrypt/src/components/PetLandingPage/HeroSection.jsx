@@ -165,7 +165,7 @@ const HeroSection = ({ onGetStarted, fadeInUp, staggerContainer }) => {
               <desc>A cat swinging gently on a swing representing automated pet business</desc>
               <g id="swinging">
                 {/* Cat SVG embedded where the chicken used to be */}
-                <g transform="translate(250, 385) scale(0.38)">
+                <g transform="translate(450, 50) scale(0.3)">
                   <path className="cat-replacement" d="M-827.3,979.5c0,0-2.2-13.1-5.2-17.1c-3.8-5.1-16.4-12.1-16.4-12.1c-2.6,3.7,3.6-9.8,7.3-22.7c0,0-24.2,3.2-46.8,27.6
                     c-6.4,7-17.8,38.6-17.8,38.6l-44.7,20.5c-31.1,12.9-82.7,26.2-82.7,97.7v30.5c-2.5-1.7-15.7-12.7-15.5-29.9
                     c0.1-13.6,1.9-27.5,3.6-39.9c3.1-22.7,5.5-47.1-3.7-57.6c-4.2-4.8-10.2-7.3-17.7-7.3c-4.9,0-8.9,4-8.9,8.9c0,4.9,4,8.9,8.9,8.9
@@ -184,7 +184,7 @@ const HeroSection = ({ onGetStarted, fadeInUp, staggerContainer }) => {
               <g id="frame">
                 <path d="M 173 2 C 159.2 2 148.3 8.7 142.2 20.1 L 142 20 L 141.7 21.1 C 139.8 24.9 137.6 29 137.2 33.3 L 0.1 512 L 9 512 L 141.5 48 L 205 48 L 337.1 512 L 346 512 L 208.8 32.8 C 208.3 28.8 206.2 25.1 204.6 21.6 L 204.1 20 L 203.8 20.1 C 197.7 8.7 186.8 2 173 2 ZM 173 10.2 C 183.8 10.2 192.1 15.3 196.7 24.2 L 200.7 34.8 C 200.8 35.5 200.8 37 200.8 37 L 145.2 37 C 145.2 37 145.2 35.8 145.2 35.2 L 149.5 23.8 C 154.2 15.1 162.4 10.2 173 10.2 Z" className="swing"/>
               </g>
-              <text className="loading-text" x="67" y="465" width="220">
+              <text className="loading-text" x="100" y="465" width="220">
                 <tspan>Automating...</tspan>
               </text>
             </svg>
