@@ -222,87 +222,7 @@ const About_v2 = () => {
     </motion.div>
   </div>
 </section>
-      
-   <section className="py-16 sm:py-20 relative z-5">
-  <div className="container-responsive px-4">
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      variants={fadeIn}
-      className="text-center mb-12 sm:mb-16"
-    >
-      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6 sm:mb-8">
-        Our <span className="text-primary">Team</span>
-      </h2>
-
-      <div className="max-w-4xl mx-auto">
-        <p className="text-base sm:text-xl md:text-2xl text-gray-300 mb-6 sm:mb-8">
-          We are a diverse collective of visionaries, engineers, and creatives brought together by our shared passion for
-          artificial intelligence and emerging technologies. Our team spans across continents, cultures, and disciplines,
-          united by a common goal: to push the boundaries of what's possible in the digital realm.
-        </p>
-
-        <p className="text-sm sm:text-lg text-gray-400 mb-10 sm:mb-12">
-          From seasoned AI researchers to innovative designers, from strategic business minds to hands-on developers,
-          each member of our team brings unique expertise and perspective.
-        </p>
-
-        {/* Team Cards with stagger animation */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8"
-        >
-          {[
-            {
-              title: "AI Specialists",
-              icon: (
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10" />
-              ),
-              desc: "Machine learning engineers and data scientists pushing the boundaries of AI"
-            },
-            {
-              title: "Creative Minds",
-              icon: (
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87" />
-              ),
-              desc: "Designers and strategists crafting beautiful, user-centered experiences"
-            },
-            {
-              title: "Tech Innovators",
-              icon: (
-                <path d="M20 3H4c-1.1 0-2 .9-2 2v11" />
-              ),
-              desc: "Full-stack developers and system architects building the future"
-            }
-          ].map(({ title, icon, desc }, idx) => (
-            <motion.div
-              key={idx}
-              className="bg-black border-2 border-primary/30 rounded-xl p-5 sm:p-6 hover:border-primary/60 transition-all duration-300"
-              variants={cardVariant}
-              whileHover={{ scale: 1.05 }}
-            >
-              <div className="w-14 h-14 mx-auto mb-4 bg-primary/20 rounded-full flex items-center justify-center">
-                <svg className="w-7 h-7 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                  {icon}
-                </svg>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-primary mb-2 text-center">{title}</h3>
-              <p className="text-sm sm:text-base text-gray-300 text-center">{desc}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-    </motion.div>
-  </div>
-</section>
-
-
-
-      {/* Industries We Target Section */}
+  {/* Industries We Target Section */}
       <section className="py-20 relative z-5">
         <div className="container-responsive px-4">
           <motion.div
@@ -511,7 +431,87 @@ const About_v2 = () => {
             </motion.p>
           </motion.div>
         </div>
-      </section>
+      </section> 
+
+   <section className="py-16 sm:py-20 relative z-5">
+    <div className="container-responsive px-4">
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={fadeIn}
+        className="text-center mb-12 sm:mb-16"
+      >
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6 sm:mb-8">
+          Our <span className="text-primary">Team</span>
+        </h2>
+
+        <div className="max-w-4xl mx-auto">
+          <p className="text-base sm:text-xl md:text-2xl text-gray-300 mb-6 sm:mb-8">
+            We are a diverse collective of visionaries, engineers, and creatives brought together by our shared passion for
+            artificial intelligence and emerging technologies. Our team spans across continents, cultures, and disciplines,
+            united by a common goal: to push the boundaries of what's possible in the digital realm.
+          </p>
+
+          <p className="text-sm sm:text-lg text-gray-400 mb-10 sm:mb-12">
+            From seasoned AI researchers to innovative designers, from strategic business minds to hands-on developers,
+            each member of our team brings unique expertise and perspective.
+          </p>
+
+          {/* Team Cards with stagger animation */}
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8"
+          >
+            {[
+              {
+                title: "AI Specialists",
+                icon: (
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10" />
+                ),
+                desc: "Machine learning engineers and data scientists pushing the boundaries of AI"
+              },
+              {
+                title: "Creative Minds",
+                icon: (
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87" />
+                ),
+                desc: "Designers and strategists crafting beautiful, user-centered experiences"
+              },
+              {
+                title: "Tech Innovators",
+                icon: (
+                  <path d="M20 3H4c-1.1 0-2 .9-2 2v11" />
+                ),
+                desc: "Full-stack developers and system architects building the future"
+              }
+            ].map(({ title, icon, desc }, idx) => (
+              <motion.div
+                key={idx}
+                className="bg-black border-2 border-primary/30 rounded-xl p-5 sm:p-6 hover:border-primary/60 transition-all duration-300"
+                variants={cardVariant}
+                whileHover={{ scale: 1.05 }}
+              >
+                <div className="w-14 h-14 mx-auto mb-4 bg-primary/20 rounded-full flex items-center justify-center">
+                  <svg className="w-7 h-7 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                    {icon}
+                  </svg>
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-primary mb-2 text-center">{title}</h3>
+                <p className="text-sm sm:text-base text-gray-300 text-center">{desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </motion.div>
+    </div>
+  </section>
+
+
+
 
       {/* Call to Action Section */}
      <section className="py-20 bg-black relative z-5">

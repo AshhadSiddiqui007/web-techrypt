@@ -6,6 +6,7 @@ import { HeaderLogo } from "../../assets/mainImages";
 import ContactForm from "../ContactForm/ContactForm";
 import { HiMenu, HiX } from "react-icons/hi";
 import DropdownMenu from "../DropDownMenu/DropDownMenu";
+import TechryptChatbot from '../TechryptChatbot/TechryptChatbot';
 
 export default function Header() {
   const location = useLocation();
@@ -19,6 +20,8 @@ export default function Header() {
   ];
   const [activeTab, setActiveTab] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const [openAppointmentDirect, setOpenAppointmentDirect] = useState(false);
 
   useEffect(() => {
     const currentTab = tabs.find((tab) => location.pathname === tab.path);
@@ -37,6 +40,16 @@ export default function Header() {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const openAppointmentForm = () => {
+    setOpenAppointmentDirect(true);
+    setIsChatbotOpen(true);
+  };
+
+  const closeChatbot = () => {
+    setIsChatbotOpen(false);
+    setOpenAppointmentDirect(false);
   };
 
   return (
@@ -154,6 +167,14 @@ export default function Header() {
         <div className="rightNav">
           <hr className="hr2" />
           
+          {/* Book Demo Button */}
+          <button
+            onClick={openAppointmentForm}
+            className="bg-[#c4d322] text-black font-semibold px-6 py-2 rounded-lg hover:bg-[#c4d322]/90 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm whitespace-nowrap mr-4"
+          >
+            Book Your Demo
+          </button>
+          
           {/* Mobile Hamburger Menu Button */}
           <button
             className="md:hidden mobile-menu-button touch-target"
@@ -190,6 +211,7 @@ export default function Header() {
         </div>
         <div className="linehor"></div>
         <div className="rightNav">
+          
           <button
             className="mobile-menu-button touch-target"
             onClick={toggleMobileMenu}
@@ -208,7 +230,9 @@ export default function Header() {
       <div className="mobile-nav-tabs">
         <div className="mobile-nav-container">
           <div className="mobile-tabs-wrapper">
-            {tabs.map((tab) => (
+            {tabs
+              .filter(tab => tab.id !== "ContactUs") // Add this filter to remove Contact Us from mobile tabs
+              .map((tab) => (
               <Link
                 to={tab.path}
                 key={tab.id}
@@ -280,11 +304,10 @@ export default function Header() {
                 >
                   Fitness Industry
                 </Link>
-                
               </div>
               
               {tabs
-                .filter(tab => tab.id !== "verticals" && tab.id !== "services")
+                .filter(tab => tab.id !== "verticals" && tab.id !== "services" && tab.id !== "ContactUs")
                 .map((tab) => (
                   <Link
                     key={tab.id}
@@ -295,6 +318,19 @@ export default function Header() {
                     {tab.label}
                   </Link>
                 ))}
+              
+              {/* Mobile Book Demo Button - Right above Contact Us */}
+              <button
+                onClick={() => {
+                  openAppointmentForm();
+                  setIsMobileMenuOpen(false); // Close menu when booking
+                }}
+                className="mobile-menu-link mobile-menu-cta touch-target bg-[#c4d322] text-black font-semibold hover:bg-[#c4d322]/90 transition-all duration-300"
+              >
+                Book Your Demo
+              </button>
+              
+              {/* Keep this green Contact Us button */}
               <Link
                 to="/Contact"
                 className="mobile-menu-link mobile-menu-cta touch-target"
@@ -306,6 +342,13 @@ export default function Header() {
           </div>
         </div>
       )}
+
+      {/* Add the TechryptChatbot component at the end, before closing </> */}
+      <TechryptChatbot 
+        isOpen={isChatbotOpen}
+        onClose={closeChatbot}
+        openAppointmentDirect={openAppointmentDirect}
+      />
     </>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import "../../App.css";
 import logos from '../../assets/logo/logos';
 import { bgPattern } from '../../assets/mainImages';
@@ -91,11 +92,14 @@ const Services = ({className}) => {
                     {CardContent.map((content, index) => (
                         <motion.div
                             key={index}
-                            className="bg-primary/65 text-white w-full rounded-2xl glow-green shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                            className="bg-primary/65 text-white w-full rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                             style={{
                                 minHeight: 'clamp(280px, 35vh, 400px)', /* Proportional height scaling */
-                                padding: 'clamp(1.5rem, 4vw, 2.5rem)' /* Proportional padding */
+                                padding: 'clamp(1.5rem, 4vw, 2.5rem)', /* Proportional padding */
+                                '--hover-shadow': '0 0 30px rgba(196, 211, 34, 0.6), 0 0 60px rgba(196, 211, 34, 0.3)'
                             }}
+                            onMouseEnter={(e) => e.target.style.boxShadow = e.target.style.getPropertyValue('--hover-shadow')}
+                            onMouseLeave={(e) => e.target.style.boxShadow = ''}
                             custom={index}
                             initial="hidden"
                             whileInView="visible"
@@ -117,6 +121,22 @@ const Services = ({className}) => {
                         </motion.div>
                     ))}
                 </div>
+
+                {/* View All Services Button */}
+                <motion.div
+                    className="flex justify-center mt-12 md:mt-16"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                >
+                    <Link
+                        to="/Services"
+                        className="bg-[#c4d322] text-black font-semibold px-8 py-4 rounded-lg hover:bg-[#c4d322]/90 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-lg"
+                    >
+                        View All Services
+                    </Link>
+                </motion.div>
             </div>
         </section>
     );

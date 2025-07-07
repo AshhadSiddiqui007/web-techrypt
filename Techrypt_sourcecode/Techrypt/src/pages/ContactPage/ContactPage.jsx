@@ -7,9 +7,10 @@ export default function ContactPage() {
             <h1 className="text-responsive-3xl md:text-responsive-5xl text-white text-center flex justify-center items-center mb-4 md:mb-8 font-bold">
                 Contact Us
             </h1>
-            <div className="container-responsive">
-                <ContactForm />
-
+            <div className="container-responsive flex justify-center items-center">
+                <div className="w-full max-w-md md:max-w-none text-center md:text-left">
+                    <ContactForm />
+                </div>
             </div>
         </div>
     )

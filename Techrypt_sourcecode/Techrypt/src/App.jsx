@@ -40,6 +40,9 @@ import TermsConditions from "./components/TermsConditions/TermsConditions.jsx";
 import ForgotPassword from './components/AdminDashboard/forgotPassword';
 import AdminNewsletterUpload from './components/AdminDashboard/AdminNewsletterUpload';
 
+// Google Analytics
+import GA4Service from './services/ga4';
+
 
 // Scroll to top on route change
 const ScrollToTop = () => {
@@ -117,12 +120,29 @@ const AppContent = () => {
   );
 };
 
-const App = () => (
-  <Router>
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  </Router>
-);
+function PageTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    GA4Service.pageview(location.pathname + location.search);
+  }, [location]);
+
+  return null;
+}
+
+const App = () => {
+  useEffect(() => {
+    GA4Service.initialize();
+  }, []);
+
+  return (
+    <Router>
+      <AuthProvider>
+        <PageTracker />
+        <AppContent />
+      </AuthProvider>
+    </Router>
+  );
+};
 
 export default App;

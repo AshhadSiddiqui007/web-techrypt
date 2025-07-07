@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const ServiceCTA = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,12 +64,15 @@ const ServiceCTA = () => {
               <span className="relative z-10">Get Started</span>
             </button>
             
-            <button className="group px-8 py-4 md:px-12 md:py-6 border-2 border-white text-white hover:bg-white hover:text-black font-bold text-lg md:text-xl rounded-full transition-all duration-300 hover:scale-105">
+            <Link 
+              to="/Portfolio"
+              className="group px-8 py-4 md:px-12 md:py-6 border-2 border-white text-white hover:bg-white hover:text-black font-bold text-lg md:text-xl rounded-full transition-all duration-300 hover:scale-105 inline-flex items-center"
+            >
               View Our Work
               <svg className="inline-block ml-2 w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
-            </button>
+            </Link>
           </div>
 
           {/* Stats */}

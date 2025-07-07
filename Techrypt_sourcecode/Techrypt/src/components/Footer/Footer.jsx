@@ -84,7 +84,7 @@ const Footer = () => {
       }
     });
     window.dispatchEvent(event);
-  };
+  }; 
 
   return (
     <div className="text-center bg-[#000] pt-12 md:pt-24 px-4 md:px-6">
@@ -226,8 +226,23 @@ const Footer = () => {
       {/* Footer Lower Section */}
       <div className="w-full mt-4">
         <div className="flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto px-4">
-          {/* Centered left section */}
-          <div className="flex flex-row items-center justify-center gap-3 w-full md:w-auto">
+          {/* Mobile: Email above newsletter */}
+          <div className="flex flex-col md:hidden w-full">
+            <div className="flex justify-center mb-3">
+              <a
+                href="mailto:INFO@TECHRYPT.IO"
+                className="text-gray-400 glowing-green hover:text-primary transition-colors duration-300 text-xs whitespace-nowrap"
+              >
+                INFO@TECHRYPT.IO
+              </a>
+            </div>
+            <div className="flex justify-center">
+              <Newsletterbox />
+            </div>
+          </div>
+          
+          {/* Desktop: Email and newsletter side by side */}
+          <div className="hidden md:flex flex-row items-center justify-center gap-3 w-full md:w-auto">
             <a
               href="mailto:INFO@TECHRYPT.IO"
               className="text-gray-400 glowing-green hover:text-primary transition-colors duration-300 text-xs md:text-sm whitespace-nowrap"
@@ -236,6 +251,7 @@ const Footer = () => {
             </a>
             <Newsletterbox />
           </div>
+          
           {/* Right: Privacy/Terms */}
           <div className="flex flex-row items-center gap-4 mt-2 md:mt-0">
             <Link to="/PrivacyPolicy" className="hover:text-primary transition-colors duration-300 text-gray-400 text-xs md:text-sm">

@@ -176,14 +176,14 @@ const Plans = () => {
           viewport={{ margin: "-100px" }}
           variants={container}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-2 pb-6 px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-2 pb-6 px-4">
             {priceData.map((e, i) => (
               <motion.div
                 key={i}
-                className={`flex-none w-full ${i === 1 ? "lg:-translate-y-6 max-lg:mb-10" : ""} glow-hover transition-all duration-500 rounded-3xl`}
+                className={`flex-none w-full ${i === 1 ? "lg:-translate-y-6 max-lg:mb-12" : ""} ${i === 2 ? "max-lg:mt-12" : ""} glow-hover transition-all duration-500 rounded-3xl`}
                 variants={item}
               >
-                <div className={`rounded-3xl ${i === 1 ? "bg-primary " : ""} h-full`}>
+                <div className={`rounded-3xl ${i === 1 ? "bg-primary " : ""} ${i === 2 ? "max-lg:pt-16" : ""} h-full`}>
                   {i === 1 && (
                     <p className="text-white text-center py-2 glowing-green">
                       Most Popular

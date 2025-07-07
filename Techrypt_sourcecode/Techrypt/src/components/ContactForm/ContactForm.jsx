@@ -92,14 +92,14 @@ const ContactForm = () => {
     <div className="bg-[#1a1a1a] rounded-lg p-6 md:p-8 w-full max-w-6xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Left Column - Contact Info */}
-        <div className="space-y-8">
+        <div className="space-y-8 text-center lg:text-left">
           <h2 className="text-3xl md:text-4xl font-bold text-white">
             Get In Touch
           </h2>
           
           {/* Email Section */}
-          <div className="flex items-center space-x-4">
-            <div className="flex-shrink-0">
+          <div className="flex items-start justify-center lg:justify-start space-x-4">
+            <div className="flex-shrink-0 mt-6">
               <svg 
                 className="w-8 h-8 text-[#c4d322]" 
                 fill="none" 
@@ -126,9 +126,9 @@ const ContactForm = () => {
           </div>
 
           {/* Social Links Section */}
-          <div>
+          <div className="flex flex-col items-center lg:items-start">
             <p className="text-gray-300 text-sm mb-4">Follow Us:</p>
-            <div className="flex space-x-4">
+            <div className="flex justify-center lg:justify-start space-x-4">
               {/* LinkedIn */}
               <a 
                 href="https://www.linkedin.com/company/techrypt-io/posts/?feedView=all" 
