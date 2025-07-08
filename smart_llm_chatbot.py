@@ -17,14 +17,14 @@ from datetime import datetime
 from typing import Dict, List, Optional
 from dataclasses import dataclass, asdict
 
-# Enhanced AI imports with graceful fallback
+# Google Gemini API integration
 try:
-    import torch
-    from transformers import AutoTokenizer, AutoModelForCausalLM
-    TRANSFORMERS_AVAILABLE = True
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
+    print("✅ Google Gemini API available")
 except ImportError:
-    TRANSFORMERS_AVAILABLE = False
-    print("⚠️ Transformers not available - TinyLLaMA disabled")
+    GEMINI_AVAILABLE = False
+    print("⚠️ Google Gemini API not available - install google-generativeai")
 
 try:
     from sentence_transformers import SentenceTransformer
@@ -98,14 +98,17 @@ except Exception as e:
 
 
 
-# Environment controls for TinyLLaMA - TEMPORARILY DISABLED for faster startup
-USE_TINYLLAMA = os.getenv('USE_TINYLLAMA', 'False').lower() == 'true'
-TINYLLAMA_TIMEOUT = int(os.getenv('TINYLLAMA_TIMEOUT', '8'))  # Increased timeout for better responses
+# Environment controls - CSV data path and intelligent mode
 CSV_DATA_PATH = os.getenv('CSV_DATA_PATH', 'data.csv')
 INTELLIGENT_MODE = os.getenv('INTELLIGENT_MODE', 'True').lower() == 'true'  # Enable intelligent LLM responses
 
 # Business API Integration controls
 USE_BUSINESS_API = os.getenv('USE_BUSINESS_API', 'True').lower() == 'true'  # Enable business API integration
+
+# Google Gemini API configuration
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyB8mEO9tUWi_e-NzgmMAYXc9l-pNaF66i4')
+USE_GEMINI = os.getenv('USE_GEMINI', 'True').lower() == 'true'
+GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-1.5-flash')
 
 # Configure logging
 logging.basicConfig(
@@ -221,456 +224,275 @@ class ConversationContext:
             'business_details': self.business_specific_context
         }
 
-class TinyLLaMAHandler:
-    """Optimized TinyLLaMA integration with quantization and performance enhancements"""
-
+class GeminiChatbotHandler:
+    """Google Gemini 1.5 Flash API handler for intelligent business conversations"""
+    
     def __init__(self):
         self.model = None
-        self.tokenizer = None
-        self.model_loaded = False
-        self.load_attempts = 0
-        self.max_load_attempts = 3  # Reduced for faster startup
-        self.working_config = None
-        self.response_cache = {}  # Cache for common responses
-        self.max_cache_size = 100
-
-        if USE_TINYLLAMA and TRANSFORMERS_AVAILABLE:
-            self._load_optimized_model()
-
-    def _load_optimized_model(self):
-        """Load TinyLLaMA with performance optimizations and quantization"""
-        logger.info(f"🚀 Loading optimized TinyLLaMA for fast inference...")
-
-        model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-
-        # Try optimized configurations in order of preference
-        optimized_configs = [
-            {
-                "name": "Quantized 8-bit",
-                "config": {
-                    "torch_dtype": torch.float16,
-                    "trust_remote_code": True,
-                    "low_cpu_mem_usage": True,
-                    "load_in_8bit": True
-                }
-            },
-            {
-                "name": "Float16 Optimized",
-                "config": {
-                    "torch_dtype": torch.float16,
-                    "trust_remote_code": True,
-                    "low_cpu_mem_usage": True
-                }
-            },
-            {
-                "name": "CPU Optimized",
-                "config": {
-                    "torch_dtype": torch.float32,
-                    "trust_remote_code": True,
-                    "low_cpu_mem_usage": True
-                }
+        self.chat_session = None
+        self.conversation_history = []
+        self.initialized = False
+        
+        if USE_GEMINI and GEMINI_AVAILABLE:
+            self._initialize_gemini()
+    
+    def _initialize_gemini(self):
+        """Initialize Google Gemini API"""
+        try:
+            # Configure the API
+            genai.configure(api_key=GEMINI_API_KEY)
+            
+            # Initialize the model
+            self.model = genai.GenerativeModel(GEMINI_MODEL)
+            
+            # Configure generation settings for concise business conversations
+            self.generation_config = {
+                "temperature": 0.7,  # Balanced creativity and consistency
+                "top_p": 0.9,
+                "top_k": 40,
+                "max_output_tokens": 150,  # Very concise responses
             }
-        ]
-
-        for config in optimized_configs:
-            if self.load_attempts >= self.max_load_attempts:
-                break
-
-            self.load_attempts += 1
-            logger.info(f"🔧 Attempt {self.load_attempts}: {config['name']}")
-
-            try:
-                # Load tokenizer once
-                if not self.tokenizer:
-                    self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-                    if self.tokenizer.pad_token is None:
-                        self.tokenizer.pad_token = self.tokenizer.eos_token
-                    logger.info("✅ Tokenizer loaded")
-
-                # Load model with optimization
-                start_time = time.time()
-                self.model = AutoModelForCausalLM.from_pretrained(model_name, **config['config'])
-
-                # Move to CPU and optimize
-                self.model = self.model.to('cpu')
-                self.model.eval()
-
-                # Enable optimizations
-                if hasattr(torch, 'compile'):
-                    try:
-                        self.model = torch.compile(self.model, mode="reduce-overhead")
-                        logger.info("✅ Model compiled for optimization")
-                    except:
-                        logger.info("⚠️ Compilation not available, using standard model")
-
-                load_time = time.time() - start_time
-
-                # Quick generation test
-                if self._test_fast_generation():
-                    self.model_loaded = True
-                    self.working_config = config['name']
-                    logger.info(f"✅ TinyLLaMA loaded in {load_time:.2f}s with {config['name']}")
-                    return
-                else:
-                    logger.warning(f"⚠️ Generation test failed with {config['name']}")
-                    self.model = None
-
-            except Exception as e:
-                logger.warning(f"❌ {config['name']} failed: {e}")
-                self.model = None
-                continue
-
-        # Fallback to lightweight alternative
-        if not self.model_loaded:
-            logger.info("🔄 Trying lightweight alternative models...")
-            self._load_lightweight_alternative()
-
-    def _test_fast_generation(self):
-        """Test fast generation with timeout"""
-        try:
-            test_prompt = "Hello"
-            inputs = self.tokenizer(test_prompt, return_tensors="pt", max_length=50)
-
-            start_time = time.time()
-            with torch.no_grad():
-                outputs = self.model.generate(
-                    inputs.input_ids,
-                    max_new_tokens=10,
-                    num_return_sequences=1,
-                    do_sample=False,
-                    pad_token_id=self.tokenizer.eos_token_id,
-                    early_stopping=True
-                )
-            generation_time = time.time() - start_time
-
-            response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-            # Success if generates response in under 3 seconds
-            success = len(response.strip()) > len(test_prompt) and generation_time < 3.0
-
-            if success:
-                logger.info(f"✅ Fast generation test passed in {generation_time:.3f}s")
-            else:
-                logger.warning(f"⚠️ Generation too slow: {generation_time:.3f}s")
-
-            return success
-
+            
+            # Mark as initialized without testing to avoid quota issues
+            # The API configuration and model creation succeeded
+            self.initialized = True
+            logger.info("✅ Google Gemini 1.5 Flash initialized successfully")
+                
         except Exception as e:
-            logger.warning(f"⚠️ Fast generation test failed: {e}")
-            return False
-
-    def _load_lightweight_alternative(self):
-        """Load lightweight alternative model for fast responses"""
-        alternatives = ["distilgpt2", "gpt2"]
-
-        for model_name in alternatives:
-            try:
-                logger.info(f"🔄 Trying lightweight model: {model_name}")
-
-                self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-                if self.tokenizer.pad_token is None:
-                    self.tokenizer.pad_token = self.tokenizer.eos_token
-
-                self.model = AutoModelForCausalLM.from_pretrained(
-                    model_name,
-                    torch_dtype=torch.float32,
-                    low_cpu_mem_usage=True
-                )
-
-                self.model = self.model.to('cpu')
-                self.model.eval()
-
-                if self._test_fast_generation():
-                    self.model_loaded = True
-                    self.working_config = f"Lightweight: {model_name}"
-                    logger.info(f"✅ Lightweight model {model_name} loaded successfully")
-                    return
-
-            except Exception as e:
-                logger.warning(f"❌ Lightweight model {model_name} failed: {e}")
-                continue
-
-        logger.error("❌ All model loading attempts failed")
-        self.model_loaded = False
-
-    def _try_alternative_models(self):
-        """Try alternative smaller models if TinyLLaMA fails completely"""
-        alternative_models = [
-            "microsoft/DialoGPT-small",
-            "gpt2",
-            "distilgpt2"
-        ]
-
-        for model_name in alternative_models:
-            try:
-                logger.info(f"🔄 Trying alternative model: {model_name}")
-
-                self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-                if self.tokenizer.pad_token is None:
-                    self.tokenizer.pad_token = self.tokenizer.eos_token
-
-                self.model = AutoModelForCausalLM.from_pretrained(
-                    model_name,
-                    torch_dtype=torch.float32,
-                    low_cpu_mem_usage=True
-                )
-
-                self.model = self.model.to('cpu')
-                self.model.eval()
-
-                # Test generation
-                if self._test_model_generation():
-                    self.model_loaded = True
-                    self.working_config = f"Alternative: {model_name}"
-                    logger.info(f"✅ Alternative model {model_name} loaded successfully")
-                    return
-
-            except Exception as e:
-                logger.warning(f"❌ Alternative model {model_name} failed: {e}")
-                continue
-
-        logger.error("❌ All model loading attempts failed")
-        self.model_loaded = False
-
-
-
-    def generate_response(self, prompt: str, business_type: str = "general", context: dict = None) -> Optional[str]:
-        """Generate optimized response with caching and fast inference"""
-        if not self.model_loaded or not self.model or not self.tokenizer:
-            logger.warning("⚠️ TinyLLaMA not available for generation")
-            return None
-
-        # Check cache first
-        cache_key = f"{prompt[:50]}_{business_type}"
-        if cache_key in self.response_cache:
-            logger.info("✅ Using cached response")
-            return self.response_cache[cache_key]
-
-        try:
-            # Create business-specific prompt
-            enhanced_prompt = self._create_business_prompt(prompt, business_type, context or {})
-
-            # Tokenize with strict limits for speed
-            inputs = self.tokenizer(
-                enhanced_prompt,
-                return_tensors="pt",
-                truncation=True,
-                max_length=150,  # Further reduced for speed
-                padding=False  # No padding for faster processing
-            )
-
-            # Fast generation with optimized parameters
-            start_time = time.time()
-
-            with torch.no_grad():
-                try:
-                    outputs = self.model.generate(
-                        inputs.input_ids,
-                        max_new_tokens=30,  # Reduced for speed
-                        num_return_sequences=1,
-                        temperature=0.9,  # Higher for creativity
-                        do_sample=True,
-                        pad_token_id=self.tokenizer.eos_token_id,
-                        eos_token_id=self.tokenizer.eos_token_id,
-                        early_stopping=True,
-                        repetition_penalty=1.2,  # Stronger repetition penalty
-                        no_repeat_ngram_size=2  # Prevent repetitive phrases
-                    )
-                except Exception as gen_error:
-                    logger.error(f"❌ Fast generation failed: {gen_error}")
-                    return None
-
-            generation_time = time.time() - start_time
-
-            # Strict timeout for fast responses
-            if generation_time > 2.0:  # Reduced timeout to 2 seconds
-                logger.warning(f"⚠️ Generation too slow: {generation_time:.2f}s")
-                return None
-
-            # Decode and clean response
-            response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-            # Extract generated part
-            if enhanced_prompt in response:
-                response = response.replace(enhanced_prompt, "").strip()
-
-            # Clean and validate
-            response = self._clean_response(response)
-
-            if self._validate_response(response):
-                # Cache successful response
-                if len(self.response_cache) < self.max_cache_size:
-                    self.response_cache[cache_key] = response
-
-                logger.info(f"✅ Fast TinyLLaMA response in {generation_time:.3f}s")
-                return response
-            else:
-                logger.warning("⚠️ Response failed validation")
-                return None
-
-        except Exception as e:
-            logger.error(f"❌ TinyLLaMA generation error: {e}")
-            return None
-
-    def _create_business_prompt(self, prompt: str, business_type: str, context: dict) -> str:
-        """Create business-specific prompt for better responses"""
-        business_context = {
-            "restaurant": "restaurant/food service business",
-            "professional": "professional service business",
-            "retail_ecommerce": "retail/e-commerce business",
-            "cleaning_services": "cleaning service business",
-            "technology": "technology/software business",
-            "healthcare": "healthcare/medical business",
-            "creative": "creative/design business",
-            "automotive": "automotive service business"
-        }.get(business_type, "business")
-
-        # Create contextual prompt
-        if "help" in prompt.lower() or "how" in prompt.lower():
-            enhanced_prompt = f"For a {business_context}, {prompt.lower()}"
+            logger.error(f"❌ Failed to initialize Gemini: {e}")
+            self.initialized = False
+    
+    def create_business_system_prompt(self, business_type: str = "general", context: dict = None, conversation_count: int = 0) -> str:
+        """Create concise, appointment-focused system prompt for Gemini"""
+        
+        business_contexts = {
+            'restaurant': 'restaurant/food service',
+            'retail_ecommerce': 'retail/e-commerce',
+            'professional': 'professional services',
+            'healthcare': 'healthcare/medical',
+            'cleaning_services': 'cleaning services',
+            'technology': 'technology/software',
+            'automotive': 'automotive services',
+            'food_agriculture': 'food/agriculture',
+            'beauty': 'beauty/wellness',
+            'fitness': 'fitness/sports'
+        }
+        
+        business_context = business_contexts.get(business_type, 'business')
+        user_name = context.get('name', '') if context else ''
+        
+        # Adjust behavior based on conversation progress
+        if conversation_count == 0:
+            interaction_style = "FIRST MESSAGE: Start with a short greeting. If they asked a specific question, answer it briefly. If it's just a general greeting (hello, hi, etc.), respond with 'Hi, how may I help you today?'"
+        elif conversation_count <= 2:
+            interaction_style = "Focus on understanding their needs and clearly recommend the 2-3 most beneficial Techrypt services for their business type. Be specific about benefits."
         else:
-            enhanced_prompt = prompt
+            interaction_style = "Actively encourage booking a consultation. Emphasize the value of discussing their specific needs and getting a custom solution."
+        
+        system_prompt = f"""You are a focused business consultant for Techrypt, specialized in converting prospects into clients through consultative selling.
 
-        return enhanced_prompt[:100]  # Limit prompt length
+PRIMARY MISSION: Help users identify which Techrypt services will most benefit their {business_context} business and convince them to book a consultation.
 
-    def _clean_response(self, response: str) -> str:
-        """Clean and format the generated response"""
-        if not response:
-            return ""
+TECHRYPT CORE SERVICES:
+• Website Development (responsive, e-commerce, conversion-optimized)
+• Social Media Marketing (Instagram, Facebook, LinkedIn automation)
+• Chatbot Development (WhatsApp Business, lead generation)
+• Branding Services (logos, marketing materials, brand identity)
+• Business Automation (workflow, CRM, email marketing)
+• Payment Integration (Stripe, PayPal, secure processing)
 
-        # Remove common artifacts
+CONVERSATION APPROACH ({conversation_count + 1} messages in):
+{interaction_style}
+
+CRITICAL RESPONSE RULES:
+1. Keep responses VERY SHORT (2-3 sentences max, 40-60 words ideal)
+2. Use bullet points for multiple services (• format)
+3. Bold key benefits when possible
+4. No long paragraphs - break into short lines
+5. For FIRST MESSAGE: If greeting (hello/hi), just say "Hi! How can I help your business grow today?"
+6. For FIRST MESSAGE: If business question, give short greeting + brief answer
+7. Always recommend 1-2 SPECIFIC services most relevant to their business
+8. Explain ONE clear benefit per service: "This will [specific result]"
+9. After message 2, ask directly: "Would you like to schedule a free consultation?"
+
+FORMATTING STYLE:
+✓ Short sentences (under 15 words each)
+✓ Use bullet points for lists
+✓ One benefit per line
+✓ Clear call-to-action at end
+
+TONE: Confident, direct, helpful - NO sales pressure or overwhelming text
+
+{f"USER: {user_name} ({business_context} business)" if user_name else f"BUSINESS TYPE: {business_context}"}
+
+Goal: Quick understanding → Clear recommendation → Direct consultation offer"""
+
+        return system_prompt
+    
+    def generate_business_response(self, user_message: str, business_type: str = "general", context: dict = None, conversation_context: ConversationContext = None) -> str:
+        """Generate intelligent business-focused response using Gemini"""
+        
+        if not self.initialized:
+            logger.warning("⚠️ Gemini not initialized")
+            return None
+            
+        try:
+            # Get conversation count for progressive appointment pushing
+            conversation_count = conversation_context.conversation_depth if conversation_context else 0
+            
+            # Create business-specific system prompt with conversation awareness
+            system_prompt = self.create_business_system_prompt(business_type, context, conversation_count)
+            
+            # Build recent conversation context (last 2 turns only for focus)
+            conversation_history = ""
+            if conversation_context and conversation_context.conversation_history:
+                recent_history = conversation_context.conversation_history[-2:]
+                for turn in recent_history:
+                    conversation_history += f"User: {turn['user_message']}\nTechrypt: {turn['bot_response']}\n\n"
+            
+            # Track services already discussed to avoid repetition
+            services_discussed_str = ""
+            if conversation_context and conversation_context.services_discussed:
+                services_discussed_str = f"SERVICES ALREADY DISCUSSED: {', '.join(conversation_context.services_discussed)}"
+            
+            # Create focused prompt based on conversation stage
+            if conversation_count == 0:
+                instruction = "FIRST MESSAGE: If they asked a specific question about their business or services, answer it briefly with a short greeting. If it's just 'hello', 'hi', or general greeting, respond with 'Hi, how may I help you today?'"
+            elif conversation_count <= 2:
+                instruction = f"This is message #{conversation_count + 1}. Focus on their specific needs and clearly explain which 2-3 Techrypt services would be most beneficial and WHY."
+            else:
+                instruction = f"This is message #{conversation_count + 1}. Time to actively encourage booking a consultation. Be confident about the value you can provide."
+            
+            # Create concise, focused prompt
+            full_prompt = f"""{system_prompt}
+
+RECENT CONVERSATION:
+{conversation_history}
+
+CURRENT USER MESSAGE: "{user_message}"
+
+{services_discussed_str}
+
+INSTRUCTION: {instruction}
+
+RESPONSE REQUIREMENTS:
+- Keep it SHORT (1-2 paragraphs maximum)
+- Be SPECIFIC about which services help their {business_type} business
+- Explain clear BENEFITS: "This will help you..." or "You'll see results like..."
+- {"Include a consultation call-to-action" if conversation_count >= 2 else "Focus on understanding their needs"}
+- Sound confident and knowledgeable"""
+
+            # Generate response with strict limits for concise outputs
+            generation_config = {
+                "temperature": 0.7,
+                "top_p": 0.9,
+                "top_k": 40,
+                "max_output_tokens": 150,  # Very short responses for better UX
+            }
+            
+            response = self.model.generate_content(
+                full_prompt,
+                generation_config=generation_config
+            )
+            
+            if response and response.text:
+                generated_text = response.text.strip()
+                
+                # Post-process for quality and appointment focus
+                generated_text = self._post_process_response(generated_text, business_type, context, conversation_count)
+                
+                logger.info(f"🤖 Gemini response generated | Business: {business_type} | Turn: {conversation_count + 1} | Length: {len(generated_text)}")
+                return generated_text
+            else:
+                logger.warning("⚠️ Gemini returned empty response")
+                return None
+                
+        except Exception as e:
+            logger.error(f"❌ Gemini generation error: {e}")
+            return None
+    
+    def _post_process_response(self, response: str, business_type: str, context: dict = None, conversation_count: int = 0) -> str:
+        """Post-process Gemini response for concise, well-formatted output"""
+        
+        # Remove markdown formatting for cleaner text
+        response = re.sub(r'\*\*(.*?)\*\*', r'\1', response)  # Remove bold markdown
+        response = re.sub(r'\*(.*?)\*', r'\1', response)      # Remove italic markdown
+        response = re.sub(r'#{1,6}\s*', '', response)         # Remove headers
+        
+        # Clean up spacing
+        response = re.sub(r'\n\n+', '\n\n', response)
         response = response.strip()
-
-        # Remove repetitive patterns
-        lines = response.split('\n')
-        cleaned_lines = []
-        for line in lines:
-            line = line.strip()
-            if line and line not in cleaned_lines:
-                cleaned_lines.append(line)
-
-        response = '\n'.join(cleaned_lines)
-
-        # Limit length
-        if len(response) > 500:
-            response = response[:500] + "..."
-
-        return response
-
-    def _validate_response(self, response: str) -> bool:
-        """Validate TinyLLaMA response quality"""
-        if not response or len(response.strip()) < 15:
-            return False
-
-        if len(response) > 300:
-            return False
-
-        # Check for repetitive patterns
+        
+        # Ensure response is SHORT (max 60 words for concise communication)
         words = response.split()
-        if len(words) > 10:
-            word_freq = {}
-            for word in words:
-                word_freq[word] = word_freq.get(word, 0) + 1
-
-            # If any word appears more than 30% of the time, it's repetitive
-            max_freq = max(word_freq.values())
-            if max_freq / len(words) > 0.3:
-                return False
-
-        # Check for business relevance keywords
-        business_keywords = ['business', 'service', 'website', 'marketing', 'digital', 'customer', 'growth', 'solution']
-        has_business_context = any(keyword in response.lower() for keyword in business_keywords)
-
-        return has_business_context
-
-    def create_intelligent_business_prompt(self, user_message: str, business_type: str, context: dict, conversation_stage: str = "initial") -> str:
-        """Create intelligent business consultation prompt for TinyLLaMA"""
-
-        # Extract business context
-        user_name = context.get('name', 'Customer')
-        services_discussed = context.get('services_discussed', [])
-
-        # Build context-aware prompt
-        prompt = f"""<|system|>
-You are an expert business consultant for Techrypt, a leading digital solutions company. You help businesses grow through:
-- Website Development (professional sites, e-commerce, mobile optimization)
-- Social Media Marketing (Instagram, Facebook, LinkedIn campaigns, content strategy)
-- Branding Services (logo design, brand identity, marketing materials)
-- Chatbot Development (WhatsApp automation, customer service bots, lead generation)
-- Automation Packages (workflow automation, CRM integration, email marketing)
-- Payment Gateway Integration (Stripe, PayPal, secure payment processing)
-
-Your role is to understand each business's unique needs and provide specific, actionable recommendations that drive growth.
-<|user|>
-Business Type: {business_type or 'Business'}
-Customer: {user_name}
-Message: "{user_message}"
-Conversation Stage: {conversation_stage}
-Services Previously Discussed: {', '.join(services_discussed) if services_discussed else 'None'}
-
-Provide a helpful, contextual response that:
-1. Shows understanding of their specific business type and challenges
-2. Recommends 3-5 specific Techrypt services that would help their business grow
-3. Explains HOW each service would benefit their particular business
-4. Asks a relevant follow-up question to continue the conversation
-5. Maintains a professional, consultative tone
-
-Keep the response conversational, specific to their business, and focused on growth solutions.
-<|assistant|>
-"""
-        return prompt
-
-    def create_service_explanation_prompt(self, service_name: str, business_type: str, user_message: str, context: dict) -> str:
-        """Create prompt for explaining specific services"""
-        user_name = context.get('name', 'Customer')
-
-        prompt = f"""<|system|>
-You are a Techrypt service specialist explaining how our digital solutions help businesses grow. Be specific and practical.
-<|user|>
-Service: {service_name}
-Business Type: {business_type or 'Business'}
-Customer: {user_name}
-Question: "{user_message}"
-
-Explain how {service_name} specifically helps {business_type} businesses. Include:
-1. 3-4 specific benefits for their business type
-2. Real-world examples of how it works
-3. Why it's important for their industry
-4. A relevant follow-up question
-
-Be conversational and focus on practical business value.
-<|assistant|>
-"""
-        return prompt
-
-    def create_appointment_conversion_prompt(self, user_message: str, business_type: str, context: dict) -> str:
-        """Create prompt for guiding users toward appointment booking"""
-        user_name = context.get('name', 'Customer')
-
-        prompt = f"""<|system|>
-You are a Techrypt business consultant helping customers understand our services and guiding them toward a free consultation.
-<|user|>
-Business Type: {business_type or 'Business'}
-Customer: {user_name}
-Message: "{user_message}"
-
-The customer is asking about pricing or wants more information. Provide a response that:
-1. Acknowledges their interest professionally
-2. Explains that pricing is customized based on their specific needs
-3. Highlights the value of a free consultation
-4. Mentions 2-3 things you'll discuss in the consultation specific to their business
-5. Asks if they'd like to schedule a consultation
-
-Be helpful and consultative, not pushy. Focus on the value they'll get from the consultation.
-<|assistant|>
-"""
-        return prompt
+        if len(words) > 60:
+            # Trim to essential content, prioritizing service recommendations
+            sentences = response.split('. ')
+            essential_sentences = []
+            word_count = 0
+            
+            for sentence in sentences:
+                sentence_words = len(sentence.split())
+                if word_count + sentence_words <= 50:  # Leave room for CTA
+                    essential_sentences.append(sentence)
+                    word_count += sentence_words
+                else:
+                    break
+            
+            response = '. '.join(essential_sentences)
+            if not response.endswith('.'):
+                response += '.'
+        
+        # Add personalization if name is available
+        if context and context.get('name'):
+            user_name = context['name']
+            if user_name not in response and not response.startswith(('Hi', 'Hello')):
+                response = f"Hi {user_name}! " + response
+        
+        # Format bullet points nicely
+        if '•' in response:
+            lines = response.split('\n')
+            formatted_lines = []
+            for line in lines:
+                if '•' in line and not line.strip().startswith('•'):
+                    # Ensure bullet points are on new lines
+                    line = line.replace('•', '\n•')
+                formatted_lines.append(line)
+            response = '\n'.join(formatted_lines)
+            response = re.sub(r'\n\n+', '\n\n', response)
+        
+        # Add consultation CTA for later messages (short and direct)
+        consultation_keywords = ['consultation', 'call', 'meeting', 'schedule', 'book']
+        has_consultation_cta = any(keyword in response.lower() for keyword in consultation_keywords)
+        
+        if conversation_count >= 2 and not has_consultation_cta:
+            response += "\n\nWould you like to schedule a free consultation?"
+        elif conversation_count == 1 and not has_consultation_cta:
+            response += "\n\nInterested in learning more?"
+        
+        # Final length check - ensure under 80 words total
+        final_words = response.split()
+        if len(final_words) > 80:
+            # Emergency trim - keep first 70 words + add CTA
+            trimmed = ' '.join(final_words[:70])
+            if conversation_count >= 2:
+                response = trimmed + "... Ready to discuss this further?"
+            else:
+                response = trimmed + "..."
+        
+        return response.strip()
+        
+        return response.strip()
+    
+    def is_available(self) -> bool:
+        """Check if Gemini is available and initialized"""
+        return self.initialized
 
 class IntelligentBusinessConsultant:
-    """Intelligent business consultant using TinyLLaMA for dynamic responses"""
+    """Intelligent business consultant using Gemini for dynamic responses"""
 
-    def __init__(self, tinyllama_handler: TinyLLaMAHandler, csv_handler):
-        self.tinyllama_handler = tinyllama_handler
+    def __init__(self, gemini_handler: GeminiChatbotHandler, csv_handler):
+        self.gemini_handler = gemini_handler
         self.csv_handler = csv_handler
 
         # Business intelligence patterns
@@ -713,33 +535,36 @@ class IntelligentBusinessConsultant:
 
         return interested_services
 
-    def generate_intelligent_response(self, message: str, business_type: str, context: dict, conversation_stage: str = "initial", conversation_context: dict = None) -> str:
-        """Generate intelligent business consultation response with enhanced context"""
+    def generate_intelligent_response(self, message: str, business_type: str, context: dict, conversation_stage: str = "initial", conversation_context: ConversationContext = None) -> str:
+        """Generate intelligent business consultation response with enhanced context using Gemini"""
 
-        if not self.tinyllama_handler.model_loaded:
-            logger.warning("⚠️ TinyLLaMA not available, falling back to CSV")
+        if not self.gemini_handler.is_available():
+            logger.warning("⚠️ Gemini not available, falling back to CSV")
             return None
 
-        # Detect intent and customize prompt accordingly
+        # Detect intent and customize response accordingly
         intent = self.detect_intent(message)
         interested_services = self.detect_service_interest(message)
 
         try:
-            # Create business-specific prompt with conversation context
-            if intent == 'pricing_inquiry':
-                prompt = self._create_pricing_prompt(message, business_type, context, conversation_context)
-            elif intent == 'service_explanation' and interested_services:
-                service_name = interested_services[0].replace('_', ' ').title()
-                prompt = self._create_service_explanation_prompt(service_name, business_type, message, context, conversation_context)
-            else:
-                prompt = self._create_business_consultation_prompt(message, business_type, context, conversation_stage, conversation_context)
-
-            # Generate response with optimized TinyLLaMA
-            response = self.tinyllama_handler.generate_response(
-                prompt,
+            # Generate response with Gemini
+            response = self.gemini_handler.generate_business_response(
+                user_message=message,
                 business_type=business_type,
-                context=conversation_context or {}
+                context=context or {},
+                conversation_context=conversation_context
             )
+
+            if response and len(response.strip()) > 15:
+                logger.info(f"🤖 Gemini business response generated | Intent: {intent} | Business: {business_type} | Length: {len(response)}")
+                return response
+            else:
+                logger.warning("⚠️ Gemini generated insufficient response")
+                return None
+
+        except Exception as e:
+            logger.error(f"❌ Gemini response generation failed: {e}")
+            return None
 
             if response and len(response.strip()) > 15:
                 # Post-process response for quality and business context
@@ -747,146 +572,12 @@ class IntelligentBusinessConsultant:
                 logger.info(f"🧠 Intelligent business response generated | Intent: {intent} | Business: {business_type} | Length: {len(response)}")
                 return response
             else:
-                logger.warning("⚠️ TinyLLaMA generated insufficient response")
+                logger.warning("⚠️ Gemini generated insufficient response")
                 return None
 
         except Exception as e:
             logger.error(f"❌ Intelligent response generation failed: {e}")
             return None
-
-    def _create_business_consultation_prompt(self, message: str, business_type: str, context: dict, conversation_stage: str, conversation_context: dict) -> str:
-        """Create business-specific consultation prompt"""
-
-        # Business context mapping
-        business_contexts = {
-            'restaurant': 'restaurant/food service business',
-            'retail_ecommerce': 'retail/e-commerce business',
-            'professional': 'professional service business',
-            'healthcare': 'healthcare/medical practice',
-            'cleaning_services': 'cleaning service business',
-            'technology': 'technology/software business',
-            'automotive': 'automotive service business',
-            'food_agriculture': 'food/agriculture business'
-        }
-
-        business_context = business_contexts.get(business_type, 'business')
-        user_name = context.get('name', '')
-
-        # Create contextual prompt
-        if conversation_context and conversation_context.get('conversation_depth', 0) > 0:
-            # Multi-turn conversation
-            previous_topics = conversation_context.get('previous_topics', [])
-            context_info = f"Previous discussion: {', '.join(previous_topics[-2:])}" if previous_topics else ""
-
-            prompt = f"As a digital marketing consultant for a {business_context}, provide specific advice for: '{message}'. {context_info}. Give practical, actionable recommendations."
-        else:
-            # Initial conversation
-            prompt = f"As a digital marketing consultant, help this {business_context} owner with: '{message}'. Provide specific, actionable advice for their industry."
-
-        return prompt[:150]  # Limit prompt length for speed
-
-    def _create_service_explanation_prompt(self, service_name: str, business_type: str, message: str, context: dict, conversation_context: dict) -> str:
-        """Create service-specific explanation prompt"""
-
-        business_contexts = {
-            'restaurant': 'restaurant',
-            'retail_ecommerce': 'retail store',
-            'professional': 'professional practice',
-            'healthcare': 'medical practice',
-            'cleaning_services': 'cleaning service',
-            'technology': 'tech company',
-            'automotive': 'automotive business',
-            'food_agriculture': 'food business'
-        }
-
-        business_context = business_contexts.get(business_type, 'business')
-
-        prompt = f"Explain how {service_name} specifically helps a {business_context}. Focus on practical benefits and real-world applications for their industry."
-
-        return prompt[:120]
-
-    def _create_pricing_prompt(self, message: str, business_type: str, context: dict, conversation_context: dict) -> str:
-        """Create pricing inquiry prompt that leads to appointment booking"""
-
-        business_contexts = {
-            'restaurant': 'restaurant',
-            'retail_ecommerce': 'retail business',
-            'professional': 'professional practice',
-            'healthcare': 'medical practice',
-            'cleaning_services': 'cleaning service',
-            'technology': 'tech company',
-            'automotive': 'automotive business',
-            'food_agriculture': 'food business'
-        }
-
-        business_context = business_contexts.get(business_type, 'business')
-
-        prompt = f"A {business_context} owner asks about pricing. Explain that pricing varies by needs and offer a free consultation to discuss their specific requirements."
-
-        return prompt[:100]
-
-    def _post_process_intelligent_response(self, response: str, business_type: str, context: dict, conversation_context: dict) -> str:
-        """Post-process intelligent TinyLLaMA response for quality and business context"""
-
-        # Clean up response
-        response = response.strip()
-
-        # Remove any incomplete sentences at the end
-        sentences = response.split('.')
-        if len(sentences) > 1 and len(sentences[-1].strip()) < 5:
-            response = '.'.join(sentences[:-1]) + '.'
-
-        # Ensure response ends properly
-        if not response.endswith(('?', '.', '!')):
-            response += '.'
-
-        # Add personalization if name is available
-        user_name = context.get('name', '')
-        if user_name and user_name not in response:
-            # Add name naturally at the beginning
-            if response.startswith(('For', 'Your', 'A', 'The')):
-                response = f"{user_name}, " + response.lower()
-            elif response.startswith(('Great', 'Perfect', 'Excellent', 'Wonderful')):
-                response = response.replace('!', f', {user_name}!', 1)
-
-        # Add business-specific context if missing
-        business_keywords = {
-            'restaurant': ['food', 'dining', 'customers', 'menu'],
-            'retail_ecommerce': ['products', 'customers', 'sales', 'store'],
-            'professional': ['clients', 'practice', 'services', 'expertise'],
-            'healthcare': ['patients', 'practice', 'medical', 'care'],
-            'cleaning_services': ['clients', 'cleaning', 'service', 'local'],
-            'technology': ['users', 'software', 'digital', 'tech'],
-            'automotive': ['customers', 'vehicles', 'service', 'repair'],
-            'food_agriculture': ['customers', 'fresh', 'local', 'products']
-        }
-
-        if business_type in business_keywords:
-            keywords = business_keywords[business_type]
-            if not any(keyword in response.lower() for keyword in keywords):
-                # Add business context
-                business_context = {
-                    'restaurant': 'for your restaurant',
-                    'retail_ecommerce': 'for your retail business',
-                    'professional': 'for your practice',
-                    'healthcare': 'for your medical practice',
-                    'cleaning_services': 'for your cleaning service',
-                    'technology': 'for your tech business',
-                    'automotive': 'for your automotive business',
-                    'food_agriculture': 'for your food business'
-                }.get(business_type, 'for your business')
-
-                response = response.replace('your business', business_context, 1)
-
-        # Add call-to-action for deeper engagement
-        if conversation_context and conversation_context.get('conversation_depth', 0) == 0:
-            response += f"\n\nWhat specific challenge would you like to discuss further?"
-
-        # Ensure Techrypt branding (brief mention)
-        if 'techrypt' not in response.lower() and len(response) < 200:
-            response += f"\n\nTechrypt serves Karachi businesses with remote consultations globally."
-
-        return response
 
 class CSVTrainingDataHandler:
     """Handle CSV training data for semantic response matching"""
@@ -1074,11 +765,11 @@ class CSVTrainingDataHandler:
 class IntelligentLLMChatbot:
     def __init__(self):
         # Initialize enhanced AI handlers
-        self.tinyllama_handler = TinyLLaMAHandler()
+        self.gemini_handler = GeminiChatbotHandler()
         self.csv_handler = CSVTrainingDataHandler()
 
         # Initialize intelligent business consultant
-        self.business_consultant = IntelligentBusinessConsultant(self.tinyllama_handler, self.csv_handler)
+        self.business_consultant = IntelligentBusinessConsultant(self.gemini_handler, self.csv_handler)
 
         # Initialize business-focused API handler
         self.business_api = None
@@ -1093,8 +784,7 @@ class IntelligentLLMChatbot:
         self.response_stats = {
             'enhanced_intelligence': 0,  # New: Enhanced Intelligence responses
             'business_api': 0,  # Business API responses
-            'intelligent_llm': 0,
-            'tinyllama_usage': 0,
+            'gemini_responses': 0,  # Gemini responses
             'csv_fallback': 0,
             'rule_based': 0,
             'generic_fallback': 0,
@@ -1587,82 +1277,7 @@ class IntelligentLLMChatbot:
 
             context = self.conversation_contexts[session_id]
 
-            # 🚨 ABSOLUTE PRIORITY: CSV RESPONSES FIRST (BYPASS ALL OTHER LOGIC)
-            print(f"🔍 PRIORITY CHECK: CSV handler data_loaded = {self.csv_handler.data_loaded}")
-            if self.csv_handler.data_loaded:
-                try:
-                    print(f"🔍 ATTEMPTING CSV MATCH for: '{message}'")
-                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.7)
-                    print(f"🔍 CSV MATCH RESULT: {csv_response is not None}")
-
-                    if csv_response:
-                        # Get confidence score for metadata
-                        from sklearn.feature_extraction.text import TfidfVectorizer
-                        from sklearn.metrics.pairwise import cosine_similarity
-                        import re
-
-                        def preprocess_text(text):
-                            if not isinstance(text, str):
-                                return ""
-                            text = text.lower().strip()
-                            text = re.sub(r'[^\w\s]', ' ', text)
-                            text = re.sub(r'\s+', ' ', text)
-                            return text
-
-                        user_message_clean = preprocess_text(message)
-                        csv_questions = [preprocess_text(row['user_message']) for row in self.csv_handler.training_data]
-
-                        vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=5000)
-                        all_texts = csv_questions + [user_message_clean]
-                        tfidf_matrix = vectorizer.fit_transform(all_texts)
-
-                        user_vector = tfidf_matrix[-1]
-                        csv_vectors = tfidf_matrix[:-1]
-                        similarities = cosine_similarity(user_vector, csv_vectors).flatten()
-
-                        import numpy as np
-                        best_idx = np.argmax(similarities)
-                        csv_confidence = similarities[best_idx]
-                        matched_question = self.csv_handler.training_data[best_idx]['user_message']
-
-                        # Personalize CSV response with user name and format properly
-                        user_name = user_context.get('name', '')
-                        name_part = f", {user_name}" if user_name else ""
-
-                        formatted_response = csv_response.replace("{name}", name_part)
-
-                        response_text = formatted_response
-                        llm_method = "csv_priority_match"
-                        self.response_stats['csv_fallback'] += 1
-
-                        print(f"✅ CSV PRIORITY MATCH FOUND! Confidence: {csv_confidence:.3f}")
-                        print(f"📊 Matched Question: {matched_question}")
-                        print(f"📝 Response: {response_text[:100]}...")
-
-                        # IMMEDIATE RETURN - BYPASS ALL OTHER LOGIC
-                        response_time = time.time() - start_time
-                        return {
-                            'response': response_text,
-                            'source': llm_method,
-                            'confidence': csv_confidence,
-                            'matched_question': matched_question,
-                            'business_type': context.business_type,
-                            'conversation_stage': context.conversation_stage,
-                            'show_appointment_form': False,
-                            'show_contact_form': False,
-                            'services_discussed': context.services_discussed,
-                            'response_time': response_time,
-                            'llm_used': llm_method,
-                            'intelligent_mode': INTELLIGENT_MODE,
-                            'business_api_available': BUSINESS_API_AVAILABLE and USE_BUSINESS_API,
-                            'tinyllama_available': self.tinyllama_handler.model_loaded
-                        }
-
-                except Exception as e:
-                    print(f"❌ CSV PRIORITY MATCHING ERROR: {e}")
-                    logger.error(f"❌ CSV priority matching failed: {e}")
-            else:
-                print(f"❌ CSV handler not loaded - data_loaded = {self.csv_handler.data_loaded}")
+            # Note: Gemini is now the primary AI engine, CSV is fallback only
 
             # PRIORITY: Check if this is a service inquiry first (before business detection)
             logger.info(f"🔍 DEBUG: About to call detect_service_inquiry_intent")
@@ -1730,50 +1345,46 @@ class IntelligentLLMChatbot:
                     context.services_discussed.extend(subservice_intent['main_services'])
                     context.services_discussed = list(set(context.services_discussed))
 
-            # ENHANCED INTELLIGENT API-POWERED RESPONSE CHAIN
-            # Variables already initialized at method start
+            # INTELLIGENT RESPONSE PRIORITY CHAIN
+            # 1. GEMINI AI RESPONSE (PRIMARY - Highest Priority)
+            if not response_text and self.gemini_handler.is_available():
+                try:
+                    logger.info(f"🤖 Attempting Gemini AI response for: '{message}'")
+                    
+                    gemini_response = self.gemini_handler.generate_business_response(
+                        user_message=message,
+                        business_type=context.business_type if context.business_type != "general" else detected_business,
+                        context=user_context,
+                        conversation_context=context
+                    )
+                    
+                    if gemini_response and len(gemini_response.strip()) > 15:
+                        response_text = gemini_response
+                        llm_method = "gemini_ai"
+                        self.response_stats['gemini_responses'] += 1
+                        
+                        logger.info(f"🤖 Gemini AI response used | Length: {len(response_text)} | Business: {context.business_type}")
+                        
+                        # Update conversation context based on Gemini response
+                        context.add_conversation_turn(message, response_text, "gemini")
+                        
+                        # Check if Gemini response indicates appointment interest
+                        appointment_indicators = ['consultation', 'schedule', 'book', 'meeting', 'call', 'appointment']
+                        if any(indicator in response_text.lower() for indicator in appointment_indicators):
+                            context.conversation_stage = 'closing'
+                    else:
+                        logger.warning("⚠️ Gemini returned insufficient response")
+                        
+                except Exception as e:
+                    logger.error(f"❌ Gemini AI generation failed: {e}")
 
-            # PRIORITY 0: INTELLIGENT APPOINTMENT BOOKING BYPASS (Highest Priority)
-            # Check for appointment-related responses that should bypass CSV matching
-            appointment_bypass_patterns = [
-                'book appointment', 'schedule appointment', 'book consultation', 'schedule consultation',
-                'book a demo', 'book demo', 'schedule demo', 'schedule a demo', 'demo booking',
-                'set up meeting', 'arrange meeting', 'book time', 'schedule time', 'make appointment',
-                'yes please', 'sure thing', 'sounds good', 'let\'s do it', 'i\'m interested',
-                'that works', 'perfect', 'excellent', 'great idea', 'good idea'
-            ]
-
-            # ENHANCED: Check for fuzzy appointment matches (handles typos) OR exact matches
-            fuzzy_appointment_detected = self.fuzzy_match_appointment_terms(message)
-            exact_appointment_detected = any(pattern in message.lower() for pattern in appointment_bypass_patterns)
-
-            # Check if this is an appointment-related response in context OR direct appointment request
-            if ((exact_appointment_detected and context.conversation_stage in ['recommendation', 'closing']) or
-                fuzzy_appointment_detected):
-                # Bypass CSV matching and use contextual appointment response
-                context.conversation_stage = 'closing'
-                user_name = user_context.get('name', '')
-                name_part = f", {user_name}" if user_name else ""
-
-                response_text = f"""Perfect{name_part}! I'll open the appointment booking form for you right now. Please fill in your details and preferred time, and we'll get back to you within 24 hours to confirm your consultation.
-
-We serve Karachi locally and offer remote consultations globally. What's your preferred time and method - in-person (Karachi), phone call, or video meeting?"""
-
-                llm_method = "appointment_bypass_enhanced"
-                self.response_stats['rule_based'] += 1
-
-                if fuzzy_appointment_detected:
-                    logger.info(f"🎯 Fuzzy appointment booking triggered for: '{message}'")
-                else:
-                    logger.info(f"🎯 Exact appointment booking triggered for: '{message}'")
-
-            # 0. CSV RESPONSES FOR ALL QUERIES (HIGHEST PRIORITY - Use our detailed explanations)
+            # 2. CSV RESPONSES (FALLBACK when Gemini unavailable/fails)
             if not response_text and self.csv_handler.data_loaded:
                 try:
-                    logger.info(f"🔍 DEBUG: Attempting CSV matching for: '{message}'")
-                    # For all queries, prioritize CSV responses with 0.15 threshold
-                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.15)
-                    logger.info(f"🔍 DEBUG: CSV response result: {csv_response is not None}")
+                    logger.info(f"🔍 DEBUG: Attempting CSV fallback for: '{message}'")
+                    # Use slightly higher threshold for fallback to ensure quality
+                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.3)
+                    logger.info(f"🔍 DEBUG: CSV fallback result: {csv_response is not None}")
 
                     if csv_response:
                         # Get confidence score for metadata
@@ -1820,14 +1431,14 @@ We serve Karachi locally and offer remote consultations globally. What's your pr
                             logger.info(f"🎯 Direct booking request detected from CSV - triggering appointment form")
 
                         response_text = formatted_response
-                        llm_method = "csv_priority_match"
+                        llm_method = "csv_fallback"
                         self.response_stats['csv_fallback'] += 1
-                        logger.info(f"📊 Priority CSV match used | Confidence: {csv_confidence:.3f} | Question: {matched_question} | Intent: {intent_type}")
+                        logger.info(f"📊 CSV fallback used | Confidence: {csv_confidence:.3f} | Question: {matched_question} | Intent: {intent_type}")
 
                 except Exception as e:
-                    logger.warning(f"⚠️ Service inquiry CSV matching failed: {e}")
+                    logger.warning(f"⚠️ CSV fallback matching failed: {e}")
 
-            # 1. STANDARDIZED SERVICE INQUIRIES (FALLBACK - only for general service lists when CSV doesn't match)
+            # 3. STANDARDIZED SERVICE INQUIRIES (FALLBACK - only for general service lists when Gemini and CSV don't match)
             if not response_text:
                 service_inquiry_patterns = ['services', 'what are your services', 'list services', 'your services', 'what services', 'service list', 'what do you offer', 'what can you do']
                 if any(pattern in message.lower() for pattern in service_inquiry_patterns):
@@ -1846,13 +1457,13 @@ Would you like to schedule a consultation or learn more about any specific servi
                     llm_method = "standardized_service_inquiry"
                     self.response_stats['rule_based'] += 1
 
-            # 2. Existing rule-based intelligent responses (PRESERVE current system)
+            # 4. Rule-based intelligent responses (final fallback)
             if not response_text:
                 response_text = self.generate_contextual_response(message, context, user_context, subservice_intent, ambiguity_resolution)
                 llm_method = "rule_based"
                 self.response_stats['rule_based'] += 1
 
-            # 9. Generic fallback (should rarely be used)
+            # 5. Generic fallback (should rarely be used)
             if not response_text:
                 user_name = user_context.get('name', '')
                 name_part = f", {user_name}" if user_name else ""
@@ -1894,7 +1505,7 @@ Would you like to schedule a consultation or learn more about any specific servi
                 'llm_used': "error_fallback",
                 'intelligent_mode': INTELLIGENT_MODE,
                 'business_api_available': False,
-                'tinyllama_available': False
+                'gemini_available': False
             }
 
         # Calculate response time
@@ -1915,7 +1526,7 @@ Would you like to schedule a consultation or learn more about any specific servi
             'llm_used': llm_method,
             'intelligent_mode': INTELLIGENT_MODE,
             'business_api_available': BUSINESS_API_AVAILABLE and USE_BUSINESS_API,
-            'tinyllama_available': self.tinyllama_handler.model_loaded
+            'gemini_available': self.gemini_handler.is_available()
         }
 
     def generate_contextual_response(self, message: str, context: ConversationContext, user_context: dict, subservice_intent: dict = None, ambiguity_resolution: dict = None) -> str:
@@ -2908,10 +2519,10 @@ We serve Karachi locally and offer remote consultations worldwide. What's your p
         stats = {
             'response_stats': self.response_stats,
             'csv_handler_stats': self.csv_handler.get_stats() if self.csv_handler.data_loaded else {},
-            'tinyllama_stats': {
-                'model_loaded': self.tinyllama_handler.model_loaded,
-                'working_config': getattr(self.tinyllama_handler, 'working_config', 'Unknown'),
-                'cache_size': len(getattr(self.tinyllama_handler, 'response_cache', {}))
+            'gemini_stats': {
+                'model_available': self.gemini_handler.is_available(),
+                'initialized': self.gemini_handler.initialized,
+                'api_key_set': bool(os.getenv('GEMINI_API_KEY'))
             },
             'business_api_integration': {
                 'available': BUSINESS_API_AVAILABLE and USE_BUSINESS_API,
@@ -2971,48 +2582,49 @@ We serve Karachi locally and offer remote consultations worldwide. What's your p
         return False
 
     def should_show_appointment_form(self, message: str, context: ConversationContext) -> bool:
-        """Determine if appointment form should be shown with intelligent context-aware detection"""
+        """Only show appointment form when user explicitly agrees to booking"""
         message_lower = message.lower().strip()
 
-        # ENHANCED: Check for fuzzy appointment matches first
-        if self.fuzzy_match_appointment_terms(message):
-            logger.info(f"🎯 Fuzzy appointment detection triggered for: '{message}'")
-            return True
-
-        # Direct appointment booking phrases
+        # Direct appointment booking phrases (user initiates)
         direct_appointment_triggers = [
-            'book appointment', 'schedule appointment', 'set up meeting', 'book consultation',
-            'schedule consultation', 'book a meeting', 'schedule a meeting', 'arrange meeting',
-            'book a demo', 'book demo', 'schedule demo', 'schedule a demo', 'demo booking',
-            'set appointment', 'make appointment', 'reserve time', 'book time'
+            'book appointment', 'schedule appointment', 'book consultation',
+            'schedule consultation', 'book a meeting', 'schedule a meeting',
+            'book a demo', 'schedule demo', 'make appointment', 'set appointment',
+            'schedule a call', 'book a call', "let's schedule", "schedule it"
         ]
 
-        # Positive responses to appointment-related questions
-        positive_responses = [
-            'yes', 'yeah', 'sure', 'okay', 'ok', 'alright', 'absolutely', 'definitely',
-            'yes please', 'sure thing', 'sounds good', 'let\'s do it', 'i\'m interested',
-            'that works', 'perfect', 'excellent', 'great', 'good idea'
-        ]
-
-        # Pricing-related triggers that should lead to appointment
-        pricing_triggers = ['pricing', 'price', 'cost', 'budget', 'rates', 'fees', 'charges', 'quote']
-
-        # Check for direct appointment booking phrases
+        # Check for direct appointment booking phrases first
         if any(trigger in message_lower for trigger in direct_appointment_triggers):
+            logger.info(f"🎯 Direct appointment request: '{message}'")
             return True
 
-        # Check for positive responses in appointment context
-        if (context.conversation_stage in ['recommendation', 'closing'] and
-            any(response in message_lower for response in positive_responses)):
-            return True
+        # Check if this is a positive response to an appointment offer
+        conversation_history = context.conversation_history
+        if conversation_history and len(conversation_history) > 0:
+            # Check last few bot responses for consultation offers
+            recent_responses = conversation_history[-3:] if len(conversation_history) >= 3 else conversation_history
+            
+            for turn in recent_responses:
+                last_bot_response = turn.get('bot_response', '').lower()
+                # Check if any recent response contained consultation/appointment offer
+                consultation_keywords = ['consultation', 'schedule', 'call', 'meeting', 'appointment', 'book']
+                if any(keyword in last_bot_response for keyword in consultation_keywords):
+                    # Only show form if user says yes explicitly
+                    positive_responses = [
+                        'yes', 'yeah', 'sure', 'okay', 'ok', 'alright', 'absolutely', 'definitely',
+                        'yes please', 'sure thing', 'sounds good', "let's do it", "i'm interested",
+                        'that works', 'perfect', 'excellent', 'great idea', 'book it', 'schedule it',
+                        "let's schedule", "let's book", 'go ahead', 'proceed'
+                    ]
+                    
+                    # Check for explicit positive response
+                    if any(response in message_lower for response in positive_responses):
+                        logger.info(f"🎯 User agreed to appointment: '{message}'")
+                        return True
+                    break  # Only check the most recent consultation offer
 
-        # Check for pricing inquiries (should lead to appointment)
-        if any(trigger in message_lower for trigger in pricing_triggers):
-            context.conversation_stage = 'closing'  # Update stage to trigger appointment
-            return True
-
-        # Show appointment form if conversation stage is closing
-        return context.conversation_stage == 'closing'
+        # Don't show form automatically for pricing or other triggers
+        return False
 
 # Initialize the intelligent chatbot
 intelligent_chatbot = IntelligentLLMChatbot()
@@ -3059,17 +2671,17 @@ def health_check():
 
 @app.route('/model-status', methods=['GET'])
 def model_status():
-    """Enhanced model status endpoint with TinyLLaMA and CSV integration info"""
+    """Enhanced model status endpoint with Gemini and CSV integration info"""
     try:
         # Calculate fallback statistics
         total_responses = intelligent_chatbot.response_stats['total_responses']
         if total_responses > 0:
-            tinyllama_usage = (intelligent_chatbot.response_stats['tinyllama_usage'] / total_responses) * 100
+            gemini_usage = (intelligent_chatbot.response_stats['gemini_responses'] / total_responses) * 100
             csv_fallback = (intelligent_chatbot.response_stats['csv_fallback'] / total_responses) * 100
             rule_based = (intelligent_chatbot.response_stats['rule_based'] / total_responses) * 100
             generic_fallback = (intelligent_chatbot.response_stats['generic_fallback'] / total_responses) * 100
         else:
-            tinyllama_usage = csv_fallback = rule_based = generic_fallback = 0
+            gemini_usage = csv_fallback = rule_based = generic_fallback = 0
 
         # Get CSV statistics
         csv_stats = intelligent_chatbot.csv_handler.get_stats()
@@ -3078,16 +2690,16 @@ def model_status():
         avg_response_time = sum(response_times[-100:]) / len(response_times[-100:]) if response_times else 0
 
         status = {
-            "tinyllama_enabled": USE_TINYLLAMA,
-            "tinyllama_available": TRANSFORMERS_AVAILABLE,
-            "tinyllama_loaded": intelligent_chatbot.tinyllama_handler.model_loaded,
+            "gemini_enabled": USE_GEMINI,
+            "gemini_available": GEMINI_AVAILABLE,
+            "gemini_initialized": intelligent_chatbot.gemini_handler.is_available(),
             "csv_data_loaded": csv_stats['data_loaded'],
             "csv_rows_count": csv_stats['total_rows'],
             "csv_embeddings_ready": csv_stats['embeddings_ready'],
             "sentence_transformers_available": SENTENCE_TRANSFORMERS_AVAILABLE,
             "pandas_available": PANDAS_AVAILABLE,
             "fallback_stats": {
-                "tinyllama_usage": f"{tinyllama_usage:.1f}%",
+                "gemini_usage": f"{gemini_usage:.1f}%",
                 "csv_fallback": f"{csv_fallback:.1f}%",
                 "rule_based": f"{rule_based:.1f}%",
                 "generic_fallback": f"{generic_fallback:.1f}%",
@@ -3095,11 +2707,10 @@ def model_status():
             },
             "performance": {
                 "avg_response_time": f"{avg_response_time:.2f}s",
-                "tinyllama_timeout": f"{TINYLLAMA_TIMEOUT}s",
                 "csv_similarity_threshold": "0.7"
             },
             "model_info": {
-                "tinyllama_model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+                "gemini_model": GEMINI_MODEL,
                 "sentence_model": "all-MiniLM-L6-v2",
                 "csv_data_path": CSV_DATA_PATH
             },
@@ -3193,7 +2804,7 @@ def main():
     print("🤖 ENHANCED INTELLIGENT LLM CHATBOT SERVER")
     print("🔍 DEBUG: Main function called")
     print("=" * 70)
-    print("🎯 Advanced Business Intelligence with TinyLLaMA Integration")
+    print("🎯 Advanced Business Intelligence with Google Gemini 1.5 Flash")
     print("⚡ Sub-3-second response times with AI fallback chain")
     print("🧠 Business-specific conversation flows (15+ industries)")
     print("📊 Personalized service recommendations")
@@ -3203,26 +2814,26 @@ def main():
 
     # Display AI capabilities status
     print("✅ Core Intelligence: Active")
-    print("🤖 Rule-based System: Contextual Business Intelligence")
+    print("🤖 AI Engine: Google Gemini 1.5 Flash")
     print("💾 Context Storage: In-Memory Sessions")
     print("📈 Business Types: 15+ Global Industries")
     print("🔄 Service Categories: 6+ Digital Solutions")
 
-    # TinyLLaMA status
-    if USE_TINYLLAMA:
-        if TRANSFORMERS_AVAILABLE:
-            if intelligent_chatbot.tinyllama_handler.model_loaded:
-                print("🚀 TinyLLaMA: Loaded and Ready (CPU mode)")
+    # Gemini status
+    if USE_GEMINI:
+        if GEMINI_AVAILABLE:
+            if intelligent_chatbot.gemini_handler.is_available():
+                print("🚀 Google Gemini: Loaded and Ready")
             else:
-                print("⚠️ TinyLLaMA: Enabled but failed to load")
+                print("⚠️ Google Gemini: Enabled but failed to initialize")
         else:
-            print("⚠️ TinyLLaMA: Enabled but transformers not available")
+            print("⚠️ Google Gemini: Enabled but google-generativeai not available")
     else:
-        print("💤 TinyLLaMA: Disabled (set USE_TINYLLAMA=true to enable)")
+        print("💤 Google Gemini: Disabled (set USE_GEMINI=true to enable)")
 
     # CSV training data status
     if intelligent_chatbot.csv_handler.data_loaded:
-        print(f"  CSV Training Data: {len(intelligent_chatbot.csv_handler.training_data)} rows loaded")
+        print(f"📄 CSV Training Data: {len(intelligent_chatbot.csv_handler.training_data)} rows loaded")
     else:
         print("📄 CSV Training Data: Not available")
 
