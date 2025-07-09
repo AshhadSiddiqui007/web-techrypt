@@ -40,11 +40,23 @@ app.get("/", (req, res) => {
     res.send("Welcome to Techrypt")
 })
 
+app.get("/api/test", (req, res) => {
+    res.json({ message: "API is working", timestamp: new Date().toISOString() });
+});
+
 app.use("/api/admin", AdminRoutes);
 app.use('/api', newsletterRoutes);
 app.use('/api', appointmentRoutes);
 app.use('/api', contactRoutes);
 app.use('/api/blogs', blogRoutes);
+
+console.log('Newsletter routes mounted at /api');
+console.log('Available endpoints:');
+console.log('POST /api/subscribe');
+console.log('POST /api/contact-info');
+console.log('POST /api/save-newsletter');
+console.log('POST /api/send-newsletter');
+console.log('GET /api/latest-newsletter');
 
 // Schedule to run at 9:00 AM on the 1st of every month
 cron.schedule('0 9 1 * *', async () => {

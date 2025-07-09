@@ -8,20 +8,42 @@ const Newsletterbox = () => {
   const handleSubscribe = async (e) => {
     e.preventDefault();
     setStatus("");
+    
+    if (!email || !email.includes('@')) {
+      setStatus("error");
+      return;
+    }
+    
+    console.log('Attempting to subscribe with email:', email);
+    
     try {
-      const res = await fetch("http://localhost:5000/api/subscribe", {
+      const url = "/api/subscribe";
+      const requestBody = { email };
+      
+      console.log('Making request to:', url);
+      console.log('Request body:', requestBody);
+      
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify(requestBody),
       });
+      
+      console.log('Response status:', res.status);
+      console.log('Response headers:', res.headers);
+      
       const data = await res.json();
+      console.log('Newsletter subscription response:', data);
+      
       if (res.ok && data.success) {
         setStatus("success");
         setEmail("");
       } else {
+        console.error('Newsletter subscription failed:', data.error);
         setStatus("error");
       }
     } catch (err) {
+      console.error('Newsletter subscription error:', err);
       setStatus("error");
     }
   };
