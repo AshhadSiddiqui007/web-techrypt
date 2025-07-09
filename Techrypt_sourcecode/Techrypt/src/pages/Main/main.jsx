@@ -8,6 +8,7 @@ import Verticals from "../../components/Verticals/Verticals.jsx";
 import Services from "../../components/WhatWeDo/Services.jsx";
 import ParallaxWrapper from "../../components/ParallaxWrapper/ParallaxWrapper.jsx";
 import SimpleServicesCarousel from "../../components/Services/SimpleServicesCarousel.jsx";
+import MainChatSection from "../../components/MainChatSection/MainChatSection.jsx";
 import Plans from "../../components/Plans/Plans.jsx";
 import BenefitsSection from "../../components/PetLandingPage/Benefits.jsx";
 import ComparisonSection from "../../components/PetLandingPage/Comparisons.jsx";
@@ -120,7 +121,9 @@ const main = () => {
       <div className="fading"></div>
 
       <SimpleServicesCarousel/>
-      <AgencyDetails />
+
+      <MainChatSection />
+
       <CreativeTeamSection />
       <SliderLogo />
       <Services className={"z-20"} />

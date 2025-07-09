@@ -949,6 +949,52 @@ Would you like to schedule a consultation or learn more about any specific servi
     }
   };
 
+  // Helper function to check if a time slot is in the past for today's date
+  const isTimeSlotInPast = (timeSlot) => {
+    if (!formData.date) return false;
+    
+    const selectedDate = new Date(formData.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Only check for past times if the selected date is today
+    if (selectedDate.getTime() !== today.getTime()) {
+      return false;
+    }
+    
+    // Parse the time slot (e.g., "6pm-9pm" or "6:00 PM – 9:00 PM")
+    let startTimeStr;
+    if (timeSlot.includes('–')) {
+      startTimeStr = timeSlot.split('–')[0].trim();
+    } else if (timeSlot.includes('-')) {
+      startTimeStr = timeSlot.split('-')[0].trim();
+    } else {
+      return false; // Invalid format
+    }
+    
+    // Convert time string to 24-hour format
+    let hour24;
+    if (timeSlot.includes('6pm') || startTimeStr.includes('6:00 PM')) {
+      hour24 = 18;
+    } else if (timeSlot.includes('9pm') || startTimeStr.includes('9:00 PM')) {
+      hour24 = 21;
+    } else if (timeSlot.includes('12am') || startTimeStr.includes('12:00 AM')) {
+      hour24 = 0;
+    } else {
+      return false; // Unknown time slot
+    }
+    
+    // Create datetime for the time slot
+    const slotDateTime = new Date();
+    slotDateTime.setHours(hour24, 0, 0, 0);
+    
+    // Get current time
+    const currentTime = new Date();
+    
+    // Check if the time slot has passed
+    return slotDateTime < currentTime;
+  };
+
   const validateAppointmentForm = () => {
     const errors = {};
 
@@ -972,10 +1018,31 @@ Would you like to schedule a consultation or learn more about any specific servi
 
     if (!formData.date) {
       errors.date = 'Please select a date';
+    } else {
+      // Validate that selected date is not in the past
+      const selectedDate = new Date(formData.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
+      
+      if (selectedDate < today) {
+        errors.date = 'Please select a date that is today or in the future';
+      }
     }
 
     if (!formData.time) {
       errors.time = 'Please select a time';
+    } else if (formData.date) {
+      // Validate that selected time is not in the past (if date is today)
+      const selectedDate = new Date(formData.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Only check time if the selected date is today
+      if (selectedDate.getTime() === today.getTime()) {
+        if (isTimeSlotInPast(formData.time)) {
+          errors.time = 'Please select a time slot that has not already passed';
+        }
+      }
     }
 
     return errors;
@@ -1750,8 +1817,11 @@ Thank you for choosing Techrypt.io! 🚀`,
                           if (appointmentErrors.date) {
                             setAppointmentErrors(prev => ({ ...prev, date: '' }));
                           }
+                          if (appointmentErrors.time) {
+                            setAppointmentErrors(prev => ({ ...prev, time: '' }));
+                          }
                         }}
-                        min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
+                        min={new Date().toISOString().split('T')[0]}
                         className={appointmentErrors.date ? 'error' : ''}
                         required
                       />
@@ -1774,14 +1844,48 @@ Thank you for choosing Techrypt.io! 🚀`,
                         <option value="">
                           {formData.date && isSelectedDateSunday()
                             ? "Closed on Sundays"
-                            : "Select a time"
+                            : (() => {
+                                // Check if all time slots are in the past for today
+                                const selectedDate = new Date(formData.date);
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                
+                                if (selectedDate.getTime() === today.getTime()) {
+                                  const allTimeSlots = ["6pm-9pm", "9pm-12am", "12am-3am"];
+                                  const allPast = allTimeSlots.every(slot => isTimeSlotInPast(slot));
+                                  
+                                  if (allPast) {
+                                    return "All time slots for today have passed";
+                                  }
+                                }
+                                
+                                return "Select a time";
+                              })()
                           }
                         </option>
                         {!isSelectedDateSunday() &&
                           <>
-                            <option value="6pm-9pm">6:00 PM – 9:00 PM</option>
-                            <option value="9pm-12am">9:00 PM – 12:00 AM</option>
-                            <option value="12am-3am">12:00 AM – 3:00 AM</option>
+                            <option 
+                              value="6pm-9pm" 
+                              disabled={isTimeSlotInPast("6pm-9pm")}
+                              style={isTimeSlotInPast("6pm-9pm") ? {color: '#999', backgroundColor: '#f5f5f5'} : {}}
+                            >
+                              6:00 PM – 9:00 PM {isTimeSlotInPast("6pm-9pm") ? "(Past)" : ""}
+                            </option>
+                            <option 
+                              value="9pm-12am" 
+                              disabled={isTimeSlotInPast("9pm-12am")}
+                              style={isTimeSlotInPast("9pm-12am") ? {color: '#999', backgroundColor: '#f5f5f5'} : {}}
+                            >
+                              9:00 PM – 12:00 AM {isTimeSlotInPast("9pm-12am") ? "(Past)" : ""}
+                            </option>
+                            <option 
+                              value="12am-3am" 
+                              disabled={isTimeSlotInPast("12am-3am")}
+                              style={isTimeSlotInPast("12am-3am") ? {color: '#999', backgroundColor: '#f5f5f5'} : {}}
+                            >
+                              12:00 AM – 3:00 AM {isTimeSlotInPast("12am-3am") ? "(Past)" : ""}
+                            </option>
                           </>
                         }
                       </select>
@@ -1801,6 +1905,35 @@ Thank you for choosing Techrypt.io! 🚀`,
                           ⚠️ We are closed on Sundays. Please select another day for your appointment.
                         </div>
                       )}
+
+                      {/* Past time slots message for today */}
+                      {formData.date && !isSelectedDateSunday() && (() => {
+                        const selectedDate = new Date(formData.date);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        
+                        if (selectedDate.getTime() === today.getTime()) {
+                          const allTimeSlots = ["6pm-9pm", "9pm-12am", "12am-3am"];
+                          const allPast = allTimeSlots.every(slot => isTimeSlotInPast(slot));
+                          
+                          if (allPast) {
+                            return (
+                              <div className="techrypt-past-slots-message" style={{
+                                marginTop: '8px',
+                                padding: '10px',
+                                backgroundColor: '#fef2f2',
+                                border: '1px solid #f87171',
+                                borderRadius: '6px',
+                                color: '#dc2626',
+                                fontSize: '14px'
+                              }}>
+                                ⏰ All time slots for today have passed. Please select a future date for your appointment.
+                              </div>
+                            );
+                          }
+                        }
+                        return null;
+                      })()}
 
                       {/* No time slots available message */}
                       {formData.date && !isSelectedDateSunday() && getAvailableTimeSlots().length === 0 && (
