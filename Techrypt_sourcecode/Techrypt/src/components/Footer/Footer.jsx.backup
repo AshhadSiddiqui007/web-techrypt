@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { FaLinkedin, FaYoutube, FaFacebookSquare, FaTwitter } from 'react-icons/fa';
+import { FaLinkedin, FaYoutub      <div className="inline-flex flex-col items-center justify-center mb-8 md:mb-12">
+        <img className="mx-auto object-contain w-48 md:w-72 mb-8 md:mb-12" src={techryptLogo} alt="Techrypt Logo" />
+      </div>uare, FaTwitter } from 'react-icons/fa';
 import { RiArrowUpDoubleLine, RiInstagramFill } from 'react-icons/ri';
 import { motion } from 'framer-motion';
 import { clutch, google, meta } from '../../assets/mainImages';
@@ -11,6 +13,7 @@ import { Link, useLocation } from 'react-router-dom';
 // Import the Newsletterbox component
 import Newsletterbox from './Newsletterbox';
 
+
 const Footer = () => {
   const location = useLocation()
   const [privacy, setPrivacy] = useState(false);
@@ -21,14 +24,12 @@ const Footer = () => {
     });
   };
 
-  // Add state for form fields and submission
+  // Add state for form fields
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState('');
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -39,45 +40,42 @@ const Footer = () => {
     }));
   };
 
-  // Handle form submission to backend API
+  // Function to submit contact form
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form fields
-    if (!formData.name || !formData.email || !formData.message) {
-      setSubmitMessage('Please fill in all fields.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitMessage('');
-
     try {
-      const response = await fetch('/api/contact-info', {
+      const response = await fetch('http://localhost:5000/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message: formData.message
+        })
       });
 
       if (response.ok) {
-        setSubmitMessage('Thank you! Your message has been sent successfully.');
+        alert('Message sent successfully!');
         setFormData({ name: '', email: '', message: '' });
       } else {
-        setSubmitMessage('There was an error sending your message. Please try again.');
+        alert('Failed to send message. Please try again.');
       }
     } catch (error) {
-      setSubmitMessage('There was an error sending your message. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error sending message:', error);
+      alert('Error sending message. Please try again.');
     }
-  };
+  }; 
 
   return (
     <div className="text-center bg-[#000] pt-12 md:pt-24 px-4 md:px-6">
       <div className="inline-flex flex-col items-center justify-center mb-8 md:mb-12">
         <img className="mx-auto object-contain w-48 md:w-72 mb-2 pb-4 md:pb-8" src={techryptLogo} alt="Techrypt Logo" />
+        <h3 className="text-sm md:text-lg font-bold text-white mt-2 px-3 md:px-5 py-2 border-2 border-white rounded-full inline-block text-center">
+          Not into chat? Fill this quick form.
+        </h3>
         <div className="w-full h-16 md:h-24 pt-4 md:pt-8 flex justify-center">
           <motion.div
             className="bg-white w-0.5"
@@ -97,59 +95,42 @@ const Footer = () => {
             <h3 className="text-xl md:text-2xl font-bold text-white mb-6 text-left">
               Get In Touch
             </h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Your Name"
-                  required
-                  className="w-full bg-transparent border-b border-gray-600 py-2 px-2 text-white focus:outline-none focus:border-primary text-sm md:text-base transition-colors duration-300"
-                />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Your Email"
-                  required
-                  className="w-full bg-transparent border-b border-gray-600 py-2 px-2 text-white focus:outline-none focus:border-primary text-sm md:text-base transition-colors duration-300"
-                />
-              </div>
-              <textarea
-                name="message"
-                value={formData.message}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
-                placeholder="Your Message"
-                rows="3"
-                required
-                className="w-full bg-transparent border-b border-gray-600 py-2 px-2 text-white focus:outline-none focus:border-primary text-sm md:text-base transition-colors duration-300 resize-none"
-              ></textarea>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-primary hover:bg-primary/90 text-black font-bold py-2 px-6 rounded-full text-sm md:text-base transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Sending...' : 'Send Message'}
-              </button>
-              {submitMessage && (
-                <p className={`text-sm mt-2 ${submitMessage.includes('Thank you') ? 'text-green-400' : 'text-red-400'}`}>
-                  {submitMessage}
-                </p>
-              )}
-            </form>
+                placeholder="Your Name"
+                className="w-full bg-transparent border-b border-gray-600 py-2 px-2 text-white focus:outline-none focus:border-primary text-sm md:text-base transition-colors duration-300"
+              />
+              <input
+                type="email"
+                placeholder="Your Email"
+                className="w-full bg-transparent border-b border-gray-600 py-2 px-2 text-white focus:outline-none focus:border-primary text-sm md:text-base transition-colors duration-300"
+              />
+            </div>
+            <textarea
+              placeholder="Your Message"
+              rows="3"
+              className="w-full bg-transparent border-b border-gray-600 py-2 px-2 text-white focus:outline-none focus:border-primary text-sm md:text-base transition-colors duration-300 resize-none"
+            ></textarea>
+            <button
+              onClick={handleSubmit}
+              className="bg-primary hover:bg-primary/90 text-black font-bold py-2 px-6 rounded-full text-sm md:text-base transition-all duration-300 transform hover:scale-105"
+            >
+              Send Message
+            </button>
           </div>
 
           {/* Right Column - Important Links */}
-          <div className="space-y-6 flex flex-col items-end">
-            <h3 className="text-xl md:text-2xl font-bold text-white mb-6 text-center w-full">
+          <div className="space-y-6">
+            <h3 className="text-xl md:text-2xl font-bold text-white mb-6 text-left">
               Quick Links
             </h3>
-            <div className="grid grid-cols-3 gap-6 w-full max-w-2xl">
+            <div className="grid grid-cols-2 gap-8">
               {/* Services Links */}
-              <div className="text-center">
+              <div>
                 <h4 className="text-primary font-semibold mb-3 text-sm md:text-base">Services</h4>
                 <ul className="space-y-2 text-gray-400 text-sm">
                   <li><Link to="/Services" className="hover:text-primary transition-colors duration-300">Web Development</Link></li>
@@ -161,7 +142,7 @@ const Footer = () => {
               </div>
 
               {/* Company Links */}
-              <div className="text-center">
+              <div>
                 <h4 className="text-primary font-semibold mb-3 text-sm md:text-base">Company</h4>
                 <ul className="space-y-2 text-gray-400 text-sm">
                   <li><Link to="/about" className="hover:text-primary transition-colors duration-300">About Us</Link></li>
@@ -171,26 +152,26 @@ const Footer = () => {
                   <li><Link to="/careers" className="hover:text-primary transition-colors duration-300">Careers</Link></li>
                 </ul>
               </div>
+            </div>
 
-              {/* Contact Info */}
-              <div className="text-center">
-                <h4 className="text-primary font-semibold mb-3 text-sm md:text-base">Contact Info</h4>
-                <ul className="space-y-2 text-gray-400 text-sm">
-                  <li>
-                    <a href="mailto:INFO@TECHRYPT.IO" className="hover:text-primary transition-colors duration-300">
-                      INFO@TECHRYPT.IO
-                    </a>
-                  </li>
-                  <li>
-                    <a href="tel:+1234567890" className="hover:text-primary transition-colors duration-300">
-                      +1 (234) 567-890
-                    </a>
-                  </li>
-                  <li className="text-gray-400">
-                    Available 24/7 for support
-                  </li>
-                </ul>
-              </div>
+            {/* Contact Info */}
+            <div className="mt-8">
+              <h4 className="text-primary font-semibold mb-3 text-sm md:text-base">Contact Info</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li>
+                  <a href="mailto:INFO@TECHRYPT.IO" className="hover:text-primary transition-colors duration-300">
+                    INFO@TECHRYPT.IO
+                  </a>
+                </li>
+                <li>
+                  <a href="tel:+1234567890" className="hover:text-primary transition-colors duration-300">
+                    +1 (234) 567-890
+                  </a>
+                </li>
+                <li className="text-gray-400">
+                  Available 24/7 for support
+                </li>
+              </ul>
             </div>
           </div>
         </div>

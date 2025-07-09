@@ -5,13 +5,19 @@ const nodemailer = require('nodemailer');
 exports.subscribe = async (req, res) => {
     try {
         const { email } = req.body;
+        console.log('Newsletter subscription request:', email);
+        
         if (!email || !email.includes('@')) {
+            console.log('Invalid email:', email);
             return res.status(400).json({ success: false, error: 'Invalid email address' });
         }
+        
         const subscriber = new NewsletterSubscriber({ email: email.trim().toLowerCase() });
         await subscriber.save();
+        console.log('Successfully subscribed:', email);
         res.json({ success: true, message: 'Successfully subscribed to newsletter' });
     } catch (err) {
+        console.error('Newsletter subscription error:', err);
         if (err.code === 11000) {
             res.status(400).json({ success: false, error: 'Email already subscribed' });
         } else {
