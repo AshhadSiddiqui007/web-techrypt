@@ -4,7 +4,9 @@
   "main": "app.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node app.js"
+    "start": "NODE_ENV=production node app.js",
+    "dev": "nodemon app.js",
+    "prod": "NODE_ENV=production node app.js"
   },
   "keywords": [],
   "author": "",

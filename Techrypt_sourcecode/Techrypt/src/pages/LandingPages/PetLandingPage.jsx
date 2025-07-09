@@ -7,6 +7,7 @@ import ComparisonSection from '../../components/PetLandingPage/Comparisons';
 import TestimonialsSection from '../../components/PetLandingPage/Testimonials';
 import FAQSection from '../../components/PetLandingPage/FAQ';
 import CTASection from '../../components/PetLandingPage/CTA';
+import PetChatUI from '../../components/PetLandingPage/PetChatUI';
 
 const PetLandingPage = () => {
   const [activeAccordion, setActiveAccordion] = useState(null);
@@ -39,11 +40,12 @@ const PetLandingPage = () => {
   };
 
   const handleGetStarted = () => {
-    // Directly trigger the chatbot to open with a welcome message
-    const event = new CustomEvent('openTechryptChatbot', {
+    // Trigger the pet-specific chatbot to open with a welcome message
+    const event = new CustomEvent('openPetChatbot', {
       detail: {
-        contextMessage: "Hi there! I'd be happy to help you take your business to the next level. Could you share some information about yourself so I can provide personalized assistance?",
-        businessType: 'New Visitor',
+        contextMessage: "🐾 Welcome to our pet care automation platform! I'm here to help you streamline your pet business. What can I help you with today?",
+        businessType: 'Pet Business',
+        businessProfile: 'pets',
         showAppointmentForm: true
       }
     });

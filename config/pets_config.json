@@ -1,0 +1,52 @@
+{
+  "business_name": "PetCare Plus",
+  "business_id": "pets",
+  "domain": "pets.techrypt.com",
+  "api_keys": {
+    "gemini_api_key": "AIzaSyDfIM75gml9YzRPt6u2Lw5m-nhSiA6uVEg",
+    "openai_api_key": null,
+    "claude_api_key": null
+  },
+  "rate_limits": {
+    "requests_per_minute": 60,
+    "daily_limit": 1000
+  },
+  "business_profile": {
+    "industry": "pet_services",
+    "tone": "caring and friendly",
+    "brand_voice": "compassionate pet lover",
+    "target_audience": "pet owners and animal lovers",
+    "services": [
+      "website_development",
+      "social_media_marketing",
+      "branding_services", 
+      "chatbot_development",
+      "automation_packages",
+      "payment_gateway_integration"
+    ],
+    "specializations": [
+      "Pet business websites",
+      "Veterinary practice management",
+      "Pet booking systems",
+      "Animal care automation"
+    ]
+  },
+  "response_customization": {
+    "greeting_style": "Warm and pet-focused",
+    "service_presentation": "Animal welfare and business growth benefits",
+    "appointment_approach": "Caring consultation with pet business expertise",
+    "location_mentions": "Serving pet businesses locally and remotely",
+    "avoid_repetitive_greetings": true,
+    "conversation_flow": "Only greet by name on first message, then proceed naturally without repetitive hellos"
+  },
+  "csv_data_file": "pets_data.csv",
+  "business_data": {
+    "company_description": "Specialized digital solutions for pet businesses, veterinary practices, and animal care services",
+    "key_differentiators": [
+      "Pet industry expertise",
+      "Veterinary practice specialization",
+      "Animal-focused design",
+      "Pet business growth solutions"
+    ]
+  }
+}
