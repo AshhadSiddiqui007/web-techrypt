@@ -26,6 +26,7 @@ import AboutPageNew from "./pages/About/About_v2.jsx";
 import EventCalendar from "./pages/EventCalendar/EventCalendar.jsx";
 import Offers from "./pages/Offers/Offers.jsx";
 import ContactPage from "./pages/ContactPage/ContactPage.jsx";
+import WelcomeAboard from "./pages/ContactPage/WelcomeAboard.jsx";
 import VerticalsPage from "./pages/Verticals/verticals.jsx";
 import PetLandingPage from "./pages/LandingPages/PetlandingPage.jsx";
 import BlogPage from "./pages/BlogPage/BlogPage.jsx";
@@ -98,6 +99,7 @@ const AppContent = () => {
         <Route path="/Terms&Conditions" element={<TermsConditions />} />
         <Route path="/Offers" element={<Offers />} />
         <Route path="/Contact" element={<ContactPage />} />
+        <Route path="/WelcomeAboard" element={<WelcomeAboard />} />
         <Route path="/Verticals" element={<VerticalsPage />} />
         <Route path="/PetLandingPage" element={<PetLandingPage />} />
         <Route path="/LandingPages/PetLandingPage" element={<PetLandingPage />} />

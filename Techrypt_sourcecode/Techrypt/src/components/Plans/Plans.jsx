@@ -198,7 +198,7 @@ const Plans = () => {
                       <h1 className="text-3xl font-bold text-gray-900">{e.price}</h1>
                       {/* <p className="text-sm text-gray-500">{e.priceInfo}</p> */}
                     </div>
-                    <Link to={"/Contact"}
+                    <Link to={i === 0 ? "/welcomeaboard" : "/Contact"}
                       className={`w-full py-3 text-center rounded-lg ${i === 1 ? "bg-primary text-white glow-hover" : "border border-primary text-primary hover:bg-primary hover:text-white"} transition-colors duration-300`}
                     >
                       {e.demoBtn}
