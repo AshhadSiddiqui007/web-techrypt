@@ -1,0 +1,52 @@
+{
+  "business_name": "FitTech Solutions",
+  "business_id": "fitness",
+  "domain": "fitness.techrypt.com",
+  "api_keys": {
+    "gemini_api_key": "AIzaSyC9AimiR-w6pPLDZ3zZ4q6TXFuvgsJhaOM",
+    "openai_api_key": null,
+    "claude_api_key": null
+  },
+  "rate_limits": {
+    "requests_per_minute": 60,
+    "daily_limit": 1000
+  },
+  "business_profile": {
+    "industry": "fitness_wellness",
+    "tone": "motivational and energetic",
+    "brand_voice": "inspiring fitness coach",
+    "target_audience": "fitness businesses and health enthusiasts",
+    "services": [
+      "website_development",
+      "social_media_marketing",
+      "branding_services",
+      "chatbot_development", 
+      "automation_packages",
+      "payment_gateway_integration"
+    ],
+    "specializations": [
+      "Fitness business websites",
+      "Gym management systems",
+      "Workout booking platforms",
+      "Health and wellness automation"
+    ]
+  },
+  "response_customization": {
+    "greeting_style": "Energetic and health-focused",
+    "service_presentation": "Fitness business growth and member engagement benefits",
+    "appointment_approach": "Dynamic consultation with fitness industry expertise",
+    "location_mentions": "Empowering fitness businesses locally and remotely",
+    "avoid_repetitive_greetings": true,
+    "conversation_flow": "Only greet by name on first message, then proceed naturally without repetitive hellos"
+  },
+  "csv_data_file": "fitness_data.csv",
+  "business_data": {
+    "company_description": "Specialized digital solutions for fitness centers, personal trainers, and wellness businesses",
+    "key_differentiators": [
+      "Fitness industry expertise",
+      "Gym and studio specialization",
+      "Health-focused design",
+      "Member engagement solutions"
+    ]
+  }
+}

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 import TechryptChatbot from "../../components/TechryptChatbot/TechryptChatbot";
+import FitnessChatUI from "../../components/FitnessLandingPage/FitnessChatUI";
 
 // Hero Section
 const HeroSection = ({ onOpenAppointment }) => (
@@ -127,12 +128,81 @@ const HeroSection = ({ onOpenAppointment }) => (
           </motion.div>
         </div>
 
-        {/* Right Column - Fitness Animation */}
+        {/* Right Column - Fitness Chat UI */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8, rotateY: 45 }}
           animate={{ opacity: 1, scale: 1, rotateY: 0 }}
           transition={{ delay: 0.5, duration: 1, type: "spring", stiffness: 80 }}
           className="flex justify-center lg:justify-end"
+        >
+          <FitnessChatUI />
+        </motion.div>
+      </div>
+    </div>
+  </section>
+);
+
+// Pain Points Section
+const painPoints = [
+  {
+    icon: <TrendingDown className="w-12 h-12 text-[#C4D322]" />,
+    title: "Declining Memberships",
+    description: "Members are canceling faster than you can sign them up, and you're not sure why."
+  },
+  {
+    icon: <Users className="w-12 h-12 text-[#C4D322]" />,
+    title: "Low Online Visibility", 
+    description: "Your gym doesn't show up when people search for fitness in your area."
+  },
+  {
+    icon: <Calendar className="w-12 h-12 text-[#C4D322]" />,
+    title: "Manual Booking Chaos",
+    description: "Staff spend hours on phone calls and emails just to schedule classes and sessions."
+  },
+  {
+    icon: <DollarSign className="w-12 h-12 text-[#C4D322]" />,
+    title: "Revenue Plateaus",
+    description: "You're stuck at the same revenue level while costs keep rising."
+  }
+];
+
+const PainPointsSection = () => (
+  <section className="py-20 bg-[#0f0f0f]">
+    <div className="container mx-auto px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="text-center mb-16"
+      >
+        <motion.h2 
+          className="text-4xl md:text-5xl font-bold text-white mb-6"
+          initial={{ opacity: 0, scale: 0.5 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
+        >
+          Sound Familiar? You're Not Alone.
+        </motion.h2>
+        <motion.p 
+          className="text-xl text-gray-300 max-w-3xl mx-auto"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+        >
+          95% of fitness businesses struggle with these exact same challenges. Here's what's really happening:
+        </motion.p>
+      </motion.div>
+      
+      <div className="grid lg:grid-cols-2 gap-12 items-center">
+        {/* Left Column - Fitness Animation */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, rotateY: 45 }}
+          whileInView={{ opacity: 1, scale: 1, rotateY: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5, duration: 1, type: "spring", stiffness: 80 }}
+          className="flex justify-center"
         >
           <div className="fitness-animation-container">
             <style jsx>{`
@@ -564,118 +634,66 @@ const HeroSection = ({ onOpenAppointment }) => (
             <div className="rod1"></div>
           </div>
         </motion.div>
-      </div>
-    </div>
-  </section>
-);
 
-// Pain Points Section
-const painPoints = [
-  {
-    icon: <TrendingDown className="w-12 h-12 text-[#C4D322]" />,
-    title: "Declining Memberships",
-    description: "Members are canceling faster than you can sign them up, and you're not sure why."
-  },
-  {
-    icon: <Users className="w-12 h-12 text-[#C4D322]" />,
-    title: "Low Online Visibility", 
-    description: "Your gym doesn't show up when people search for fitness in your area."
-  },
-  {
-    icon: <Calendar className="w-12 h-12 text-[#C4D322]" />,
-    title: "Manual Booking Chaos",
-    description: "Staff spend hours on phone calls and emails just to schedule classes and sessions."
-  },
-  {
-    icon: <DollarSign className="w-12 h-12 text-[#C4D322]" />,
-    title: "Revenue Plateaus",
-    description: "You're stuck at the same revenue level while costs keep rising."
-  }
-];
-
-const PainPointsSection = () => (
-  <section className="py-20 bg-[#0f0f0f]">
-    <div className="container mx-auto px-6">
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="text-center mb-16"
-      >
-        <motion.h2 
-          className="text-4xl md:text-5xl font-bold text-white mb-6"
-          initial={{ opacity: 0, scale: 0.5 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-        >
-          Sound Familiar? You're Not Alone.
-        </motion.h2>
-        <motion.p 
-          className="text-xl text-gray-300 max-w-3xl mx-auto"
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          95% of fitness businesses struggle with these exact same challenges. Here's what's really happening:
-        </motion.p>
-      </motion.div>
-      
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {painPoints.map((point, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 60, rotateX: -30 }}
-            whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-            viewport={{ once: true }}
-            transition={{ 
-              delay: index * 0.15,
-              duration: 0.8,
-              type: "spring",
-              stiffness: 100
-            }}
-            whileHover={{ 
-              y: -10,
-              scale: 1.05,
-              rotateY: 5,
-              transition: { duration: 0.3 }
-            }}
-            className="bg-gradient-to-br from-[#1a1a1a] to-[#181818] p-8 rounded-2xl border border-[#C4D322]/20 hover:border-[#C4D322]/40 transition-all duration-300 perspective-1000"
-          >
-            <motion.div 
-              className="mb-4"
-              initial={{ scale: 0, rotate: -180 }}
-              whileInView={{ scale: 1, rotate: 0 }}
+        {/* Right Column - Pain Points stacked vertically */}
+        <div className="space-y-6">
+          {painPoints.map((point, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: 100, rotateY: 45 }}
+              whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.15 + 0.3, duration: 0.6, type: "spring" }}
-              whileHover={{ 
-                rotate: [0, -10, 10, 0],
-                scale: 1.1
+              transition={{ 
+                delay: index * 0.15,
+                duration: 0.8,
+                type: "spring",
+                stiffness: 100
               }}
+              whileHover={{ 
+                x: 10,
+                scale: 1.02,
+                transition: { duration: 0.3 }
+              }}
+              className="bg-gradient-to-br from-[#1a1a1a] to-[#181818] p-6 rounded-2xl border border-[#C4D322]/20 hover:border-[#C4D322]/40 transition-all duration-300 group"
             >
-              {point.icon}
+              <div className="flex items-start gap-4">
+                <motion.div 
+                  className="flex-shrink-0"
+                  initial={{ scale: 0, rotate: -180 }}
+                  whileInView={{ scale: 1, rotate: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.15 + 0.3, duration: 0.6, type: "spring" }}
+                  whileHover={{ 
+                    rotate: [0, -10, 10, 0],
+                    scale: 1.1
+                  }}
+                >
+                  {point.icon}
+                </motion.div>
+                <div>
+                  <motion.h3 
+                    className="text-xl font-bold text-white mb-2"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.15 + 0.5, duration: 0.5 }}
+                  >
+                    {point.title}
+                  </motion.h3>
+                  <motion.p 
+                    className="text-gray-400"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.15 + 0.7, duration: 0.5 }}
+                  >
+                    {point.description}
+                  </motion.p>
+                </div>
+              </div>
             </motion.div>
-            <motion.h3 
-              className="text-xl font-bold text-white mb-3"
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.15 + 0.5, duration: 0.5 }}
-            >
-              {point.title}
-            </motion.h3>
-            <motion.p 
-              className="text-gray-400"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.15 + 0.7, duration: 0.5 }}
-            >
-              {point.description}
-            </motion.p>
-          </motion.div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   </section>

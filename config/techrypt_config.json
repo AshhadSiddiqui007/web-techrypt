@@ -1,0 +1,52 @@
+{
+  "business_name": "Techrypt",
+  "business_id": "techrypt",
+  "domain": "techrypt.com",
+  "api_keys": {
+    "gemini_api_key": "SAME_AS_CURRENT",
+    "openai_api_key": null,
+    "claude_api_key": null
+  },
+  "rate_limits": {
+    "requests_per_minute": 60,
+    "daily_limit": 1000
+  },
+  "business_profile": {
+    "industry": "technology_services",
+    "tone": "professional",
+    "brand_voice": "expert and trustworthy",
+    "target_audience": "businesses and entrepreneurs",
+    "services": [
+      "website_development",
+      "social_media_marketing", 
+      "branding_services",
+      "chatbot_development",
+      "automation_packages",
+      "payment_gateway_integration"
+    ],
+    "specializations": [
+      "B2B digital solutions",
+      "Enterprise automation",
+      "Professional web development",
+      "Business process optimization"
+    ]
+  },
+  "response_customization": {
+    "greeting_style": "Professional and solution-focused",
+    "service_presentation": "Technical benefits with ROI focus",
+    "appointment_approach": "Consultation-based with expertise emphasis",
+    "location_mentions": "Karachi locally, remote consultations globally",
+    "avoid_repetitive_greetings": true,
+    "conversation_flow": "Only greet by name on first message, then proceed naturally without repetitive hellos"
+  },
+  "csv_data_file": "data.csv",
+  "business_data": {
+    "company_description": "Leading digital solutions provider specializing in business growth through technology",
+    "key_differentiators": [
+      "Expert technical team",
+      "Proven business results", 
+      "Comprehensive digital solutions",
+      "Local Karachi presence with global reach"
+    ]
+  }
+}
