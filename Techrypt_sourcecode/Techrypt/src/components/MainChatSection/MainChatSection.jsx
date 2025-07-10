@@ -326,7 +326,7 @@ const MainChatSection = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-center mt-12"
         >
-          <p className="text-gray-400 text-sm">
+          <p className="text-white text-sm">
             Need more detailed assistance? Our team is ready to help you personally.
           </p>
           <motion.button

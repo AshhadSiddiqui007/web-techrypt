@@ -3,10 +3,10 @@ const Blog = require('../models/Blog'); // adjust path if your structure differs
 
 // Function to start cron job
 const startScheduledBlogPublisher = () => {
-  console.log('⏰ Blog scheduler initialized to run every minute...');
+  console.log('⏰ Blog scheduler initialized to run every 10 minutes...');
 
-  // Cron: Run every minute
-  cron.schedule('* * * * *', async () => {
+  // Cron: Run every 10 minutes
+  cron.schedule('*/10 * * * *', async () => {
     try {
       const now = new Date();
 
