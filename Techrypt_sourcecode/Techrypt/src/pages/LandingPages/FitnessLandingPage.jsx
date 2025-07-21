@@ -1226,6 +1226,7 @@ const FitnessLandingPage = () => {
             setOpenAppointmentDirect(false);
           }}
           openAppointmentDirect={openAppointmentDirect}
+          limitBotResponses={true}
         />
       )}
     </div>

@@ -84,6 +84,9 @@ const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
 
   // Core states
   const [messages, setMessages] = useState(() => loadMessages());
+  // Track bot responses for landing page limit
+  const [botResponseCount, setBotResponseCount] = useState(1); // initial bot message
+  const [chatDisabled, setChatDisabled] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -200,7 +203,7 @@ const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
   };
 
   const sendMessage = async (messageText = inputMessage) => {
-    if (!messageText.trim()) return;
+    if (!messageText.trim() || chatDisabled) return;
 
     const userMessage = {
       id: Date.now(),
@@ -251,6 +254,25 @@ const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
       };
 
       setMessages(prev => [...prev, botMessage]);
+      // If landing page limit is enabled, count bot responses
+      if (props && props.limitBotResponses) {
+        setBotResponseCount(prev => {
+          const newCount = prev + 1;
+          if (newCount >= 4) {
+            setChatDisabled(true);
+            setShowContactForm(false);
+            // Prefill appointment form with contactData and open main appointment form
+            setFormData(prev => ({
+              ...prev,
+              name: contactData.name || '',
+              email: contactData.email || '',
+              phone: contactData.phone || ''
+            }));
+            setShowAppointmentForm(true); // This triggers the main appointment form modal
+          }
+          return newCount;
+        });
+      }
 
       // Handle intelligent form triggers from AI response
       if (data.show_contact_form && !contactData.email) {
@@ -1486,7 +1508,7 @@ Thank you for choosing Techrypt.io! 🚀`,
         )}
 
         {/* Input */}
-        {!isMinimized && (
+        {!isMinimized && !chatDisabled && (
         <div className="techrypt-chatbot-input">
           <div className="techrypt-input-container">
             <textarea
@@ -1508,6 +1530,12 @@ Thank you for choosing Techrypt.io! 🚀`,
             </button>
           </div>
         </div>
+        )}
+        {/* Show message when chat is disabled due to bot response limit */}
+        {chatDisabled && (
+          <div className="techrypt-chatbot-limit-message">
+            <p>You've reached the maximum number of chatbot responses.<br />Please book an appointment to continue.</p>
+          </div>
         )}
 
         {/* Contact Form Modal */}

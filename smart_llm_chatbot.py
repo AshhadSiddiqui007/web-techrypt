@@ -16,6 +16,8 @@ import re
 from datetime import datetime
 from typing import Dict, List, Optional
 from dataclasses import dataclass, asdict
+import requests
+import logging
 
 # Google Gemini API integration
 try:
@@ -579,6 +581,38 @@ class IntelligentBusinessConsultant:
             logger.error(f"❌ Intelligent response generation failed: {e}")
             return None
 
+# Step 1: Add MistralOpenRouterHandler
+class MistralOpenRouterHandler:
+    def __init__(self):
+        self.api_key = "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"
+        self.api_url = "https://openrouter.ai/api/v1/chat/completions"
+        self.model = "mistralai/mistral-7b-instruct:free"
+        self.headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+
+    def generate_response(self, prompt: str, user_message: str) -> Optional[str]:
+        try:
+            payload = {
+                "model": self.model,
+                "messages": [
+                    {"role": "system", "content": prompt},
+                    {"role": "user", "content": user_message}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 200
+            }
+            res = requests.post(self.api_url, headers=self.headers, json=payload)
+            res.raise_for_status()
+            return res.json()["choices"][0]["message"]["content"].strip()
+        except Exception as e:
+            logging.error(f"❌ Mistral (requests) fallback failed: {e}")
+            return None
+
+    def is_available(self):
+        return bool(self.api_key)
+
 class CSVTrainingDataHandler:
     """Handle CSV training data for semantic response matching"""
 
@@ -767,7 +801,7 @@ class IntelligentLLMChatbot:
         # Initialize enhanced AI handlers
         self.gemini_handler = GeminiChatbotHandler()
         self.csv_handler = CSVTrainingDataHandler()
-
+        self.mistral_handler = MistralOpenRouterHandler()
         # Initialize intelligent business consultant
         self.business_consultant = IntelligentBusinessConsultant(self.gemini_handler, self.csv_handler)
 
@@ -788,7 +822,8 @@ class IntelligentLLMChatbot:
             'csv_fallback': 0,
             'rule_based': 0,
             'generic_fallback': 0,
-            'total_responses': 0
+            'total_responses': 0,
+            'mistral_fallback': 0  # Track Mistral fallback usage
         }
 
         self.business_types = {
@@ -1113,10 +1148,7 @@ class IntelligentLLMChatbot:
             try:
                 csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.6)
                 if csv_response:
-                    # Extract business type from CSV match
-                    for row in self.csv_handler.training_data:
-                        if row['response'] == csv_response:
-                            return row['business_type']
+                    pass  # Extract business type from CSV match if needed
             except Exception as e:
                 logger.warning(f"⚠️ CSV business detection failed: {e}")
 
@@ -1249,1382 +1281,70 @@ class IntelligentLLMChatbot:
 
         return detected_services
 
-    def get_intelligent_response(self, message: str, user_context: dict, session_id: str = "default") -> dict:
-        """Generate intelligent, contextual response with enhanced AI fallback chain"""
-        logger.info(f"🔍 DEBUG: Method started for message: '{message}'")
-        print(f"🔍 PRINT DEBUG: Method started for message: '{message}'")
-        start_time = time.time()
-        logger.info(f"🔍 DEBUG: start_time set")
+    def get_intelligent_response(self, message: str, context: ConversationContext, user_context: dict = None) -> str:
+        """Generate intelligent response using Gemini, fallback to Mistral, then CSV"""
 
-        # ✅ FIX: Initialize ALL variables at the very beginning to prevent UnboundLocalError
-        response_text = ""
-        llm_method = "fallback"
-        csv_confidence = 0.0
-        matched_question = None
-        show_contact_form = False
-        show_appointment_form = False
-        logger.info(f"🔍 DEBUG: Variables initialized")
-        logger.info(f"🔍 DEBUG: CSV handler data_loaded: {self.csv_handler.data_loaded}")
-        logger.info(f"🔍 DEBUG: CSV handler training_data length: {len(self.csv_handler.training_data) if self.csv_handler.training_data else 0}")
+        response_text = None
+        llm_method = None
 
-        try:
-            # Update response stats safely
-            self.response_stats['total_responses'] += 1
-
-            # Get or create conversation context
-            if session_id not in self.conversation_contexts:
-                self.conversation_contexts[session_id] = ConversationContext()
-
-            context = self.conversation_contexts[session_id]
-
-            # Note: Gemini is now the primary AI engine, CSV is fallback only
-
-            # PRIORITY: Check if this is a service inquiry first (before business detection)
-            logger.info(f"🔍 DEBUG: About to call detect_service_inquiry_intent")
+        # Try Gemini first
+        if self.gemini_handler.is_available():
             try:
-                service_inquiry_result = self.detect_service_inquiry_intent(message)
-                logger.info(f"🔍 DEBUG: detect_service_inquiry_intent completed")
+                response_text = self.gemini_handler.generate_business_response(
+                    user_message=message,
+                    business_type=context.business_type,
+                    context=user_context or {},
+                    conversation_context=context
+                )
+                if response_text and len(response_text.strip()) > 15:
+                    llm_method = "gemini"
+                    self.response_stats['gemini_responses'] += 1
+                    context.add_conversation_turn(message, response_text, "gemini")
+                    logger.info("✅ Gemini response used")
             except Exception as e:
-                logger.error(f"❌ ERROR in detect_service_inquiry_intent: {e}")
-                service_inquiry_result = {'intent': 'general', 'detected_services': []}
+                logger.error(f"❌ Gemini error: {e}")
 
-            if service_inquiry_result['intent'] == 'service_inquiry':
-                # This is a service inquiry - try CSV first, then use general business type
-                detected_business = "general"  # Don't change business type for service inquiries
-            else:
-                # Only detect business type if it's not a service inquiry
-                detected_business = self.detect_business_type(message)
-
-            detected_services = self.detect_service_intent(message)
-
-            # ENHANCED: Detect subservices and handle ambiguity
-            subservice_intent = self.detect_subservice_intent(message)
-            ambiguity_resolution = self.resolve_service_ambiguity(message)
-
-            # CRITICAL: Handle user corrections (e.g., "not petshop, a mobileshop")
-            message_lower = message.lower()
-            correction_patterns = ['not ', 'no ', 'actually ', 'i mean ', 'correction', 'not a ', 'not an ']
-            is_correction = any(pattern in message_lower for pattern in correction_patterns)
-
-            if is_correction:
-                # Reset business type to allow re-detection
-                context.business_type = "general"
-                # Extract the corrected business type from the message
-                # Look for business keywords after correction words
-                correction_message = message_lower
-                for pattern in correction_patterns:
-                    if pattern in correction_message:
-                        correction_message = correction_message.split(pattern)[-1].strip()
-                        break
-                detected_business = self.detect_business_type(correction_message)
-                logger.info(f"🔄 User correction detected: '{correction_message}' -> {detected_business}")
-
-                # CRITICAL: Force contextual response for corrections
-                context.business_type = detected_business
-                context.conversation_stage = 'initial'  # Reset to get fresh business-specific response
-                context.is_correction = True  # Flag to ensure contextual response
-            else:
-                detected_business = self.detect_business_type(message)
-                context.is_correction = False
-
-            # Update context
-            if detected_business != "general":
-                context.business_type = detected_business
-
-            context.services_discussed.extend(detected_services)
-            context.services_discussed = list(set(context.services_discussed))  # Remove duplicates
-
-            # ENHANCED: Update subservice context
-            if subservice_intent['detected_subservices']:
-                context.requested_subservices.extend(subservice_intent['detected_subservices'])
-                context.requested_subservices = list(set(context.requested_subservices))
-                context.last_subservice_query = message
-
-                # Add main services to discussed services
-                if subservice_intent['main_services']:
-                    context.services_discussed.extend(subservice_intent['main_services'])
-                    context.services_discussed = list(set(context.services_discussed))
-
-            # INTELLIGENT RESPONSE PRIORITY CHAIN
-            # 1. GEMINI AI RESPONSE (PRIMARY - Highest Priority)
-            if not response_text and self.gemini_handler.is_available():
-                try:
-                    logger.info(f"🤖 Attempting Gemini AI response for: '{message}'")
-                    
-                    gemini_response = self.gemini_handler.generate_business_response(
-                        user_message=message,
-                        business_type=context.business_type if context.business_type != "general" else detected_business,
-                        context=user_context,
-                        conversation_context=context
-                    )
-                    
-                    if gemini_response and len(gemini_response.strip()) > 15:
-                        response_text = gemini_response
-                        llm_method = "gemini_ai"
-                        self.response_stats['gemini_responses'] += 1
-                        
-                        logger.info(f"🤖 Gemini AI response used | Length: {len(response_text)} | Business: {context.business_type}")
-                        
-                        # Update conversation context based on Gemini response
-                        context.add_conversation_turn(message, response_text, "gemini")
-                        
-                        # Check if Gemini response indicates appointment interest
-                        appointment_indicators = ['consultation', 'schedule', 'book', 'meeting', 'call', 'appointment']
-                        if any(indicator in response_text.lower() for indicator in appointment_indicators):
-                            context.conversation_stage = 'closing'
-                    else:
-                        logger.warning("⚠️ Gemini returned insufficient response")
-                        
-                except Exception as e:
-                    logger.error(f"❌ Gemini AI generation failed: {e}")
-
-            # 2. CSV RESPONSES (FALLBACK when Gemini unavailable/fails)
-            if not response_text and self.csv_handler.data_loaded:
-                try:
-                    logger.info(f"🔍 DEBUG: Attempting CSV fallback for: '{message}'")
-                    # Use slightly higher threshold for fallback to ensure quality
-                    csv_response = self.csv_handler.find_similar_response(message, similarity_threshold=0.3)
-                    logger.info(f"🔍 DEBUG: CSV fallback result: {csv_response is not None}")
-
-                    if csv_response:
-                        # Get confidence score for metadata
-                        from sklearn.feature_extraction.text import TfidfVectorizer
-                        from sklearn.metrics.pairwise import cosine_similarity
-                        import re
-
-                        def preprocess_text(text):
-                            if not isinstance(text, str):
-                                return ""
-                            text = text.lower().strip()
-                            text = re.sub(r'[^\w\s]', ' ', text)
-                            text = re.sub(r'\s+', ' ', text)
-                            return text
-
-                        user_message_clean = preprocess_text(message)
-                        csv_questions = [preprocess_text(row['user_message']) for row in self.csv_handler.training_data]
-
-                        vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=5000)
-                        all_texts = csv_questions + [user_message_clean]
-                        tfidf_matrix = vectorizer.fit_transform(all_texts)
-
-                        user_vector = tfidf_matrix[-1]
-                        csv_vectors = tfidf_matrix[:-1]
-                        similarities = cosine_similarity(user_vector, csv_vectors).flatten()
-
-                        import numpy as np
-                        best_idx = np.argmax(similarities)
-                        csv_confidence = similarities[best_idx]
-                        matched_question = self.csv_handler.training_data[best_idx]['user_message']
-
-                        # Personalize CSV response with user name and format properly
-                        user_name = user_context.get('name', '')
-                        name_part = f", {user_name}" if user_name else ""
-
-                        formatted_response = csv_response.replace("{name}", name_part)
-
-                        # CRITICAL: Check for direct booking requests in CSV matches
-                        matched_row = self.csv_handler.training_data[best_idx]
-                        intent_type = matched_row.get('intent_type', 'general')
-
-                        if intent_type == 'direct_booking_request':
-                            context.conversation_stage = 'closing'  # Trigger appointment form
-                            logger.info(f"🎯 Direct booking request detected from CSV - triggering appointment form")
-
-                        response_text = formatted_response
-                        llm_method = "csv_fallback"
-                        self.response_stats['csv_fallback'] += 1
-                        logger.info(f"📊 CSV fallback used | Confidence: {csv_confidence:.3f} | Question: {matched_question} | Intent: {intent_type}")
-
-                except Exception as e:
-                    logger.warning(f"⚠️ CSV fallback matching failed: {e}")
-
-            # 3. STANDARDIZED SERVICE INQUIRIES (FALLBACK - only for general service lists when Gemini and CSV don't match)
-            if not response_text:
-                service_inquiry_patterns = ['services', 'what are your services', 'list services', 'your services', 'what services', 'service list', 'what do you offer', 'what can you do']
-                if any(pattern in message.lower() for pattern in service_inquiry_patterns):
-                    user_name = user_context.get('name', '')
-                    name_part = f", {user_name}" if user_name else ""
-                    response_text = f"""Great{name_part}! For your business, we can help with:
-
-1. Website Development
-2. Social Media Marketing
-3. Branding Services
-4. Chatbot Development
-5. Automation Packages
-6. Payment Gateway Integration
-
-Would you like to schedule a consultation or learn more about any specific service?"""
-                    llm_method = "standardized_service_inquiry"
-                    self.response_stats['rule_based'] += 1
-
-            # 4. Rule-based intelligent responses (final fallback)
-            if not response_text:
-                response_text = self.generate_contextual_response(message, context, user_context, subservice_intent, ambiguity_resolution)
-                llm_method = "rule_based"
-                self.response_stats['rule_based'] += 1
-
-            # 5. Generic fallback (should rarely be used)
-            if not response_text:
-                user_name = user_context.get('name', '')
-                name_part = f", {user_name}" if user_name else ""
-                response_text = f"Thank you for your message{name_part}! I'm here to help you grow your business with personalized digital solutions. Could you tell me more about your business type and what specific challenges you're facing?"
-                llm_method = "generic_fallback"
-                self.response_stats['generic_fallback'] += 1
-
-            # Final safety check to ensure response_text is never empty
-            if not response_text or response_text.strip() == "":
-                response_text = "Thank you for your message! I'm here to help you grow your business with personalized digital solutions. Could you tell me more about your business type and what specific challenges you're facing?"
-                llm_method = "final_fallback"
-
-            # Determine if forms should be shown
-            show_contact_form = self.should_show_contact_form(message, context)
-            show_appointment_form = self.should_show_appointment_form(message, context)
-
-            # Update conversation stage
-            if any(word in message.lower() for word in ['book', 'schedule', 'appointment', 'consultation']):
-                context.conversation_stage = 'closing'
-            elif context.services_discussed:
-                context.conversation_stage = 'recommendation'
-            elif context.business_type:
-                context.conversation_stage = 'discovery'
-
-        except Exception as e:
-            logger.error(f"❌ Error during intelligent response generation: {e}")
-            response_time = time.time() - start_time
-            return {
-                'response': "I apologize for the technical difficulty. How can Techrypt help your business today?",
-                'source': "error_fallback",
-                'confidence': 0.0,
-                'matched_question': None,
-                'business_type': "general",
-                'conversation_stage': "initial",
-                'show_appointment_form': False,
-                'show_contact_form': False,
-                'services_discussed': [],
-                'response_time': response_time,
-                'llm_used': "error_fallback",
-                'intelligent_mode': INTELLIGENT_MODE,
-                'business_api_available': False,
-                'gemini_available': False
-            }
-
-        # Calculate response time
-        response_time = time.time() - start_time
-
-        # Return successful response
-        return {
-            'response': response_text,
-            'source': llm_method,
-            'confidence': csv_confidence if llm_method in ['csv_match', 'csv_fallback', 'csv_priority_match'] else 1.0,
-            'matched_question': matched_question if llm_method in ['csv_match', 'csv_fallback', 'csv_priority_match'] else None,
-            'business_type': context.business_type,
-            'conversation_stage': context.conversation_stage,
-            'show_appointment_form': show_appointment_form,
-            'show_contact_form': show_contact_form,
-            'services_discussed': context.services_discussed,
-            'response_time': response_time,
-            'llm_used': llm_method,
-            'intelligent_mode': INTELLIGENT_MODE,
-            'business_api_available': BUSINESS_API_AVAILABLE and USE_BUSINESS_API,
-            'gemini_available': self.gemini_handler.is_available()
-        }
-
-    def generate_contextual_response(self, message: str, context: ConversationContext, user_context: dict, subservice_intent: dict = None, ambiguity_resolution: dict = None) -> str:
-        """Generate contextual response based on business type and conversation stage"""
-        message_lower = message.lower()
-        user_name = user_context.get('name', '')
-        name_part = f", {user_name}" if user_name else ""
-
-        # PRIORITY 1: Enhanced service inquiry detection (HIGHEST PRIORITY)
-        service_inquiry_result = self.detect_service_inquiry_intent(message)
-
-        if service_inquiry_result['intent'] == 'service_inquiry' and service_inquiry_result['detected_services']:
-            # User is asking about a service (e.g., "branding services", "chatbot help")
-            service = service_inquiry_result['detected_services'][0]
-            context.services_discussed.append(service.replace('_', ' ').title())
-            context.conversation_stage = 'service_inquiry'
-
-            return self.get_enhanced_service_response(service, context.business_type, name_part)
-
-        # Initialize subservice_intent and ambiguity_resolution if not provided
-        if subservice_intent is None:
-            subservice_intent = self.detect_subservice_intent(message)
-        if ambiguity_resolution is None:
-            ambiguity_resolution = self.resolve_service_ambiguity(message)
-
-        # CRITICAL: Handle user corrections with immediate business-specific response
-        if context.is_correction and context.business_type and context.business_type != "general":
-            return self.get_correction_response(context.business_type, name_part)
-
-        # CRITICAL: Detect general responses after service selection and redirect to appointment
-        if self.is_general_response_after_service(message_lower, context):
-            return self.get_appointment_redirect_response(context, name_part)
-
-        # ENHANCED: Handle specific subservice requests
-        if subservice_intent['detected_subservices'] and not subservice_intent['subservice_query_intent']:
-            # User is requesting a specific subservice
-            primary_subservice = subservice_intent['detected_subservices'][0]
-            business_context = context.business_type if context.business_type != "general" else "business"
-            return self.get_subservice_response(primary_subservice, business_context, name_part)
-
-        # ENHANCED: Handle subservice questions (how does X work, what is Y)
-        if subservice_intent['subservice_query_intent'] and subservice_intent['detected_subservices']:
-            primary_subservice = subservice_intent['detected_subservices'][0]
-            business_context = context.business_type if context.business_type != "general" else "business"
-            response = self.get_subservice_response(primary_subservice, business_context, name_part)
-            # Add educational context for query-type intents
-            return response.replace("Ready to discuss", "Would you like to learn more about how this works, or are you ready to discuss")
-
-        # ENHANCED: Handle ambiguous business/subservice inputs
-        if ambiguity_resolution['is_ambiguous'] and ambiguity_resolution['resolution_strategy'] == 'dual_angle':
-            business_type = ambiguity_resolution['business_type']
-            subservices = ambiguity_resolution['detected_subservices']
-            primary_subservice = subservices[0] if subservices else None
-
-            if primary_subservice:
-                return f"""I can help you with both angles{name_part}!
-
-**For {business_type} businesses:**
-• Industry-specific {primary_subservice} solutions
-• Tailored features for your market
-• Compliance and best practices
-
-**{primary_subservice.title()} service in general:**
-• Professional implementation
-• Custom configuration
-• Ongoing support and optimization
-
-Which perspective interests you more - {business_type} specific solutions or general {primary_subservice} services?"""
-
-        # CRITICAL: Handle service number selections FIRST
-        service_number_patterns = {
-            '1': 'website development',
-            '2': 'social media marketing',
-            '3': 'branding services',
-            '4': 'chatbot development',
-            '5': 'automation packages',
-            '6': 'payment gateway integration'
-        }
-
-        # Check for service number selection
-        for number, service_name in service_number_patterns.items():
-            if message_lower.strip() == number or f"service {number}" in message_lower or service_name.replace(' ', '') in message_lower.replace(' ', ''):
-                # Map service names to standardized keys for tracking
-                service_key = service_name.lower().replace(' ', '_')
-                context.services_discussed.append(service_key)
-                context.conversation_stage = 'recommendation'  # Update stage for service selection
-                return self.get_service_specific_response(service_name, context.business_type, name_part)
-
-        # ENHANCED: Check for service inquiries vs business introductions
-        service_inquiry_result = self.detect_service_inquiry_intent(message)
-
-        if service_inquiry_result['intent'] == 'service_inquiry' and service_inquiry_result['detected_services']:
-            # User is asking about a service (e.g., "branding services", "chatbot help")
-            service = service_inquiry_result['detected_services'][0]
-            service_name = service.replace('_', ' ').title()
-            context.services_discussed.append(service_name)
-            return self.get_enhanced_service_response(service, context.business_type, name_part)
-
-        # Check for service name mentions (legacy support)
-        if any(service in message_lower for service in ['chatbot', 'branding', 'website', 'social media', 'automation', 'payment']):
-            for service_name in service_number_patterns.values():
-                if any(word in message_lower for word in service_name.split()):
-                    context.services_discussed.append(service_name)
-                    return self.get_service_specific_response(service_name, context.business_type, name_part)
-
-
-
-        # CRITICAL: Handle prohibited businesses first
-        if context.business_type == 'prohibited':
-            return "Sorry, I am not supposed to help with that type of business."
-
-        # Business-specific contextual responses with global coverage
-        if context.business_type == 'food_agriculture':
-            if 'website' in message_lower:
-                return f"Food businesses like yours{name_part} need websites that build trust and showcase freshness. I'd recommend a simple, mobile-friendly site with product photos, contact info, and customer testimonials. Do you sell directly to consumers or through retailers?"
-            elif 'social media' in message_lower or 'marketing' in message_lower:
-                return f"Perfect{name_part}! Food businesses thrive on social media. I'd recommend Instagram and Facebook to showcase your fresh products, share customer testimonials, and build local community trust. What's your main product - eggs, dairy, produce, or other?"
-            elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Food businesses like egg selling need strong local presence and customer trust. For your food business, I'd recommend: 🥚 Local SEO optimization, 📱 Social media marketing to showcase fresh products, 🌐 Simple website with contact info and product details, 📞 Customer communication system. What's your biggest challenge - finding customers, online presence, or managing orders?"
-
-        elif context.business_type == 'healthcare':
-            if 'chatbot' in message_lower:
-                return f"For healthcare practices{name_part}, I'd recommend a HIPAA-compliant chatbot with appointment scheduling, patient intake forms, and secure messaging. What type of practice do you have - dental, medical, or specialty care?"
-            elif 'website' in message_lower:
-                return f"Healthcare websites{name_part} need HIPAA compliance, patient portals, and appointment booking. Are you looking to integrate with existing practice management software?"
-            elif context.conversation_stage == 'initial':
-                return f"Great to meet you{name_part}! Healthcare businesses have unique digital needs. What's your biggest challenge - patient scheduling, online presence, or patient communication?"
-
-        elif context.business_type == 'retail_ecommerce':
-            if 'website' in message_lower:
-                return f"""Perfect for your retail business{name_part}!
-
-• User-friendly e-commerce website
-• Secure payment gateway integration
-• Inventory management system
-• Mobile-responsive design
-• Customer review system
-
-What products do you specialize in - electronics, fashion, or general retail?"""
-            elif 'marketing' in message_lower:
-                return f"""Great choice for retail marketing{name_part}!
-
-• Product showcase campaigns
-• Social media advertising
-• Customer review management
-• Email marketing automation
-• Local SEO for Karachi customers
-
-Are you focusing on local Karachi sales or expanding online globally?"""
-            elif context.conversation_stage == 'initial':
-                return f"""Excellent{name_part}! For your mobile/electronics shop:
-
-• Professional e-commerce website
-• Secure payment processing
-• Product catalog management
-• Social media marketing
-• Local SEO for Karachi market
-
-What's your main challenge - online presence, customer acquisition, or payment processing?"""
-
-        elif context.business_type == 'restaurant':
-            if 'social media' in message_lower:
-                return f"""Perfect for restaurant marketing{name_part}!
-
-• Food photography and visual content
-• Customer engagement strategies
-• Social media advertising
-• Review management
-• Local Karachi market targeting
-
-Do you need help with food photography or customer engagement strategies?"""
-            elif 'website' in message_lower:
-                return f"""Excellent choice for restaurants{name_part}!
-
-• Online ordering system
-• Reservation booking
-• Menu display with photos
-• Customer reviews integration
-• Local delivery for Karachi
-
-Do you currently take online orders or need a complete system?"""
-            elif context.conversation_stage == 'initial':
-                return f"""Perfect{name_part}! For your restaurant business:
-
-• Professional website with online ordering
-• Social media marketing with food photography
-• Google My Business for local Karachi customers
-• Customer review management
-• Delivery platform integration
-
-What's your priority - online ordering, social media marketing, or customer engagement?"""
-
-        elif context.business_type == 'automotive':
-            if 'website' in message_lower:
-                return f"Automotive businesses{name_part} need websites that build trust and showcase expertise. I'd recommend service listings, customer reviews, and online booking. What automotive services do you provide?"
-            elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Automotive businesses need local visibility and customer trust. I'd recommend: 🚗 Local SEO for 'near me' searches, 🌐 Professional website with services and pricing, 📱 Google My Business optimization, 📞 Online appointment booking. What's your main focus - repairs, sales, or specialized services?"
-
-        elif context.business_type == 'construction':
-            if 'website' in message_lower:
-                return f"Perfect for construction{name_part}! I recommend:\n\n• Project portfolio website\n• Customer testimonials\n• Service area coverage\n• Online quote requests\n\nWhat construction work do you specialize in?"
-            elif context.conversation_stage == 'initial':
-                return f"Great for plumbing{name_part}! I recommend:\n\n• Professional website\n• Local SEO optimization  \n• Google My Business setup\n• Online booking system\n• Customer reviews\n\nResidential or commercial focus?"
-
-        elif context.business_type == 'professional':
-            if 'website' in message_lower:
-                return f"Professional services{name_part} need websites that establish expertise and generate leads. I'd recommend service descriptions, client testimonials, and consultation booking. What professional services do you offer?"
-            elif context.conversation_stage == 'initial':
-                return f"Perfect{name_part}! Professional services need credibility and lead generation. I'd recommend: ⚖️ Professional website with expertise showcase, 📱 Content marketing and SEO, 🌐 Client portal and automation, 📞 Lead capture and CRM integration. What's your practice area - legal, accounting, consulting, or other?"
-
-        elif context.business_type == 'technology':
-            if 'website' in message_lower:
-                return f"Tech businesses{name_part} need cutting-edge websites that showcase innovation. I'd recommend modern design, case studies, and technical expertise display. What technology solutions do you provide?"
-            elif context.conversation_stage == 'initial':
-                return f"Excellent{name_part}! Technology businesses need to demonstrate innovation and expertise. I'd recommend: 💻 Modern website with case studies, 📱 Technical content marketing, 🌐 SaaS integration and automation, 📞 Lead generation for B2B clients. What's your tech focus - software development, IT services, or emerging technologies?"
-
-        elif context.business_type == 'beauty':
-            if 'social media' in message_lower:
-                return f"Beauty businesses{name_part} are perfect for visual social media marketing. I'd recommend Instagram and TikTok for before/after photos and beauty tips. Do you offer specific beauty services or sell products?"
-            elif context.conversation_stage == 'initial':
-                return f"Perfect{name_part}! Beauty businesses thrive on visual marketing and customer trust. I'd recommend: 💄 Instagram and social media marketing, 🌐 Booking website with service menus, 📱 Customer review management, 📞 Online appointment scheduling. What beauty services do you specialize in?"
-
-        elif context.business_type == 'fitness':
-            if 'website' in message_lower:
-                return f"Fitness businesses{name_part} need websites that motivate and convert. I'd recommend class schedules, trainer profiles, and membership sign-ups. What type of fitness services do you offer?"
-            elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Fitness businesses need motivation and community building. I'd recommend: 💪 Website with class schedules and trainer profiles, 📱 Social media for workout tips and success stories, 🌐 Online membership and booking system, 📞 Community engagement tools. What's your fitness focus - gym, personal training, or specialized classes?"
-
-        elif context.business_type == 'education':
-            if 'website' in message_lower:
-                return f"Educational businesses{name_part} need websites that inform and enroll students. I'd recommend course catalogs, instructor profiles, and enrollment systems. What type of education do you provide?"
-            elif context.conversation_stage == 'initial':
-                return f"Excellent{name_part}! Educational businesses need trust and clear communication. I'd recommend: 📚 Professional website with course information, 📱 Online learning platform integration, 🌐 Student management system, 📞 Parent/student communication tools. What educational services do you offer?"
-
-        elif context.business_type == 'automotive':
-            if 'website' in message_lower:
-                return f"Automotive businesses{name_part} need websites that build trust and showcase expertise. I'd recommend service listings, customer reviews, and online booking. What automotive services do you provide?"
-            elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Automotive businesses need local visibility and customer trust. I'd recommend: 🚗 Local SEO for 'near me' searches, 🌐 Professional website with services and pricing, 📱 Google My Business optimization, 📞 Online appointment booking. What's your main focus - repairs, sales, or specialized services?"
-
-        elif context.business_type == 'manufacturing':
-            if 'website' in message_lower:
-                return f"Manufacturing businesses{name_part} need B2B-focused websites with product catalogs and capabilities. I'd recommend technical specifications, certifications, and supplier portals. What do you manufacture?"
-            elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Manufacturing businesses need B2B credibility and efficiency. I'd recommend: 🏭 Professional B2B website with product catalogs, 📱 Supply chain integration, 🌐 Quality certification showcase, 📞 Supplier and customer portals. What's your manufacturing focus?"
-
-        elif context.business_type == 'hospitality':
-            if 'website' in message_lower:
-                return f"Hospitality businesses{name_part} need websites that inspire and convert bookings. I'd recommend photo galleries, booking systems, and guest reviews. What type of hospitality business do you run?"
-            elif context.conversation_stage == 'initial':
-                return f"Perfect{name_part}! Hospitality businesses need to inspire and convert visitors. I'd recommend: 🏨 Stunning website with photo galleries, 📱 Online booking and reservation system, 🌐 Review management and social proof, 📞 Guest communication tools. What hospitality services do you provide?"
-
-        elif context.business_type == 'entertainment':
-            if 'social media' in message_lower:
-                return f"Entertainment businesses{name_part} are perfect for social media marketing. I'd recommend video content, event promotion, and audience engagement. What type of entertainment do you provide?"
-            elif context.conversation_stage == 'initial':
-                return f"Excellent{name_part}! Entertainment businesses need audience engagement and event promotion. I'd recommend: 🎭 Social media marketing with video content, 🌐 Event booking and promotion website, 📱 Audience engagement tools, 📞 Ticket sales and management system. What entertainment services do you offer?"
-
-        elif context.business_type == 'cleaning_services':
-            if 'website' in message_lower:
-                return f"Cleaning businesses need websites that build trust and showcase reliability{name_part}. I'd recommend before/after photo galleries, service area maps, online booking, and customer testimonials. Do you focus on residential or commercial cleaning?"
-            elif 'social media' in message_lower:
-                return f"Perfect{name_part}! Cleaning businesses do great with before/after photos on social media. I'd recommend Instagram and Facebook to showcase your work, build local trust, and attract new customers. What cleaning services do you specialize in?"
-            elif context.conversation_stage == 'initial':
-                return f"Perfect{name_part}! Cleaning businesses thrive on trust and local visibility. For your cleaning business, I'd recommend:\n\n1. Professional website with online booking system\n2. Google My Business optimization for local searches\n3. Social media marketing with before/after photos\n4. Customer review management system\n5. Automated appointment scheduling\n6. Payment processing for easy transactions\n\nWhat's your biggest challenge - finding new customers, managing bookings, or building online presence?"
-
-        elif context.business_type == 'landscaping_gardening':
-            if 'website' in message_lower:
-                return f"Landscaping businesses{name_part} need websites that showcase your outdoor transformations. I'd recommend project galleries, seasonal service information, and online estimates. Do you focus on design, maintenance, or both?"
-            elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Landscaping businesses need visual marketing and seasonal customer engagement. I'd recommend: 🌿 Website with project galleries, 📱 Social media for seasonal tips and transformations, 🌐 Online estimate requests, 📞 Seasonal service reminders. What landscaping services do you provide?"
-
-        elif context.business_type == 'transportation_logistics':
-            if 'website' in message_lower:
-                return f"Transportation businesses{name_part} need websites that build reliability and showcase service areas. I'd recommend tracking systems, service coverage maps, and online booking. What transportation services do you offer?"
-            elif context.conversation_stage == 'initial':
-                return f"Excellent{name_part}! Transportation businesses need reliability and efficient operations. I'd recommend: 🚚 Professional website with service areas, 📱 Online booking and tracking systems, 🌐 Customer communication tools, 📞 Route optimization and scheduling. What's your transportation focus?"
-
-        elif context.business_type == 'pet_services':
-            if 'website' in message_lower:
-                return f"Pet service businesses{name_part} need websites that build trust with pet owners. I'd recommend staff profiles, service descriptions, and online booking. What pet services do you provide?"
-            elif context.conversation_stage == 'initial':
-                return f"Perfect{name_part}! Pet service businesses need trust and convenience for pet owners. I'd recommend: 🐕 Professional website with staff credentials, 📱 Online booking and scheduling, 🌐 Pet owner communication tools, 📞 Service reminders and updates. What pet services do you specialize in?"
-
-        elif context.business_type == 'home_repair':
-            if 'website' in message_lower:
-                return f"Home repair businesses{name_part} need websites that showcase expertise and build trust. I'd recommend service listings, before/after photos, and emergency contact options. What repair services do you offer?"
-            elif context.conversation_stage == 'initial':
-                return f"Great{name_part}! Home repair businesses need local visibility and customer trust. I'd recommend: 🔧 Professional website with service listings, 📱 Local SEO for emergency searches, 🌐 Online estimate requests, 📞 Customer review management. What's your repair specialty?"
-
-        elif context.business_type == 'security_services':
-            if 'website' in message_lower:
-                return f"Security businesses{name_part} need websites that convey professionalism and reliability. I'd recommend service descriptions, certifications, and secure contact forms. What security services do you provide?"
-            elif context.conversation_stage == 'initial':
-                return f"Excellent{name_part}! Security businesses need credibility and professional presence. I'd recommend: 🛡️ Professional website with certifications, 📱 Secure client communication, 🌐 Service area coverage, 📞 Emergency contact systems. What security services do you offer?"
-
-        elif context.business_type == 'specialty_niche':
-            if 'website' in message_lower:
-                return f"""Perfect{name_part}! Specialty businesses like yours need websites that educate and build trust with niche audiences.
-
-• Website Development - Educational content with expert credentials and specialized information
-• Social Media Marketing - Targeted content for specialty audiences and communities
-• Branding Services - Unique identity that reflects your specialty expertise
-• Chatbot Development - Customer education and specialized inquiry handling
-• Automation Packages - Streamlined operations for niche business processes
-• Payment Gateway Integration - Secure transactions for specialty products/services
-
-What makes your specialty business unique, and who is your target audience?"""
-            elif context.conversation_stage == 'initial':
-                return f"""Excellent{name_part}! Specialty and niche businesses need targeted digital strategies to reach the right audience.
-
-Here are our 6 core services tailored for your specialty business:
-
-• Website Development - Educational content showcasing your expertise and building credibility
-• Social Media Marketing - Niche community building and targeted audience engagement
-• Branding Services - Unique visual identity that reflects your specialty focus
-• Chatbot Development - Automated customer education and specialized inquiry handling
-• Automation Packages - Streamlined processes for efficient niche business operations
-• Payment Gateway Integration - Secure online transactions for specialty products/services
-
-What's your biggest challenge - reaching your target market, educating customers, or managing specialized operations?"""
-
-        # Priority/startup guidance responses
-        startup_keywords = ['start with', 'begin with', 'first step', 'priority', 'what should i start', 'where to start', 'first thing']
-        if any(keyword in message_lower for keyword in startup_keywords):
-            if context.business_type and context.business_type != "general":
-                business_priorities = {
-                    'cleaning_services': "For cleaning businesses, I'd recommend starting with: 1) Google My Business profile for local searches, 2) Simple website with online booking, 3) Before/after photo collection for social media",
-                    'food_agriculture': "For food businesses, I'd recommend starting with: 1) Professional website with product photos, 2) Social media presence to showcase freshness, 3) Local SEO optimization",
-                    'healthcare': "For healthcare practices, I'd recommend starting with: 1) HIPAA-compliant website, 2) Online appointment booking system, 3) Patient portal integration",
-                    'retail_ecommerce': "For retail businesses, I'd recommend starting with: 1) E-commerce website with secure payments, 2) Product photography and descriptions, 3) Social media marketing",
-                    'restaurant': "For restaurants, I'd recommend starting with: 1) Website with online ordering, 2) Social media with food photography, 3) Google My Business with menu and hours"
-                }
-
-                priority_advice = business_priorities.get(context.business_type,
-                    f"For {context.business_type} businesses, I'd recommend starting with: 1) Professional website, 2) Google My Business optimization, 3) Social media presence")
-
-                return f"{priority_advice}. These foundational elements will give you the biggest impact{name_part}. Which of these would you like to tackle first?"
-            else:
-                return f"Great question{name_part}! To give you the best priority recommendations, what type of business do you have? Different industries have different digital priorities - for example, restaurants need online ordering while service businesses need appointment booking."
-
-        # Service-specific responses
-        if 'chatbot' in message_lower and not context.business_type:
-            return f"Great choice{name_part}! Custom chatbots can significantly improve customer engagement. What type of business do you have? This helps me recommend the best chatbot features - appointment booking, customer support, lead generation, or e-commerce assistance."
-
-        if 'website' in message_lower and not context.business_type:
-            return f"Websites are crucial for business growth{name_part}! What industry are you in? This helps me recommend the right features - e-commerce, appointment booking, portfolio showcase, or lead generation."
-
-        # Conversation stage responses
-        if context.conversation_stage == 'recommendation' and context.services_discussed:
-            services_text = ', '.join(context.services_discussed)
-            return f"Based on our discussion about {services_text}{name_part}, I think we can create a comprehensive solution for your {context.business_type} business. Would you like to schedule a consultation to discuss the details and timeline?"
-
-        # Generic intelligent responses (avoid repetitive business type questions)
-        if any(word in message_lower for word in ['help', 'how can you help']):
-            if context.business_type and context.business_type != "general":
-                return f"I can help your {context.business_type} business grow{name_part}! Based on your industry, I'd recommend focusing on digital solutions that drive results. What's your biggest challenge right now - getting more customers, improving online presence, or streamlining operations?"
-            else:
-                return f"I help businesses grow through personalized digital solutions{name_part}! I specialize in websites, social media marketing, branding, chatbots, automation, and payment systems. What's your main business challenge I can help solve?"
-
-        # CRITICAL: Pricing questions trigger appointment booking
-        if any(word in message_lower for word in ['price', 'cost', 'budget', 'pricing', 'rates', 'fees', 'charges']):
-            context.conversation_stage = 'closing'  # Trigger appointment form
-            return f"""Our solutions are customized to your needs and budget{name_part}!
-
-• Pricing varies based on your specific requirements
-• We offer flexible packages for all business sizes
-• Free consultation to discuss your exact needs
-• Transparent pricing with no hidden costs
-
-Let's schedule a consultation to discuss pricing for your specific requirements. We serve Karachi locally and offer remote consultations worldwide. What's the best time to connect?"""
-
-        # CRITICAL: Appointment requests with location context
-        if any(word in message_lower for word in ['appointment', 'schedule', 'book', 'meeting', 'consultation', 'call']):
-            context.conversation_stage = 'closing'  # Trigger appointment form
-            return f"""Perfect{name_part}! Let's schedule your consultation.
-
-• 15-20 minute personalized consultation
-• Discuss your specific business needs
-• Custom solution recommendations
-• Transparent pricing discussion
-
-We serve Karachi locally and offer remote consultations globally. What's your preferred time and method - in-person (Karachi), phone call, or video meeting?"""
-
-        # Enhanced fallback response for unrecognized businesses
-        if context.business_type == "general" and any(word in message_lower for word in ['business', 'company', 'service', 'shop', 'store']):
-            return f"Interesting business{name_part}! While I may not be familiar with your specific industry, I can still help you grow with proven digital strategies:\n\n• Professional website to establish credibility\n• Social media presence to reach customers\n• Local SEO to be found online\n• Customer communication systems\n• Online booking/payment solutions\n\nWhat's your biggest challenge - getting found online, attracting customers, or managing operations?"
-
-        # Default contextual response
-        return f"Thank you for your message{name_part}! I'm here to help you grow your business with personalized digital solutions. Could you tell me more about your business type and what specific challenges you're facing?"
-
-    def detect_service_inquiry_intent(self, message: str) -> dict:
-        """Enhanced service inquiry detection that distinguishes between business types and service requests"""
-        message_lower = message.lower().strip()
-
-        # Service inquiry patterns (what user WANTS)
-        service_inquiry_patterns = {
-            'website_development': [
-                'website', 'web development', 'web design', 'online presence',
-                'website help', 'web help', 'site development', 'web solution'
-            ],
-            'social_media_marketing': [
-                'social media', 'social media marketing', 'facebook marketing',
-                'instagram marketing', 'social media help', 'social marketing'
-            ],
-            'branding_services': [
-                'branding', 'branding services', 'brand design', 'logo design',
-                'brand identity', 'branding help', 'brand development'
-            ],
-            'chatbot_development': [
-                'chatbot', 'chat bot', 'chatbot development', 'chatbot help',
-                'automated chat', 'bot development', 'chat automation'
-            ],
-            'automation_packages': [
-                'automation', 'business automation', 'process automation',
-                'workflow automation', 'automation help', 'automate business'
-            ],
-            'payment_gateway': [
-                'payment gateway', 'payment integration', 'payment processing',
-                'online payments', 'payment system', 'payment help'
-            ]
-        }
-
-        # Business introduction patterns
-        business_intro_patterns = [
-            'i have a', 'i own a', 'i run a', 'my business is', 'my company is',
-            'we have a', 'we own a', 'we run a', 'our business is'
-        ]
-
-        # Service request patterns
-        service_request_patterns = [
-            'i need', 'i want', 'can you help with', 'how can', 'what is',
-            'tell me about', 'explain', 'help me with', 'looking for'
-        ]
-
-        # Check if it's a business introduction
-        is_business_intro = any(pattern in message_lower for pattern in business_intro_patterns)
-
-        # Check if it's a service request
-        is_service_request = any(pattern in message_lower for pattern in service_request_patterns)
-
-        # Detect specific services mentioned
-        detected_services = []
-        for service, keywords in service_inquiry_patterns.items():
-            if any(keyword in message_lower for keyword in keywords):
-                detected_services.append(service)
-
-        # Determine the primary intent
-        if detected_services and (is_service_request or not is_business_intro):
-            intent = 'service_inquiry'
-        elif is_business_intro:
-            intent = 'business_introduction'
-        elif any(word in message_lower for word in ['price', 'cost', 'pricing', 'rates']):
-            intent = 'pricing_inquiry'
-        else:
-            intent = 'general_inquiry'
-
-        return {
-            'intent': intent,
-            'detected_services': detected_services,
-            'is_business_intro': is_business_intro,
-            'is_service_request': is_service_request
-        }
-
-    def get_enhanced_service_response(self, service: str, business_type: str, name_part: str) -> str:
-        """Generate enhanced service-specific responses without location mentions unless relevant"""
-
-        service_responses = {
-            "website_development": {
-                'description': "Website Development creates professional online presence that builds credibility and attracts customers 24/7.",
-                'benefits': [
-                    "Professional design that builds trust",
-                    "Mobile-responsive for all devices",
-                    "SEO optimization for Google visibility",
-                    "Easy content management system",
-                    "Integration with booking/payment systems"
-                ],
-                'cta': "Ready to establish your professional online presence?"
-            },
-            "social_media_marketing": {
-                'description': "Social Media Marketing builds your brand presence and engages customers across Facebook, Instagram, and LinkedIn.",
-                'benefits': [
-                    "Strategic content creation and posting",
-                    "Targeted advertising to reach ideal customers",
-                    "Community building and engagement",
-                    "Brand awareness and reputation management",
-                    "Analytics and performance tracking"
-                ],
-                'cta': "Want to build a strong social media presence?"
-            },
-            "branding_services": {
-                'description': "Branding Services create memorable visual identity that makes your business stand out and builds customer loyalty.",
-                'benefits': [
-                    "Custom logo design that reflects your values",
-                    "Complete brand identity (colors, fonts, style)",
-                    "Marketing materials (business cards, flyers)",
-                    "Brand guidelines for consistent application",
-                    "Professional image that attracts customers"
-                ],
-                'cta': "Ready to create a memorable brand identity?"
-            },
-            "chatbot_development": {
-                'description': "Chatbot Development automates customer service and captures leads 24/7 while you focus on growing your business.",
-                'benefits': [
-                    "24/7 customer support automation",
-                    "Lead capture and qualification",
-                    "Appointment booking integration",
-                    "FAQ handling and information delivery",
-                    "Integration with WhatsApp and websites"
-                ],
-                'cta': "Want to automate your customer service?"
-            },
-            "automation_packages": {
-                'description': "Automation Packages streamline repetitive tasks, saving time and reducing errors in your daily operations.",
-                'benefits': [
-                    "Workflow automation for efficiency",
-                    "Email marketing automation",
-                    "Inventory and order management",
-                    "Customer follow-up automation",
-                    "Integration between business systems"
-                ],
-                'cta': "Ready to automate your business processes?"
-            },
-            "payment_gateway": {
-                'description': "Payment Gateway Integration enables secure online transactions and improves customer convenience.",
-                'benefits': [
-                    "Secure online payment processing",
-                    "Multiple payment method support",
-                    "Mobile-friendly checkout experience",
-                    "Subscription and recurring billing",
-                    "Integration with your website/app"
-                ],
-                'cta': "Want to start accepting online payments?"
-            }
-        }
-
-        if service in service_responses:
-            service_info = service_responses[service]
-
-            # Build response
-            response = f"{service_info['description']}\n\n"
-            response += "Key benefits:\n"
-            for benefit in service_info['benefits']:
-                response += f"• {benefit}\n"
-
-            response += f"\n{service_info['cta']} Let's schedule a free consultation to discuss your specific needs!"
-
-            return response
-
-        # Fallback response
-        service_name = service.replace('_', ' ').title()
-        return f"I'd be happy to help you with {service_name}{name_part}. Let's schedule a consultation to discuss your specific needs and how we can help your business grow."
-
-    def get_specialty_business_response(self, business_type: str, name_part: str) -> str:
-        """Generate comprehensive response for specialty/niche businesses with all 6 services"""
-
-        specialty_responses = {
-            'specialty_niche': f"""Excellent{name_part}! Specialty and niche businesses require targeted digital strategies to reach the right audience and build credibility.
-
-Here are our 6 core services specifically tailored for your specialty business:
-
-• Website Development - Educational content showcasing expertise, building trust with niche audiences
-• Social Media Marketing - Targeted community building and specialized audience engagement
-• Branding Services - Unique visual identity that reflects your specialty focus and expertise
-• Chatbot Development - Automated customer education and specialized inquiry handling
-• Automation Packages - Streamlined processes for efficient specialty business operations
-• Payment Gateway Integration - Secure online transactions for specialty products and services
-
-What's your biggest challenge - reaching your target market, educating potential customers, or managing specialized operations?
-
-Ready to grow your specialty business? Let's schedule a free consultation to discuss your specific needs!""",
-
-            'general': f"""Great{name_part}! Every business can benefit from professional digital presence and targeted marketing strategies.
-
-Here are our 6 core services that can help grow your business:
-
-• Website Development - Professional online presence that builds credibility and attracts customers
-• Social Media Marketing - Strategic content and advertising to reach your ideal audience
-• Branding Services - Memorable visual identity that makes your business stand out
-• Chatbot Development - 24/7 customer service automation and lead capture
-• Automation Packages - Streamlined workflows that save time and reduce errors
-• Payment Gateway Integration - Secure online payment processing for customer convenience
-
-What's your main business challenge - attracting customers, building online presence, or improving operations?
-
-Let's schedule a free consultation to create a customized digital strategy for your business!"""
-        }
-
-        return specialty_responses.get(business_type, specialty_responses['general'])
-
-    def get_service_explanation_response(self, service_name: str, business_type: str, name_part: str) -> str:
-        """Generate detailed explanations for 'how will [service] help me' questions"""
-        explanations = {
-            'website': f"""A professional website will help your {business_type} business by:
-
-• Building credibility and trust with potential customers
-• Providing 24/7 online presence for customer inquiries
-• Showcasing your services and expertise professionally
-• Improving local search visibility for "near me" searches
-• Enabling online bookings and customer contact
-• Displaying customer reviews and testimonials
-
-For {business_type} businesses specifically, we focus on industry-relevant features and local SEO optimization. Would you like to schedule a consultation to discuss your website goals?""",
-
-            'chatbot': f"""A professional chatbot will help your {business_type} business by:
-
-• Providing 24/7 automated customer support
-• Handling common questions and inquiries instantly
-• Qualifying leads and collecting customer information
-• Booking appointments and scheduling consultations
-• Reducing response time from hours to seconds
-• Freeing up your time for core business activities
-
-For {business_type} businesses, we customize conversation flows for industry-specific needs. Would you like to see a demo of how chatbot automation works?""",
-
-            'social media': f"""Professional social media marketing will help your {business_type} business by:
-
-• Increasing brand awareness and local visibility
-• Engaging with customers and building community
-• Showcasing your work and customer testimonials
-• Driving traffic to your website and location
-• Generating leads through targeted advertising
-• Building trust through consistent professional presence
-
-For {business_type} businesses, we focus on platforms and content that work best for your industry. Would you like to discuss a social media strategy consultation?""",
-
-            'branding': f"""Professional branding services will help your {business_type} business by:
-
-• Creating a memorable and professional visual identity
-• Building customer trust and recognition
-• Differentiating you from competitors
-• Ensuring consistent presentation across all materials
-• Increasing perceived value of your services
-• Supporting marketing and advertising efforts
-
-For {business_type} businesses, we design branding that reflects industry expertise and builds credibility. Would you like to explore branding concepts for your business?""",
-
-            'automation': f"""Business automation will help your {business_type} business by:
-
-• Streamlining repetitive tasks and processes
-• Reducing manual work and human errors
-• Improving customer response times
-• Organizing customer data and communications
-• Scheduling and managing appointments automatically
-• Generating reports and tracking performance
-
-For {business_type} businesses, we identify the most time-consuming processes and automate them effectively. Would you like to schedule a consultation to analyze your workflow?""",
-
-            'payment': f"""Payment gateway integration will help your {business_type} business by:
-
-• Enabling secure online payment processing
-• Accepting multiple payment methods (cards, digital wallets)
-• Automating invoicing and receipt generation
-• Reducing payment collection time
-• Providing detailed transaction reporting
-• Ensuring PCI compliance and fraud protection
-
-For {business_type} businesses, we set up payment systems that work seamlessly with your operations. Would you like to discuss your payment processing needs?"""
-        }
-
-        # Map common service variations to standard names
-        service_mapping = {
-            'website development': 'website',
-            'web development': 'website',
-            'site': 'website',
-            'chatbot development': 'chatbot',
-            'bot': 'chatbot',
-            'social media marketing': 'social media',
-            'social media': 'social media',
-            'branding services': 'branding',
-            'brand': 'branding',
-            'automation packages': 'automation',
-            'workflow automation': 'automation',
-            'payment gateway': 'payment',
-            'payment integration': 'payment'
-        }
-
-        # Get the explanation
-        service_key = service_mapping.get(service_name.lower(), service_name.lower())
-        explanation = explanations.get(service_key)
-
-        if explanation:
-            return explanation
-        else:
-            # Fallback for unmapped services
-            return f"""Great question{name_part}! {service_name.title()} will help your {business_type} business by providing professional digital solutions tailored to your industry needs.
-
-Let me schedule a consultation to explain exactly how {service_name} can benefit your specific business situation. We serve Karachi locally and offer remote consultations worldwide.
-
-Would you like to book a consultation to discuss your {service_name} requirements in detail?"""
-
-    def get_service_specific_response(self, service_name: str, business_type: str, name_part: str) -> str:
-        """Generate service-specific responses"""
-        service_responses = {
-            'website development': {
-                'specialty_niche': f"Perfect choice{name_part}! Specialty businesses need websites that educate and build trust with niche audiences:\n\n• Educational content showcasing your expertise\n• Professional design that builds credibility\n• Specialized information and resources\n• Mobile-responsive for all devices\n• SEO optimization for niche keywords\n• Integration with booking and payment systems\n\nWhat makes your specialty business unique?",
-                'retail_ecommerce': f"Perfect choice{name_part}! For mobile/electronics shops, I recommend:\n\n• E-commerce website with product catalog\n• Secure payment processing\n• Inventory management integration\n• Mobile-responsive design\n• Customer reviews system\n\nWhat products do you specialize in?",
-                'restaurant': f"Excellent{name_part}! Restaurant websites should include:\n\n• Online ordering system\n• Menu display with photos\n• Reservation booking\n• Location and hours\n• Customer reviews\n\nDo you need delivery integration?",
-                'default': f"Great choice{name_part}! Website development includes:\n\n• Professional responsive design\n• SEO optimization\n• Content management system\n• Contact forms\n• Analytics integration\n\nWhat's your main goal for the website?"
-            },
-            'social media marketing': {
-                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses need targeted social media strategies:\n\n• Niche community building and engagement\n• Educational content for specialty audiences\n• Expert positioning and thought leadership\n• Targeted advertising to reach ideal customers\n• Community management and networking\n• Analytics and performance tracking\n\nWhat's your target audience for this specialty business?",
-                'retail_ecommerce': f"Smart choice{name_part}! For electronics/mobile shops:\n\n• Product showcase posts\n• Tech tips and tutorials\n• Customer testimonials\n• New arrival announcements\n• Promotional campaigns\n\nWhich platforms interest you most?",
-                'restaurant': f"Perfect{name_part}! Restaurant social media should focus on:\n\n• Food photography\n• Behind-the-scenes content\n• Customer reviews sharing\n• Daily specials promotion\n• Event announcements\n\nInstagram or Facebook priority?",
-                'default': f"Excellent choice{name_part}! Social media marketing includes:\n\n• Content strategy development\n• Platform management\n• Audience engagement\n• Analytics and reporting\n• Paid advertising campaigns\n\nWhat's your target audience?"
-            },
-            'branding services': {
-                'specialty_niche': f"Perfect choice{name_part}! Specialty businesses need unique branding that reflects expertise:\n\n• Custom logo design reflecting your specialty focus\n• Professional brand identity and color palette\n• Marketing materials for niche audiences\n• Expert positioning and credibility elements\n• Brand guidelines for consistent application\n• Specialized business card and letterhead design\n\nWhat makes your specialty business unique?",
-                'retail_ecommerce': f"Great choice{name_part}! Electronics/mobile shop branding includes:\n\n• Professional logo design\n• Store signage design\n• Business card design\n• Social media templates\n• Brand guidelines\n\nWhat's your shop's personality?",
-                'default': f"Perfect{name_part}! Branding services include:\n\n• Logo design and brand identity\n• Color palette and typography\n• Business card and letterhead\n• Social media templates\n• Brand guidelines document\n\nWhat image do you want to project?"
-            },
-            'chatbot development': {
-                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses benefit from educational chatbots:\n\n• Automated customer education about your specialty\n• FAQ handling for common specialty questions\n• Lead qualification for serious inquiries\n• Appointment booking for consultations\n• 24/7 availability for customer support\n• Integration with WhatsApp and website\n\nWhat type of customer questions do you get most often?",
-                'retail_ecommerce': f"""Excellent choice{name_part}! For mobile/electronics shops:
-
-• Product recommendation chatbot
-• Technical support automation
-• Order status tracking
-• FAQ automation
-• Lead generation for Karachi market
-
-What's your priority - sales automation or customer support? We can integrate with your existing systems and provide 24/7 service.""",
-                'restaurant': f"""Smart choice{name_part}! Restaurant chatbots can handle:
-
-• Order taking and menu questions
-• Reservation booking
-• Delivery status updates
-• Customer feedback collection
-• Promotional announcements
-
-Ordering or reservations priority? We serve Karachi restaurants with local delivery integration.""",
-                'default': f"""Great choice{name_part}! Chatbot development includes:
-
-• Custom conversation flows
-• Business-specific responses
-• Integration with your systems
-• Analytics and optimization
-• 24/7 customer support
-
-What tasks should it handle? We provide ongoing support and optimization."""
-            },
-            'automation packages': {
-                'specialty_niche': f"Smart choice{name_part}! Specialty businesses benefit from targeted automation:\n\n• Customer inquiry automation and routing\n• Specialized email marketing sequences\n• Appointment booking and reminders\n• Customer education follow-up sequences\n• Inventory management for specialty products\n• Social media scheduling for niche content\n\nWhat specialty business processes take most of your time?",
-                'default': f"Smart choice{name_part}! Automation packages include:\n\n• Email marketing automation\n• Social media scheduling\n• Customer follow-up sequences\n• Appointment reminders\n• Invoice and payment automation\n\nWhat processes take most of your time?"
-            },
-            'payment gateway integration': {
-                'specialty_niche': f"Excellent choice{name_part}! Specialty businesses need secure payment solutions:\n\n• Secure online payment processing for specialty products\n• Multiple payment methods for customer convenience\n• Subscription billing for ongoing services\n• Automated invoicing and receipts\n• Integration with booking and consultation systems\n• PCI compliance and fraud protection\n\nDo you sell products, services, or consultations?",
-                'retail_ecommerce': f"Essential choice{name_part}! For electronics/mobile shops:\n\n• Secure online payments\n• Multiple payment methods\n• Inventory sync\n• Receipt automation\n• Fraud protection\n\nOnline store or in-person payments?",
-                'default': f"Excellent choice{name_part}! Payment gateway integration includes:\n\n• Secure payment processing\n• Multiple payment methods\n• Automated invoicing\n• Transaction reporting\n• PCI compliance\n\nOnline or in-person payments?"
-            }
-        }
-
-        service_data = service_responses.get(service_name, {})
-        return service_data.get(business_type, service_data.get('default', f"Great choice{name_part}! Let me help you with {service_name}. What specific goals do you have?"))
-
-    def get_correction_response(self, business_type: str, name_part: str) -> str:
-        """Generate immediate business-specific response for user corrections"""
-        correction_responses = {
-            'retail_ecommerce': f"Ah, I understand now{name_part}! For your mobile/electronics shop, I recommend:\n\n• E-commerce website with product catalog\n• Secure payment processing\n• Inventory management integration\n• Social media marketing for tech products\n• Customer review system\n\nWhat products do you specialize in - smartphones, accessories, or general electronics?",
-            'restaurant': f"Got it{name_part}! For your restaurant business, I recommend:\n\n• Website with online ordering\n• Social media with food photography\n• Google My Business optimization\n• Customer review management\n• Delivery platform integration\n\nWhat type of cuisine do you serve?",
-            'construction': f"Perfect{name_part}! For your construction/plumbing business, I recommend:\n\n• Professional website with project portfolio\n• Local SEO optimization\n• Google My Business setup\n• Online booking system\n• Customer testimonials\n\nDo you focus on residential or commercial projects?",
-            'specialty_niche': f"""Perfect{name_part}! For specialty businesses like yours, here are our 6 core services tailored to your niche:
-
-• Website Development - Educational content showcasing your expertise and building credibility
-• Social Media Marketing - Niche community building and targeted audience engagement
-• Branding Services - Unique visual identity that reflects your specialty focus
-• Chatbot Development - Automated customer education and specialized inquiry handling
-• Automation Packages - Streamlined processes for efficient specialty operations
-• Payment Gateway Integration - Secure transactions for specialty products/services
-
-What makes your specialty business unique, and what's your biggest challenge right now?"""
-        }
-
-        return correction_responses.get(business_type, f"Thank you for the clarification{name_part}! Now I understand your business better. Let me provide specific recommendations for your {business_type} business. What's your main challenge - attracting customers, managing operations, or building online presence?")
-
-    def get_subservice_response(self, subservice: str, business_type: str, name_part: str) -> str:
-        """Generate specific responses for subservice requests"""
-
-        # Map subservice to main service category
-        main_service = None
-        for service_category, subservices in self.subservice_mapping.items():
-            if subservice in subservices:
-                main_service = service_category
-                break
-
-        if not main_service:
-            return f"I'd be happy to help you with {subservice}{name_part}! Let me connect you with our specialists to discuss your specific requirements."
-
-        # Subservice-specific responses with business context
-        subservice_responses = {
-            # Website Development Subservices
-            'site redesign': f"""Perfect{name_part}! Website redesign can transform your business presence:
-
-• Modern, responsive design that converts visitors
-• Improved user experience and navigation
-• SEO optimization for better search rankings
-• Mobile-first approach for all devices
-• Performance optimization for faster loading
-
-For your {business_type} business, we'll focus on industry-specific features. Ready to schedule a consultation to discuss your redesign goals? We serve Karachi locally and offer remote consultations worldwide.""",
-
-            'seo optimization': f"""Excellent choice{name_part}! SEO optimization will boost your online visibility:
-
-• Keyword research and optimization
-• Local SEO for Karachi market dominance
-• Technical SEO improvements
-• Content strategy for search rankings
-• Google My Business optimization
-
-For {business_type} businesses, we focus on industry-specific keywords. Shall we schedule a consultation to analyze your current SEO? We serve Karachi locally and offer remote consultations worldwide.""",
-
-            'whatsapp chatbot': f"""Smart choice{name_part}! WhatsApp automation can revolutionize your customer service:
-
-• 24/7 automated customer support
-• Order taking and status updates
-• Appointment booking automation
-• FAQ responses and product info
-• Lead qualification and follow-up
-
-Perfect for {business_type} businesses to handle customer inquiries efficiently. Want to schedule a consultation to see how WhatsApp automation works? We serve Karachi locally and offer remote consultations worldwide.""",
-
-            'stripe integration': f"""Great choice{name_part}! Stripe integration provides secure payment processing:
-
-• Accept credit cards, debit cards, and digital wallets
-• Subscription and recurring payment management
-• International payment support
-• Advanced fraud protection
-• Real-time payment analytics
-
-For {business_type} businesses, we ensure seamless checkout experiences. Ready to schedule a consultation to discuss your payment processing needs? We serve Karachi locally and offer remote consultations worldwide.""",
-
-            'logo redesign': f"""Excellent{name_part}! A fresh logo can revitalize your brand identity:
-
-• Modern, memorable logo design
-• Brand guidelines and color palette
-• Multiple format delivery (vector, PNG, etc.)
-• Social media and print variations
-• Brand consistency across all platforms
-
-For {business_type} businesses, we create logos that build trust and recognition. Want to schedule a consultation to explore logo concepts? We serve Karachi locally and offer remote consultations worldwide.""",
-
-            'workflow automation': f"""Perfect{name_part}! Workflow automation can streamline your operations:
-
-• Automated task management and scheduling
-• CRM integration and lead nurturing
-• Email marketing automation
-• Inventory and order processing
-• Report generation and analytics
-
-For {business_type} businesses, we identify time-saving automation opportunities. Shall we schedule a consultation to analyze your current workflows? We serve Karachi locally and offer remote consultations worldwide."""
-        }
-
-        # Return specific response or generate dynamic one
-        if subservice in subservice_responses:
-            return subservice_responses[subservice]
-        else:
-            # Generate dynamic response based on main service category
-            service_names = {
-                'website_development': 'website development',
-                'social_media_marketing': 'digital marketing',
-                'branding_services': 'branding',
-                'chatbot_development': 'chatbot development',
-                'automation_packages': 'automation',
-                'payment_gateway_integration': 'payment integration'
-            }
-
-            service_name = service_names.get(main_service, main_service)
-
-            return f"""Great choice{name_part}! Here's how we can help with {subservice}:
-
-• Customized solution for your {business_type} business
-• Industry-specific features and optimization
-• Professional implementation and setup
-• Ongoing support and maintenance
-• Integration with your existing systems
-
-Let's schedule a consultation to discuss your {service_name} needs in detail. We serve Karachi locally and offer remote consultations worldwide."""
-
-    def is_general_response_after_service(self, message_lower: str, context: ConversationContext) -> bool:
-        """Detect if user gave general/vague response after service selection"""
-        # Check if we're in a service discussion context
-        service_context = (len(context.services_discussed) > 0 or
-                          context.conversation_stage in ['discovery', 'recommendation'])
-
-        if not service_context:
-            return False
-
-        # General response patterns that should trigger appointment booking
-        general_patterns = [
-            'general public', 'general audience', 'everyone', 'all customers', 'all people',
-            'general', 'public', 'customers', 'people', 'users', 'clients',
-            'target audience', 'my audience', 'the public', 'general market',
-            'all types', 'various', 'different', 'mixed', 'broad audience'
-        ]
-
-        # Check if message is short and matches general patterns
-        is_short_response = len(message_lower.split()) <= 3
-        matches_general_pattern = any(pattern in message_lower for pattern in general_patterns)
-
-        return is_short_response and matches_general_pattern
-
-    def get_appointment_redirect_response(self, context: ConversationContext, name_part: str) -> str:
-        """Generate appointment redirect response for general answers after service selection"""
-        # Set conversation stage to closing to trigger appointment form
-        context.conversation_stage = 'closing'
-
-        # Get the last discussed service for personalized response
-        service_name = context.services_discussed[-1] if context.services_discussed else "digital marketing"
-
-        service_responses = {
-            'social_media_marketing': f"""Perfect{name_part}! Social media marketing for general audiences requires a customized strategy based on your specific goals and industry.
-
-Let's schedule a consultation to discuss:
-• Your target market analysis
-• Platform selection strategy
-• Content planning approach
-• Budget and timeline
-
-We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""",
-
-            'website_development': f"""Excellent{name_part}! Website development for broad audiences needs careful planning to ensure it appeals to your target market.
-
-Let's schedule a consultation to discuss:
-• Your website goals and functionality
-• Design preferences and branding
-• Content strategy and user experience
-• Timeline and budget planning
-
-We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""",
-
-            'branding_services': f"""Great choice{name_part}! Branding for general markets requires understanding your unique value proposition and target positioning.
-
-Let's schedule a consultation to discuss:
-• Your brand personality and values
-• Visual identity preferences
-• Market positioning strategy
-• Implementation timeline
-
-We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""",
-
-            'chatbot_development': f"""Smart choice{name_part}! Chatbot development for general audiences needs customization based on your specific business needs and customer interactions.
-
-Let's schedule a consultation to discuss:
-• Your automation goals and requirements
-• Integration with existing systems
-• Conversation flow design
-• Implementation and training
-
-We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""",
-
-            'automation_packages': f"""Excellent choice{name_part}! Automation for general business processes requires understanding your specific workflow and efficiency goals.
-
-Let's schedule a consultation to discuss:
-• Your current process analysis
-• Automation opportunities identification
-• System integration requirements
-• Implementation and training plan
-
-We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""",
-
-            'payment_gateway_integration': f"""Smart choice{name_part}! Payment gateway integration for general business needs requires understanding your transaction volume and security requirements.
-
-Let's schedule a consultation to discuss:
-• Your payment processing needs
-• Security and compliance requirements
-• Integration with existing systems
-• Setup and testing process
-
-We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?"""
-        }
-
-        # Default response for any service
-        return service_responses.get(service_name, f"""Perfect{name_part}! {service_name.title()} for general audiences requires a customized approach based on your specific business needs.
-
-Let's schedule a consultation to discuss:
-• Your specific goals and requirements
-• Customized strategy development
-• Timeline and implementation plan
-• Budget and investment options
-
-We serve Karachi locally and offer remote consultations worldwide. What's your preferred time for a consultation?""")
-
-    def should_show_contact_form(self, message: str, context: ConversationContext) -> bool:
-        """Determine if contact form should be shown"""
-        contact_triggers = ['contact', 'email', 'phone', 'reach out', 'get in touch', 'call me']
-        return any(trigger in message.lower() for trigger in contact_triggers)
-
-    def get_enhanced_statistics(self) -> dict:
-        """Get comprehensive statistics including Business API performance"""
-        stats = {
-            'response_stats': self.response_stats,
-            'csv_handler_stats': self.csv_handler.get_stats() if self.csv_handler.data_loaded else {},
-            'gemini_stats': {
-                'model_available': self.gemini_handler.is_available(),
-                'initialized': self.gemini_handler.initialized,
-                'api_key_set': bool(os.getenv('GEMINI_API_KEY'))
-            },
-            'business_api_integration': {
-                'available': BUSINESS_API_AVAILABLE and USE_BUSINESS_API,
-                'handler_initialized': self.business_api is not None,
-                'api_functional': self.business_api.api_available if self.business_api else False
-            }
-        }
-
-        # Add Business API statistics if available
-        if self.business_api:
+        # Mistral fallback (AFTER Gemini, BEFORE CSV)
+        if not response_text and self.mistral_handler.is_available():
             try:
-                api_stats = self.business_api.get_api_stats()
-                stats['business_api_stats'] = api_stats
+                mistral_prompt = self.gemini_handler.create_business_system_prompt(
+                    business_type=context.business_type,
+                    context=user_context,
+                    conversation_count=context.conversation_depth
+                ) + """
+
+                RESPONSE RULES:
+                - Use short sentences (max 15 words)
+                - Use bullet points (•) for multiple services
+                - Add bold benefits like: "This helps you grow faster"
+                - After 2+ messages, ask: "Would you like to schedule a free consultation?"
+
+                """
+                mistral_response = self.mistral_handler.generate_response(mistral_prompt, message)
+                if mistral_response and len(mistral_response.strip()) > 15:
+                    response_text = mistral_response
+                    llm_method = "mistral_openrouter"
+                    context.add_conversation_turn(message, response_text, "mistral")
+                    self.response_stats['mistral_fallback'] = self.response_stats.get('mistral_fallback', 0) + 1
+                    logger.info("✅ Mistral fallback used")
             except Exception as e:
-                stats['business_api_stats'] = {'error': str(e)}
+                logger.error(f"❌ Mistral fallback error: {e}")
 
-        return stats
+        # Fallback to CSV if both Gemini and Mistral fail
+        if not response_text and self.csv_handler.data_loaded:
+            try:
+                csv_response = self.csv_handler.find_similar_response(message)
+                if csv_response and len(csv_response.strip()) > 15:
+                    response_text = csv_response
+                    llm_method = "csv"
+                    self.response_stats['csv_fallback'] += 1
+                    context.add_conversation_turn(message, response_text, "csv")
+                    logger.info("✅ CSV fallback used")
+            except Exception as e:
+                logger.error(f"❌ CSV fallback failed: {e}")
 
-    def fuzzy_match_appointment_terms(self, message: str) -> bool:
-        """Enhanced fuzzy matching for appointment-related terms with typo tolerance"""
-        import difflib
-
-        message_lower = message.lower().strip()
-
-        # Core appointment terms to match against
-        appointment_terms = [
-            'appointment', 'appointmen', 'appointmet', 'appoiment', 'appoime', 'apointment',
-            'schedule', 'scedule', 'shedule', 'scdeule', 'schedul', 'shcedule',
-            'book', 'bok', 'boook', 'buk', 'booking', 'bokking',
-            'demo', 'drmo', 'dmo', 'demoo', 'dem',
-            'meeting', 'meting', 'meating', 'meetng', 'meetting',
-            'consultation', 'consultaton', 'consulation', 'consulttion', 'consult'
-        ]
-
-        # Split message into words
-        words = message_lower.split()
-
-        # Check each word against appointment terms with fuzzy matching
-        for word in words:
-            for term in appointment_terms:
-                # Direct match
-                if word == term:
-                    return True
-
-                # Fuzzy match with high similarity threshold
-                similarity = difflib.SequenceMatcher(None, word, term).ratio()
-                if similarity >= 0.7:  # 70% similarity threshold
-                    logger.info(f"🎯 Fuzzy appointment match: '{word}' -> '{term}' (similarity: {similarity:.3f})")
-                    return True
-
-                # Check if word contains the term (for partial matches)
-                if len(term) >= 4 and (term in word or word in term):
-                    if abs(len(word) - len(term)) <= 2:  # Allow 2 character difference
-                        logger.info(f"🎯 Partial appointment match: '{word}' contains '{term}'")
-                        return True
-
-        return False
-
-    def should_show_appointment_form(self, message: str, context: ConversationContext) -> bool:
-        """Only show appointment form when user explicitly agrees to booking"""
-        message_lower = message.lower().strip()
-
-        # Direct appointment booking phrases (user initiates)
-        direct_appointment_triggers = [
-            'book appointment', 'schedule appointment', 'book consultation',
-            'schedule consultation', 'book a meeting', 'schedule a meeting',
-            'book a demo', 'schedule demo', 'make appointment', 'set appointment',
-            'schedule a call', 'book a call', "let's schedule", "schedule it"
-        ]
-
-        # Check for direct appointment booking phrases first
-        if any(trigger in message_lower for trigger in direct_appointment_triggers):
-            logger.info(f"🎯 Direct appointment request: '{message}'")
-            return True
-
-        # Check if this is a positive response to an appointment offer
-        conversation_history = context.conversation_history
-        if conversation_history and len(conversation_history) > 0:
-            # Check last few bot responses for consultation offers
-            recent_responses = conversation_history[-3:] if len(conversation_history) >= 3 else conversation_history
-            
-            for turn in recent_responses:
-                last_bot_response = turn.get('bot_response', '').lower()
-                # Check if any recent response contained consultation/appointment offer
-                consultation_keywords = ['consultation', 'schedule', 'call', 'meeting', 'appointment', 'book']
-                if any(keyword in last_bot_response for keyword in consultation_keywords):
-                    # Only show form if user says yes explicitly
-                    positive_responses = [
-                        'yes', 'yeah', 'sure', 'okay', 'ok', 'alright', 'absolutely', 'definitely',
-                        'yes please', 'sure thing', 'sounds good', "let's do it", "i'm interested",
-                        'that works', 'perfect', 'excellent', 'great idea', 'book it', 'schedule it',
-                        "let's schedule", "let's book", 'go ahead', 'proceed'
-                    ]
-                    
-                    # Check for explicit positive response
-                    if any(response in message_lower for response in positive_responses):
-                        logger.info(f"🎯 User agreed to appointment: '{message}'")
-                        return True
-                    break  # Only check the most recent consultation offer
-
-        # Don't show form automatically for pricing or other triggers
-        return False
+        self.response_stats['total_responses'] += 1
+        return response_text or "Sorry, I couldn't find a suitable response."
 
 # Initialize the intelligent chatbot
 intelligent_chatbot = IntelligentLLMChatbot()
@@ -2861,5 +1581,16 @@ def main():
         threaded=True
     )
 
+# Direct Mistral test block
+def test_mistral():
+    print("\n--- Direct MistralOpenRouterHandler Test ---")
+    mistral = MistralOpenRouterHandler()
+    prompt = "You are a business consultant for Techrypt. Keep responses short and use bullet points."
+    user_message = "What are the benefits of website development for my business?"
+    response = mistral.generate_response(prompt, user_message)
+    print("Mistral response:", response)
+
 if __name__ == "__main__":
-    main()
+    # Uncomment ONE of the following lines to run either the server or the direct Mistral test
+    # main()  # Start Flask server
+    test_mistral()  # Run direct Mistral backend test
