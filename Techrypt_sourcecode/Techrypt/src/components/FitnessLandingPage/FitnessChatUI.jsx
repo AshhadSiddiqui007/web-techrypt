@@ -2,7 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaDumbbell, FaPaperPlane, FaUser } from 'react-icons/fa';
 
+// FIX: Import TechryptChatbot for modal usage
+import TechryptChatbot from '../TechryptChatbot/TechryptChatbot';
+
 const FitnessChatUI = () => {
+  // Track bot responses and appointment form
+  const [botResponseCount, setBotResponseCount] = useState(1); // initial bot message
+  const [chatDisabled, setChatDisabled] = useState(false);
+  const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -72,6 +79,14 @@ const FitnessChatUI = () => {
           timestamp: new Date()
         };
         setMessages(prev => [...prev, botMessage]);
+        setBotResponseCount(prev => {
+          const newCount = prev + 1;
+          if (newCount >= 4) {
+            setChatDisabled(true);
+            setAppointmentModalOpen(true); // Open main TechryptChatbot appointment modal
+          }
+          return newCount;
+        });
         setIsTyping(false);
         
         // Only scroll when bot responds
@@ -136,6 +151,20 @@ const FitnessChatUI = () => {
 
   return (
     <div className="bg-gradient-to-br from-black/90 to-black/90 rounded-2xl border border-black/50 h-[600px] flex flex-col overflow-hidden backdrop-blur-sm">
+      {/* Main TechryptChatbot Appointment Modal (only modal, not full chat) */}
+      {appointmentModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.4)'}}>
+          <div className="w-full max-w-xl">
+            {/* Only render the appointment modal from TechryptChatbot, not the full chat UI */}
+            <TechryptChatbot
+              isOpen={true}
+              onClose={() => setAppointmentModalOpen(false)}
+              openAppointmentDirect={true}
+              limitBotResponses={true}
+            />
+          </div>
+        </div>
+      )}
       {/* Chat Header */}
       <div className="bg-gradient-to-r from-black to-primary p-4 flex items-center space-x-3">
         <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">

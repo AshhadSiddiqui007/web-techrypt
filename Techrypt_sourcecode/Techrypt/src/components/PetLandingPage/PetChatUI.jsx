@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPaw, FaPaperPlane, FaUser } from 'react-icons/fa';
 
+// FIX: Import TechryptChatbot for modal usage
+import TechryptChatbot from '../TechryptChatbot/TechryptChatbot';
+
 const PetChatUI = () => {
   const [messages, setMessages] = useState([
     {
@@ -13,6 +16,12 @@ const PetChatUI = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  // Track bot responses and appointment form
+  const [botResponseCount, setBotResponseCount] = useState(1); // initial bot message
+  const [chatDisabled, setChatDisabled] = useState(false);
+  const [showAppointmentForm, setShowAppointmentForm] = useState(false);
+  // Add state to control TechryptChatbot modal
+  const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -73,7 +82,15 @@ const PetChatUI = () => {
         };
         setMessages(prev => [...prev, botMessage]);
         setIsTyping(false);
-        
+        setBotResponseCount(prev => {
+          const newCount = prev + 1;
+          if (newCount >= 4) {
+            setChatDisabled(true);
+            setShowAppointmentForm(false);
+            setAppointmentModalOpen(true); // Open main TechryptChatbot appointment modal
+          }
+          return newCount;
+        });
         // Only scroll when bot responds
         setTimeout(() => scrollToBottom(), 100);
       }, 1000);
@@ -225,27 +242,47 @@ const PetChatUI = () => {
 
       {/* Input Area */}
       <div className="p-4 border-t border-black/50">
-        <div className="flex items-center space-x-3">
-          <div className="flex-1 relative">
-            <textarea
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask about your pet business needs..."
-              className="w-full bg-black/50 text-white placeholder-gray-400 rounded-xl p-3 pr-12 border border-black/50 focus:border-primary focus:outline-none resize-none"
-              rows="1"
-              style={{ minHeight: '44px', maxHeight: '100px' }}
+        {chatDisabled ? (
+          <div className="text-center text-primary font-semibold py-6">
+            You've reached the maximum number of chatbot responses.<br />Please book an appointment to continue.
+          </div>
+        ) : (
+          <div className="flex items-center space-x-3">
+            <div className="flex-1 relative">
+              <textarea
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask about your pet business needs..."
+                className="w-full bg-black/50 text-white placeholder-gray-400 rounded-xl p-3 pr-12 border border-black/50 focus:border-primary focus:outline-none resize-none"
+                rows="1"
+                style={{ minHeight: '44px', maxHeight: '100px' }}
+              />
+            </div>
+            <button
+              onClick={sendMessage}
+              disabled={!inputValue.trim()}
+              className="bg-gradient-to-r from-black to-primary hover:from-black/90 hover:to-primary/90 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold p-3 rounded-xl transition-all duration-200 shadow-lg"
+            >
+              <FaPaperPlane className="text-sm" />
+            </button>
+          </div>
+        )}
+      </div>
+      {/* Main TechryptChatbot Appointment Modal (only modal, not full chat) */}
+      {appointmentModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.4)'}}>
+          <div className="w-full max-w-xl">
+            {/* Only render the appointment modal from TechryptChatbot, not the full chat UI */}
+            <TechryptChatbot
+              isOpen={true}
+              onClose={() => setAppointmentModalOpen(false)}
+              openAppointmentDirect={true}
+              limitBotResponses={true}
             />
           </div>
-          <button
-            onClick={sendMessage}
-            disabled={!inputValue.trim()}
-            className="bg-gradient-to-r from-black to-primary hover:from-black/90 hover:to-primary/90 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold p-3 rounded-xl transition-all duration-200 shadow-lg"
-          >
-            <FaPaperPlane className="text-sm" />
-          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 };

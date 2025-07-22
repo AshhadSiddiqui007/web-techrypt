@@ -28,7 +28,7 @@ import Offers from "./pages/Offers/Offers.jsx";
 import ContactPage from "./pages/ContactPage/ContactPage.jsx";
 import WelcomeAboard from "./pages/ContactPage/WelcomeAboard.jsx";
 import VerticalsPage from "./pages/Verticals/verticals.jsx";
-import PetLandingPage from "./pages/LandingPages/PetlandingPage.jsx";
+import PetLandingPage from "./pages/LandingPages/PetLandingPage.jsx";
 import BlogPage from "./pages/BlogPage/BlogPage.jsx";
 import BlogDetailPage from "./pages/BlogPage/BlogDetailPage.jsx";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
