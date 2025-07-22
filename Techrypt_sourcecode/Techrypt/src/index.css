@@ -75,8 +75,8 @@ body{
 
 @font-face {
   font-family: "Right Grotesk";
-  src: url("/path/to/RightGrotesk-Regular.woff2") format("woff2"),
-    url("/path/to/RightGrotesk-Regular.woff") format("woff");
+  src: url("/assets/RightGrotesk-Regular.woff2") format("woff2"),
+    url("/assets/RightGrotesk-Regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }

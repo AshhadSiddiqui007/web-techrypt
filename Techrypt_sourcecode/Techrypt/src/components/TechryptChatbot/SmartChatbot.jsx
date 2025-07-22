@@ -139,7 +139,7 @@ const SmartChatbot = ({ isOpen, onClose }) => {
 
     try {
       // Send to intelligent AI backend
-      const response = await fetch('http://localhost:5000/chat', {
+      const response = await fetch(`${import.meta.env.VITE_NODE_BACKEND}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

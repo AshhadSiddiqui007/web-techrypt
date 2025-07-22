@@ -39,7 +39,7 @@ const MainChatSection = () => {
 
     try {
       // Call the multi-tenant chatbot with techrypt profile
-      const response = await fetch('http://localhost:5001/chat', {
+      const response = await fetch(`${import.meta.env.VITE_FLASK_BACKEND}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

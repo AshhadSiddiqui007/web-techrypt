@@ -18,7 +18,7 @@ const BlogDetailPage = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`http://localhost:5000/api/blogs/${id}`);
+      const response = await fetch(`${import.meta.env.VITE_NODE_BACKEND}/blogs/${id}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -106,7 +106,7 @@ const BlogDetailPage = () => {
           {blog.image && (
             <div className="mb-8">
               <img
-                src={`http://localhost:5000${blog.image}`}
+                src={`${import.meta.env.VITE_NODE_BACKEND}${blog.image}`}
                 alt={blog.blog_title}
                 className="w-full h-[400px] md:h-[500px] object-cover rounded-lg"
               />

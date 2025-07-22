@@ -20,7 +20,7 @@ const BlogCard = ({ blog, index }) => {
     >
       <div className="md:w-1/3">
         <img 
-          src={blog.image ? `http://localhost:5000${blog.image}` : 'https://placehold.co/600x400/1a1a1a/cccccc?text=Techrypt+Blog'} 
+          src={blog.image ? `${import.meta.env.VITE_NODE_BACKEND}${blog.image}` : 'https://placehold.co/600x400/1a1a1a/cccccc?text=Techrypt+Blog'} 
           alt={blog.blog_title} 
           className="w-full h-[200px] object-cover rounded-md"
         />
@@ -60,7 +60,7 @@ const Blog_List_View = () => {
       setError(null);
       
       // Add pagination parameters to the API call
-      const response = await fetch(`http://localhost:5000/api/blogs?page=${page}&limit=10`);
+      const response = await fetch(`${import.meta.env.VITE_NODE_BACKEND}/blogs?page=${page}&limit=10`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);

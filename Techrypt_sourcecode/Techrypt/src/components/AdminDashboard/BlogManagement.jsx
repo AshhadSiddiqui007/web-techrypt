@@ -28,7 +28,7 @@ const BlogManagement = () => {
   });
   const [error, setError] = useState(null);
 
-  const API_BASE_URL = 'http://localhost:5000/api';
+  const API_BASE_URL = import.meta.env.VITE_NODE_BACKEND;
 
   // Get auth token from localStorage
   const getAuthToken = () => {
@@ -138,7 +138,7 @@ const BlogManagement = () => {
       scheduledDate: blog.scheduledDate ? blog.scheduledDate.substring(0, 16) : ''
     });
     setSelectedImage(null);
-    setImagePreview(blog.image ? `http://localhost:5000${blog.image}` : '');
+    setImagePreview(blog.image ? `${import.meta.env.VITE_NODE_BACKEND}${blog.image}` : '');
     setShowModal(true);
   };
 
@@ -334,7 +334,7 @@ const BlogManagement = () => {
                   <td className="px-6 py-4">
                     {blog.image ? (
                       <img
-                        src={`http://localhost:5000${blog.image}`}
+                        src={`${import.meta.env.VITE_NODE_BACKEND}${blog.image}`}
                         alt={blog.blog_title}
                         className="w-16 h-16 object-cover rounded"
                       />

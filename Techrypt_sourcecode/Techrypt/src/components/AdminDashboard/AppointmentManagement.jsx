@@ -8,7 +8,7 @@ const AppointmentManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const API_BASE_URL = 'http://localhost:5000/api';
+  const API_BASE_URL = import.meta.env.VITE_NODE_BACKEND;
 
   // Get auth token from localStorage
   const getAuthToken = () => {

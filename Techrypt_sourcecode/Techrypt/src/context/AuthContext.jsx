@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_BASE_URL = 'http://localhost:5000/api';
+  const API_BASE_URL = import.meta.env.VITE_NODE_BACKEND;
 
   // Check if admin is authenticated on app load
   useEffect(() => {

@@ -50,7 +50,7 @@ const FitnessChatUI = () => {
 
     try {
       // Call our multi-tenant chatbot with fitness profile
-      const response = await fetch('http://localhost:5001/chat', {
+      const response = await fetch(`${import.meta.env.VITE_FLASK_BACKEND}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

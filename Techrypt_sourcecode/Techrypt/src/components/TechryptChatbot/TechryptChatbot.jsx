@@ -219,7 +219,7 @@ const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
 
     try {
       // Try to connect to Smart AI backend with enhanced context
-      const response = await fetch('http://localhost:5001/chat', {
+      const response = await fetch(`${import.meta.env.VITE_FLASK_BACKEND}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1077,7 +1077,7 @@ Would you like to schedule a consultation or learn more about any specific servi
   setIsLoading(true);
 
   try {
-    const res = await fetch("http://localhost:5000/api/contact-info", {
+    const res = await fetch(`${import.meta.env.VITE_NODE_BACKEND}/contact-info`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(contactFormData),
@@ -1135,7 +1135,7 @@ Would you like to schedule a consultation or learn more about any specific servi
       console.log('📅 Submitting appointment data:', appointmentData);
 
       // --- Node.js backend API call ---
-      const response = await fetch("http://localhost:5000/api/appointments", {
+      const response = await fetch(`${import.meta.env.VITE_NODE_BACKEND}/appointments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
