@@ -1383,7 +1383,7 @@ def health_check():
             "Business-specific conversation flows",
             "Intelligent appointment booking",
             "Advanced service guidance",
-            "Sub-3-second response times"
+            "Sub-3-2second response times"
         ]
     }
     
@@ -1580,6 +1580,12 @@ def main():
         debug=False,
         threaded=True
     )
+
+
+# Add a simple home route for health/status check (not inside any try block)
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"message": "Flask Chatbot API is running."})
 
 # Direct Mistral test block
 def test_mistral():
