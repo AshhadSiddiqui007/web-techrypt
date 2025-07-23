@@ -1597,6 +1597,4 @@ def test_mistral():
     print("Mistral response:", response)
 
 if __name__ == "__main__":
-    # Uncomment ONE of the following lines to run either the server or the direct Mistral test
-    # main()  # Start Flask server
-    test_mistral()  # Run direct Mistral backend test
+    app.run(host='0.0.0.0', port=5001)
