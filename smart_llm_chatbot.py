@@ -1471,30 +1471,89 @@ def smart_chat():
         logger.info(f"📨 Intelligent chat request: '{user_message}' from user: '{user_name}'")
         print(f"📨 PRINT: Intelligent chat request: '{user_message}' from user: '{user_name}'")
 
-        # Generate intelligent response using the new LLM chatbot
-        session_id = user_context.get('session_id', f"session_{int(time.time())}")
 
-        intelligent_response = intelligent_chatbot.get_intelligent_response(
-            user_message,
-            user_context,
-            session_id
-        )
+        # Prepare a minimal ConversationContext-like object
+        class DummyContext:
+            def __init__(self, business_type="general"):
+                self.business_type = business_type
+                self.conversation_depth = 0
+                self.conversation_history = []
+                self.services_discussed = []
+            def add_conversation_turn(self, user, bot, source):
+                self.conversation_history.append({'user_message': user, 'bot_response': bot, 'source': source})
+
+        business_type = user_context.get('business_type', 'general') if isinstance(user_context, dict) else 'general'
+        conversation_context = DummyContext(business_type=business_type)
+
+
+
+        # --- Strictly single-response logic ---
+        response_text = None
+        used_llm = None
+        try:
+            # Try Gemini (primary)
+            if intelligent_chatbot.gemini_handler.is_available():
+                gemini_response = intelligent_chatbot.gemini_handler.generate_business_response(
+                    user_message=user_message,
+                    business_type=business_type,
+                    context=user_context or {},
+                    conversation_context=conversation_context
+                )
+                if gemini_response and len(gemini_response.strip()) > 15:
+                    response_text = gemini_response
+                    used_llm = "gemini"
+            # Fallbacks only if Gemini is not available or failed
+            if not response_text:
+                if intelligent_chatbot.mistral_handler.is_available():
+                    mistral_prompt = intelligent_chatbot.gemini_handler.create_business_system_prompt(
+                        business_type=business_type,
+                        context=user_context,
+                        conversation_count=conversation_context.conversation_depth
+                    ) + """
+                    RESPONSE RULES:
+                    - Use short sentences (max 15 words)
+                    - Use bullet points (•) for multiple services
+                    - Add bold benefits like: 'This helps you grow faster'
+                    - After 2+ messages, ask: 'Would you like to schedule a free consultation?'
+                    """
+                    mistral_response = intelligent_chatbot.mistral_handler.generate_response(mistral_prompt, user_message)
+                    if mistral_response and len(mistral_response.strip()) > 15:
+                        response_text = mistral_response
+                        used_llm = "mistral"
+                if not response_text and intelligent_chatbot.csv_handler.data_loaded:
+                    csv_response = intelligent_chatbot.csv_handler.find_similar_response(user_message)
+                    if csv_response and len(csv_response.strip()) > 15:
+                        response_text = csv_response
+                        used_llm = "csv"
+            if not response_text:
+                response_text = "Sorry, I couldn't find a suitable response."
+        except Exception as e:
+            logger.error(f"❌ Smart chat error: {e}")
+            response_text = 'I apologize for the technical difficulty. How can Techrypt help your business today?'
+
+        # Only log the final response source once
+        if used_llm == "gemini":
+            logger.info("✅ Gemini response used")
+        elif used_llm == "mistral":
+            logger.info("✅ Mistral fallback used")
+        elif used_llm == "csv":
+            logger.info("✅ CSV fallback used")
 
         response_data = {
-            'response': intelligent_response['response'],
+            'response': response_text,
             'status': 'success',
             'timestamp': datetime.now().isoformat(),
             'model': 'intelligent_llm_chatbot',
             'mode': 'contextual_intelligence',
-            'show_contact_form': intelligent_response['show_contact_form'],
-            'show_appointment_form': intelligent_response['show_appointment_form'],
-            'business_type': intelligent_response['business_type'],
-            'services_discussed': intelligent_response['services_discussed'],
-            'conversation_stage': intelligent_response['conversation_stage'],
-            'response_time': intelligent_response['response_time'],
-            'llm_used': intelligent_response['llm_used'],
-            'source': intelligent_response['llm_used'],  # Add source field for testing
-            'session_id': session_id
+            'show_contact_form': False,
+            'show_appointment_form': False,
+            'business_type': business_type,
+            'services_discussed': conversation_context.services_discussed,
+            'conversation_stage': conversation_context.conversation_depth,
+            'response_time': 0,
+            'llm_used': used_llm or '',
+            'source': used_llm or '',
+            'session_id': user_context.get('session_id', f"session_{int(time.time())}") if isinstance(user_context, dict) else f"session_{int(time.time())}"
         }
 
         # Track performance

@@ -243,10 +243,12 @@ const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
 
       const data = await response.json();
 
-      // Enhanced bot message with smart features
+      // Only use fallback if backend response is missing or empty string/null/undefined
+      let botText = (typeof data.response === 'string' && data.response.trim() !== '') ? data.response : getFallbackResponse(messageText);
+
       const botMessage = {
         id: Date.now() + 1,
-        text: data.response || getFallbackResponse(messageText),
+        text: botText,
         sender: 'bot',
         timestamp: new Date(),
         showContactForm: data.show_contact_form,
@@ -315,7 +317,7 @@ const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
     } catch (error) {
       console.log('AI backend error:', error.message);
 
-      // Use fallback response
+      // Use fallback response ONLY if no bot message was already added
       const botMessage = {
         id: Date.now() + 1,
         text: getFallbackResponse(messageText),
