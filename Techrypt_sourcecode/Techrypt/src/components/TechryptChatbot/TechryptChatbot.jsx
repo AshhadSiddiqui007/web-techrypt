@@ -212,6 +212,7 @@ const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
       timestamp: new Date()
     };
 
+    console.debug('[Chatbot] User message appended:', userMessage);
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
@@ -255,6 +256,7 @@ const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
         showAppointmentForm: data.show_appointment_form
       };
 
+      console.debug('[Chatbot] Bot message appended:', botMessage);
       setMessages(prev => [...prev, botMessage]);
       // If landing page limit is enabled, count bot responses
       if (props && props.limitBotResponses) {
@@ -325,6 +327,7 @@ const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
         timestamp: new Date()
       };
 
+      console.debug('[Chatbot] Bot fallback message appended:', botMessage);
       setMessages(prev => [...prev, botMessage]);
 
       // ENHANCED FALLBACK APPOINTMENT TRIGGER
