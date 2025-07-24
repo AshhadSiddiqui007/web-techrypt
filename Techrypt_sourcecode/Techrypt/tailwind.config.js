@@ -4,6 +4,13 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    'group',
+    'group-hover',
+    'group-hover/nested',
+    'group-hover:opacity-100',
+    'group-hover:pointer-events-auto'
+  ],
   theme: {
     extend: {
       colors: {

@@ -1030,3 +1030,18 @@
   pointer-events: auto !important;
 }
 
+/* Add this to your CSS */
+.listItems.group:hover .dropdown-content {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(0) !important;
+}
+
+/* Ensure the dropdown is visible when parent is hovered */
+.group:hover .absolute {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
