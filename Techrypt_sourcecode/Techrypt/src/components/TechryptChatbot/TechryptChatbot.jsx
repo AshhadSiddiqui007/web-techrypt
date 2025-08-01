@@ -29,7 +29,22 @@ const serviceIcons = {
   'cloud-solutions': cloudSolutionsIcon
 };
 
+
+// Singleton pattern: Only allow one instance of TechryptChatbot to render
+let isDuplicateInstance = false;
+if (typeof window !== 'undefined') {
+  if (window.__TECHRYPT_CHATBOT_RENDERED__) {
+    // Already rendered elsewhere
+    isDuplicateInstance = true;
+    // eslint-disable-next-line no-console
+    console.warn('TechryptChatbot: Duplicate instance prevented.');
+  } else {
+    window.__TECHRYPT_CHATBOT_RENDERED__ = true;
+  }
+}
+
 const TechryptChatbot = ({ isOpen, onClose, openAppointmentDirect }) => {
+  if (isDuplicateInstance) return null;
   // Load messages from localStorage or use default
   const loadMessages = () => {
     try {
@@ -1317,20 +1332,34 @@ Thank you for choosing Techrypt.io! 🚀`,
   return (
     <div className={`techrypt-chatbot-overlay ${isMinimized ? 'minimized' : ''}`}>
       <div className={`techrypt-chatbot-container ${isMinimized ? 'minimized' : ''}`}>
-        {/* Mobile Header - Only visible on screens ≤768px */}
-        <div
-          className="techrypt-chatbot-header techrypt-chatbot-header-mobile md:hidden"
-          onClick={isMinimized ? () => setIsMinimized(false) : undefined}
-          style={isMinimized ? { cursor: 'pointer' } : {}}
-        >
-          <div className="techrypt-chatbot-header-content">
-            <div className="techrypt-chatbot-avatar">
-              <BsRobot />
-            </div>
-            <div className="techrypt-chatbot-title">
-              <h3>Techrypt AI</h3>
-            </div>
-          </div>
+        {/* Mobile Header - Only visible on screens ≤768px, with runtime singleton check */}
+        {(() => {
+          if (typeof window !== 'undefined') {
+            const isMobile = window.innerWidth <= 768;
+            if (!isMobile) return null;
+            if (window.__TECHRYPT_MOBILE_HEADER_RENDERED__) return null;
+            if (!isOpen) return null;
+            if (isMinimized) return null;
+          }
+          return (
+            <div
+              className="techrypt-chatbot-header techrypt-chatbot-header-mobile md:hidden"
+              onClick={isMinimized ? () => setIsMinimized(false) : undefined}
+              style={isMinimized ? { cursor: 'pointer' } : {}}
+              ref={el => {
+                if (typeof window !== 'undefined' && el) {
+                  window.__TECHRYPT_MOBILE_HEADER_RENDERED__ = true;
+                }
+              }}
+            >
+              <div className="techrypt-chatbot-header-content">
+                <div className="techrypt-chatbot-avatar">
+                  <BsRobot />
+                </div>
+                <div className="techrypt-chatbot-title">
+                  <h3>Techrypt AI</h3>
+                </div>
+              </div>
           <div className="techrypt-chatbot-header-actions">
             {!isMinimized && (
               <>
@@ -1381,6 +1410,8 @@ Thank you for choosing Techrypt.io! 🚀`,
             </button>
           </div>
         </div>
+          );
+        })()}
 
         {/* Desktop Header - Only visible on screens >768px */}
         <div

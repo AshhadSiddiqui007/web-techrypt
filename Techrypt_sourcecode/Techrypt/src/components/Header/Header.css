@@ -75,8 +75,7 @@
 
 .navList li a {
   border-radius: 10px;
-  color: var(--color-black);
-
+  color: white; /* Changed from var(--color-black) to white */
   text-decoration: none;
   transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Apply smooth transition */
 }
@@ -300,7 +299,7 @@
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
   background-color: transparent;
-  color: #000000;
+  color: white; /* Changed from #000000 to white for better visibility on dark background */
   text-decoration: none;
   display: block;
 }

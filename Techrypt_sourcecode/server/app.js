@@ -98,11 +98,12 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working', timestamp: new Date().toISOString() });
 });
 
-app.use('/api/admin', AdminRoutes);
-app.use('/api/newsletter', newsletterRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/contact', contactRoutes);
-app.use('/api/blogs', blogRoutes);
+app.use('/admin', AdminRoutes);
+app.use('/newsletter', newsletterRoutes);
+app.use('/appointments', appointmentRoutes);
+app.use('/contact', contactRoutes);
+// Mount blogRoutes at '/blogs' to match NGINX config (which strips '/api/')
+app.use('/blogs', blogRoutes);
 
 // Dev logs for reference
 if (process.env.NODE_ENV !== 'production') {
