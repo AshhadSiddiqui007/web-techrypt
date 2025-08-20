@@ -95,9 +95,9 @@ export default function Header() {
           {/* Services dropdown with nested Verticals */}
           <li className="relative listItems group">
             {/* Services trigger button */}
-            <div className="navButton cursor-pointer px-4 py-2" style={{ color: "white" }}>
+            <a className="navButton cursor-pointer px-4 py-2" >
               Services
-            </div>
+            </a>
 
             {/* Services Dropdown */}
             <div className="absolute top-full left-0 w-56 bg-black rounded-xl shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-50">
